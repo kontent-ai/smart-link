@@ -1,6 +1,6 @@
 # kontent-html-smart-link-decorator-js
 
-  Html element decorator allowing to inject [smart links](https://docs.kontent.ai/tutorials/develop-apps/build-strong-foundation/set-up-editing-from-preview#a-using-smart-links to Kentico Kontent according to specified data attributes.
+  Html element decorator allowing to inject [smart links](https://docs.kontent.ai/tutorials/develop-apps/build-strong-foundation/set-up-editing-from-preview#a-using-smart-links) to Kentico Kontent according to specified data attributes.
 
 ## ⚠ Disclaimer
 
