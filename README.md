@@ -1,5 +1,3 @@
-<!-- TODO: finish the README in another task -->
-<!-- TODO: add some basic tutorials (Gatsby, Next.js, etc.) in another task -->
 # kontent-smart-link
 
 Html element decorator allowing to inject [smart links](https://docs.kontent.ai/tutorials/develop-apps/build-strong-foundation/set-up-editing-from-preview#a-using-smart-links) to Kentico Kontent according to specified [HTML data attributes](https://www.w3schools.com/tags/att_data-.asp).
