@@ -25,29 +25,35 @@ npm i @kentico/kontent-smart-link
 ### UMD Bundles
 
 When using UMD bundle and including this library in `script` tag on your `html` page, you can find it under the `KontentSmartLink` global variable.
+JS bundle and its minified version are distributed in `dist` folder.
 
-Bundles are distributed in `dist` folder and there are several options that you can choose from.
+- `kontent-smart-link.umd.min.js`
+- `kontent-smart-link.umd.js`
 
-<!-- TODO: decide if we need a legacy variant of the plugin -->
-- Use `kontent-smart-link.legacy.umd.min.js` if you need to support legacy browsers
-- Else use `kontent-smart-link.umd.min.js`
+### CSS
+
+The plugin has one CSS file that contains styles needed for the plugin to work properly.
+This CSS file is located next to the UMD bundle in the `dist` folder.
+
+- `kontent-smart-link.styles.css`
 
 #### CDN
 
-##### kontent-smart-link.legacy.umd.min
+##### kontent-smart-link.umd.min.js
 
-![Gzip browser bundle](https://img.badgesize.io/https://unpkg.com/@kentico/kontent-smart-link@latest/dist/kontent-smart-link.legacy.umd.min.js?compression=gzip)
-
-```
-https://cdn.jsdelivr.net/npm/@kentico/kontent-smart-link@latest/dist/kontent-smart-link.umd.min.js
-```
-
-##### kontent-smart-link.umd.min
-
-![Gzip browser bundle](https://img.badgesize.io/https://unpkg.com/@kentico/kontent-smart-link@latest/dist/kontent-smart-link.legacy.umd.min.js?compression=gzip)
+![Gzip browser bundle](https://img.badgesize.io/https://unpkg.com/@kentico/kontent-smart-link@latest/dist/kontent-smart-link.umd.min.js?compression=gzip)
 
 ```
 https://cdn.jsdelivr.net/npm/@kentico/kontent-smart-link@latest/dist/kontent-smart-link.umd.min.js
+```
+
+##### kontent-smart-link.styles.css
+
+
+![Gzip browser bundle](https://img.badgesize.io/https://unpkg.com/@kentico/kontent-smart-link@latest/dist/kontent-smart-link.styles.css?compression=gzip)
+
+```
+https://cdn.jsdelivr.net/npm/@kentico/kontent-smart-link@latest/dist/kontent-smart-link.styles.css
 ```
 
 ## Usage
