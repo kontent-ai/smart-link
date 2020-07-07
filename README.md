@@ -6,7 +6,7 @@
 ![jsdelivr](https://img.shields.io/jsdelivr/npm/hm/@kentico/kontent-smart-link)
 ![snyk](https://img.shields.io/snyk/vulnerabilities/github/Kentico/kontent-smart-link)
 
-Html element decorator allowing to inject [smart links](https://docs.kontent.ai/tutorials/develop-apps/build-strong-foundation/set-up-editing-from-preview#a-using-smart-links) to Kentico Kontent according to specified [HTML data attributes](https://www.w3schools.com/tags/att_data-.asp).
+KontentSmartLink plugin allowing to automatically inject [smart links](https://docs.kontent.ai/tutorials/develop-apps/build-strong-foundation/set-up-editing-from-preview#a-using-smart-links) to Kentico Kontent according to specified [HTML data attributes](https://www.w3schools.com/tags/att_data-.asp).
 
 ## ⚠ Disclaimer
 
@@ -58,16 +58,29 @@ https://cdn.jsdelivr.net/npm/@kentico/kontent-smart-link@latest/dist/kontent-sma
 
 ## Usage
 
+The KontentSmartLink plugin uses data-attributes to find HTML elements that represent some content item from the Kentico Kontent on your page and automatically injects [smart links](https://docs.kontent.ai/tutorials/develop-apps/build-strong-foundation/set-up-editing-from-preview#a-using-smart-links).
+Injecting smart links to Kontent means that all elements that are marked with special data-attributes will be highlighted and made interactive (handle clicks/redirect to Kontent/navigates from preview in Web Spotlight/etc.).
+
+In order to initialize the KontentSmartLink plugin on your website, you have to call its `initialize` or `initializeOnLoad` method. Both of the previously mentioned methods return an instance of the initialized KontentSmartLink plugin (`initializeOnLoad` returns a Promise resolving to instance) that has two methods:
+- `setConfiguration(config)`;
+- `destroy()`.
+
+The main difference between the two methods is that the `initializeOnLoad` method will add an event listener to the window `load` event, and initialize the KontentSmartLink plugin only when everything on the page has been loaded.
+That is why it wraps an instance of the plugin into a Promise. Therefore, if you want to initialize the KontentSmartLink plugin inside the `head` tag when the page may not be loaded yet, you should probably use `initializeOnLoad` method.
+
+The plugin uses a query parameter to enable/disable smart link injection. That is why, when the plugin is initialized, it starts listening to query parameters in the URL.
+The name of the query parameter defaults to `kontent-smart-link-enabled`, but can be changed using the configuration argument of the `initialize` or `initializeOnLoad` methods or using the `setConfiguration` method.
+Only the presence of the query parameter is checked and its value is ignored, so all of the following options are valid: `?kontent-smart-link-enabled=true`, `?kontent-smart-link-enabled`, `?kontent-smart-link-enabled=1`, etc.
+
 ### Configuration
 
-You can pass the configuration object as a first argument of the `initialize` and `initializeOnLoad` methods.
+You can pass the configuration object as a first argument of the `initialize`, `initializeOnLoad` or `setConfiguration` methods.
 
 |Attribute|Default|Description|
 |---------|-------|-----------|
 |projectId|null|Can be used instead of the data-kontent-project-id attribute to set project ID globally.|
 |languageCodename|null|Can be used instead of the data-kontent-language-codename attribute to set language codename globally.|
-|queryParam|'kontent-plugin-enabled'|Name of the query parameter that must be present in the URL to turn the highlighting on.|
-
+|queryParam|'kontent-smart-link-enabled'|Name of the query parameter that must be present in the URL to turn the smart link injection on. It is not necessary for query parameter to have a truthy value (just the presence is checked).|
 
 ### Data-attributes
 
@@ -78,7 +91,7 @@ have to put all of those data-attributes on the same item. Usually you will put 
 attributes on a body node, so that the project id and language codename values are the same for all elements inside of the body.
 Next you will put `data-kontent-item-id` attributes on all HTML nodes that represent a Kontent item.
 Then inside of those nodes you will find all child nodes that represent elements of the Kontent item and put `data-kontent-element-codename` attribute on them.
-The plugin will then find all elements that have `data-kontent-element-codename` attribute, highlight them and make those elements interactive (handle clicks/redirect to Kontent/send iframe message to Kontent app/etc.). 
+The plugin will then find all elements that have `data-kontent-element-codename` attribute, highlight them and make those elements interactive (handle clicks/redirect to Kontent/navigates from preview in Web Spotlight/etc.). 
 
 |Attribute|Alternative|Description|
 |---------|-----------|---------- |
@@ -98,18 +111,14 @@ The plugin will then find all elements that have `data-kontent-element-codename`
         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@kentico/kontent-smart-link@latest/dist/kontent-smart-link.umd.min.js" />
         <script type="text/javascript">
             KontentSmartLink.initializeOnLoad({
-                // Or you can specify project id as a `data-kontent-project-id` attribute on some element at the top of the DOM hierarchy
-                projectId: '1d50a0f7-9033-48f3-a96e-7771c73f9683',
-                // Or you can specify language codename as a `data-kontent-language-codename` attribute on some element at the top of the DOM hierarchy
-                languageCodename: 'default',
-                // Name of the query parameter that should be present in the URL to turn the highlighting on
                 queryParam: 'preview',
             });
         </script>
     </head>
-    <body>
+    <body data-kontent-project-id="1d50a0f7-9033-48f3-a96e-7771c73f9683" data-kontent-language-codename="default">
         <div class="home" data-kontent-item-id="af858748-f48a-4169-9b35-b10c9d3984ef">
             <img class="home__banner" data-kontent-element-codename="image" />
+            <h1 data-kontent-element-codename="text">...</h1>
         </div>
     </body>
 </html>
