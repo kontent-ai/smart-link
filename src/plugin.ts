@@ -30,7 +30,7 @@ const initialState: IPluginState = {
 const defaultConfiguration: IPluginConfiguration = {
   languageCodename: null,
   projectId: null,
-  queryParam: 'kk-plugin-enabled',
+  queryParam: 'kontent-plugin-enabled',
 };
 
 class Plugin {
@@ -73,7 +73,7 @@ class Plugin {
 
     this.iFrameCommunicator = new IFrameCommunicator();
 
-    const storage = createStorage<IPluginIFrameSettings>('kk:plugin:iframe-settings');
+    const storage = createStorage<IPluginIFrameSettings>('kontent:plugin:iframe-settings');
     const stored = storage.get();
     const highlighterEnabled = stored !== null ? stored?.highlighterEnabled : true;
 

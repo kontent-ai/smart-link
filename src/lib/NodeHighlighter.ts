@@ -6,7 +6,7 @@ import { IElementClickMessageData } from './IFrameCommunicator';
 export const IntersectionThreshold = 0.95;
 
 export enum NodeHighlighterEventType {
-  ElementClicked = 'kk:element:click',
+  ElementClicked = 'kontent:element:click',
 }
 
 export type NodeHighlighterMessagesMap = {
@@ -135,7 +135,7 @@ export class NodeHighlighter {
 
     for (const mutation of mutations) {
       if (!(mutation.target instanceof Element)) continue;
-      if (['KK-PLUGIN-ELEMENT', 'KK-PLUGIN-OVERLAY'].includes(mutation.target.tagName)) continue;
+      if (['KONTENT-PLUGIN-ELEMENT', 'KONTENT-PLUGIN-OVERLAY'].includes(mutation.target.tagName)) continue;
       if (mutation.type !== 'childList') continue;
 
       shouldRerender = true;
