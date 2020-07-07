@@ -1,36 +1,38 @@
 import { DataAttribute, dataToDatasetAttributeName, getDataAttributesFromEventPath } from '../utils/dataAttributes';
 import { EventManager } from './EventManager';
-import { HighlightRenderer, IRenderer } from './HighlightRenderer';
+import { HighlighterElementTag, HighlighterViewTag, HighlightRenderer, IRenderer } from './HighlightRenderer';
 import { IElementClickMessageData } from './IFrameCommunicator';
 
-export const IntersectionThreshold = 0.95;
+export const NodeVisibilityThreshold = 0.5;
 
-export enum NodeHighlighterEventType {
+export enum NodeSmartLinkProviderEventType {
   ElementClicked = 'kontent:element:click',
 }
 
-export type NodeHighlighterMessagesMap = {
-  readonly [NodeHighlighterEventType.ElementClicked]: (data: Partial<IElementClickMessageData>) => void;
+export type NodeSmartLinkProviderMessagesMap = {
+  readonly [NodeSmartLinkProviderEventType.ElementClicked]: (data: Partial<IElementClickMessageData>) => void;
 };
 
-export class NodeHighlighter {
-  private readonly events: EventManager<NodeHighlighterMessagesMap>;
+export class NodeSmartLinkProvider {
+  public enabled = false;
+
+  private readonly events: EventManager<NodeSmartLinkProviderMessagesMap>;
   private readonly mutationObserver: MutationObserver;
   private readonly intersectionObserver: IntersectionObserver;
   private readonly renderer: IRenderer;
 
-  public enabled = false;
+  private renderingTimeoutId: ReturnType<typeof setTimeout> = 0;
 
-  private observedElements = new WeakSet<HTMLElement>();
+  private observedElements = new Set<HTMLElement>();
   private visibleElements = new Set<HTMLElement>();
 
   constructor() {
     this.mutationObserver = new MutationObserver(this.onDomMutation);
     this.intersectionObserver = new IntersectionObserver(this.onElementVisibilityChange, {
-      threshold: [IntersectionThreshold],
+      threshold: [NodeVisibilityThreshold],
     });
 
-    this.events = new EventManager<NodeHighlighterMessagesMap>();
+    this.events = new EventManager<NodeSmartLinkProviderMessagesMap>();
     this.renderer = new HighlightRenderer();
   }
 
@@ -39,22 +41,24 @@ export class NodeHighlighter {
     this.renderer.destroy();
   };
 
-  public addEventListener = <E extends keyof NodeHighlighterMessagesMap>(
+  public addEventListener = <E extends keyof NodeSmartLinkProviderMessagesMap>(
     type: E,
-    listener: NodeHighlighterMessagesMap[E]
+    listener: NodeSmartLinkProviderMessagesMap[E]
   ): void => {
     this.events.on(type, listener);
   };
 
-  public removeEventListener = <E extends keyof NodeHighlighterMessagesMap>(
+  public removeEventListener = <E extends keyof NodeSmartLinkProviderMessagesMap>(
     type: E,
-    listener: NodeHighlighterMessagesMap[E]
+    listener: NodeSmartLinkProviderMessagesMap[E]
   ): void => {
     this.events.off(type, listener);
   };
 
   public enable = (): void => {
     if (this.enabled) return;
+
+    this.startRenderingInterval();
 
     this.listenToGlobalEvents();
     this.observeDomMutations();
@@ -64,6 +68,8 @@ export class NodeHighlighter {
   public disable = (): void => {
     if (!this.enabled) return;
 
+    this.stopRenderingInterval();
+
     this.unlistenToGlobalEvents();
     this.disconnectObservers();
     this.renderer.clear();
@@ -71,11 +77,30 @@ export class NodeHighlighter {
   };
 
   private highlightVisibleElements = (): void => {
-    this.renderer.render(this.visibleElements);
+    requestAnimationFrame(() => {
+      this.renderer.render(this.visibleElements);
+    });
+  };
+
+  /**
+   * Start an interval rendering (1s) using `setTimeout`. This helps to adjust highlights position in case of CSS
+   * animations, DOM attribute animations, etc. for better user experience since the NodeSmartLinkProvider currently
+   * can't detect those changes of element position.
+   */
+  private startRenderingInterval = (): void => {
+    this.highlightVisibleElements();
+    this.renderingTimeoutId = setTimeout(this.startRenderingInterval, 1000);
+  };
+
+  private stopRenderingInterval = (): void => {
+    if (this.renderingTimeoutId) {
+      clearTimeout(this.renderingTimeoutId);
+      this.renderingTimeoutId = 0;
+    }
   };
 
   private listenToGlobalEvents = (): void => {
-    window.addEventListener('scroll', this.highlightVisibleElements, { passive: true, capture: true });
+    window.addEventListener('scroll', this.highlightVisibleElements, { capture: true });
     window.addEventListener('resize', this.highlightVisibleElements, { passive: true });
     window.addEventListener('click', this.onElementClick, { capture: true });
   };
@@ -104,7 +129,12 @@ export class NodeHighlighter {
   private disconnectObservers = (): void => {
     this.mutationObserver.disconnect();
     this.intersectionObserver.disconnect();
-    this.observedElements = new WeakSet<HTMLElement>();
+
+    this.observedElements.forEach((element: HTMLElement) => {
+      this.unobserveElementVisibility(element);
+    });
+
+    this.observedElements = new Set<HTMLElement>();
     this.visibleElements = new Set<HTMLElement>();
   };
 
@@ -131,15 +161,16 @@ export class NodeHighlighter {
 
   private onDomMutation = (mutations: MutationRecord[]): void => {
     const attrName = dataToDatasetAttributeName(DataAttribute.ElementCodename);
-    let shouldRerender = false;
 
-    for (const mutation of mutations) {
-      if (!(mutation.target instanceof Element)) continue;
-      if (['KONTENT-PLUGIN-ELEMENT', 'KONTENT-PLUGIN-OVERLAY'].includes(mutation.target.tagName)) continue;
-      if (mutation.type !== 'childList') continue;
+    const relevantMutations = mutations.filter((mutation) => {
+      return (
+        mutation.target instanceof Element &&
+        ![HighlighterElementTag, HighlighterViewTag].includes(mutation.target.tagName) &&
+        mutation.type === 'childList'
+      );
+    });
 
-      shouldRerender = true;
-
+    for (const mutation of relevantMutations) {
       for (const node of mutation.addedNodes) {
         if (!(node instanceof HTMLElement)) continue;
 
@@ -169,26 +200,24 @@ export class NodeHighlighter {
       }
     }
 
-    if (shouldRerender) {
+    if (relevantMutations.length > 0) {
       this.highlightVisibleElements();
     }
   };
 
   private onElementVisibilityChange = (entries: IntersectionObserverEntry[]): void => {
-    let shouldRerender = false;
+    const filteredEntries = entries.filter((entry: IntersectionObserverEntry) => entry.target instanceof HTMLElement);
 
-    for (const entry of entries) {
-      if (!(entry.target instanceof HTMLElement)) continue;
-
-      if (entry.isIntersecting && entry.intersectionRatio >= IntersectionThreshold) {
-        this.visibleElements.add(entry.target);
-        shouldRerender = true;
+    for (const entry of filteredEntries) {
+      const target = entry.target as HTMLElement;
+      if (entry.isIntersecting && entry.intersectionRatio >= NodeVisibilityThreshold) {
+        this.visibleElements.add(target);
       } else {
-        this.visibleElements.delete(entry.target);
+        this.visibleElements.delete(target);
       }
     }
 
-    if (shouldRerender) {
+    if (filteredEntries.length > 0) {
       this.highlightVisibleElements();
     }
   };
@@ -199,7 +228,7 @@ export class NodeHighlighter {
     if (attributes.has(DataAttribute.ElementCodename)) {
       event.preventDefault();
 
-      this.events.emit(NodeHighlighterEventType.ElementClicked, {
+      this.events.emit(NodeSmartLinkProviderEventType.ElementClicked, {
         projectId: attributes.get(DataAttribute.ProjectId),
         languageCodename: attributes.get(DataAttribute.LanguageCodename),
         itemId: attributes.get(DataAttribute.ItemId),

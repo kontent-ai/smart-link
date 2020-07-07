@@ -3,12 +3,10 @@ export const DataAttribute = {
   ItemId: 'data-kontent-item-id',
   LanguageCodename: 'data-kontent-language-codename',
   ProjectId: 'data-kontent-project-id',
-  // TODO: [NOT FOR ETP] add attributes for page-item-id and page-language-codename.
-  // TODO: [NOT FOR ETP] maybe add some attribute to show that item does not have elements inside and must be processed as a node with data-kontent-element-codename attribute.
 };
 
 export function dataToDatasetAttributeName(dataAttributeName: string): string {
-  return dataAttributeName.replace('data-', '').replace(/-./g, (x: string) => x.toUpperCase()[1]);
+  return dataAttributeName.replace(/^data-/, '').replace(/-./g, (x: string) => x.toUpperCase()[1]);
 }
 
 export function getDataAttributesFromEventPath(event: Event): Map<string, string> {
@@ -22,7 +20,7 @@ export function getDataAttributesFromEventPath(event: Event): Map<string, string
       const datasetAttrName = dataToDatasetAttributeName(attrName);
       const datasetAttr = node.dataset[datasetAttrName];
 
-      if (datasetAttr && !parsed.has(datasetAttrName)) {
+      if (datasetAttr && !parsed.has(attrName)) {
         parsed.set(attrName, datasetAttr);
       }
     }

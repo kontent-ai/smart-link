@@ -3,7 +3,7 @@ type EventsMap = {
 };
 
 export class EventManager<Events extends EventsMap> {
-  private listeners = new Map();
+  private listeners = new Map<keyof Events, Set<Events[any]>>();
 
   public on = <E extends keyof Events>(event: E, listener: Events[E]): void => {
     const newListeners = this.listeners.get(event)?.add(listener) ?? new Set([listener]);
@@ -11,8 +11,7 @@ export class EventManager<Events extends EventsMap> {
   };
 
   public off = <E extends keyof Events>(event: E, listener: Events[E]): void => {
-    const newListeners = this.listeners.get(event)?.delete(listener);
-    this.listeners.set(event, newListeners);
+    this.listeners.get(event)?.delete(listener);
   };
 
   public emit = <E extends keyof Events>(event: E, data: Parameters<Events[E]>[0]): void => {
@@ -25,6 +24,6 @@ export class EventManager<Events extends EventsMap> {
   };
 
   public removeAllListeners = (): void => {
-    this.listeners = new Map();
+    this.listeners = new Map<keyof Events, Set<Events[any]>>();
   };
 }

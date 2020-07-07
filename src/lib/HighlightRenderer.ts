@@ -1,5 +1,7 @@
-import { debounced } from '../utils/debounce';
 import { isNodeOverlapped } from '../utils/node';
+
+export const HighlighterViewTag = 'KONTENT-SMART-LINK-OVERLAY';
+export const HighlighterElementTag = 'KONTENT-SMART-LINK-ELEMENT';
 
 export interface IRenderer {
   readonly clear: () => void;
@@ -10,26 +12,17 @@ export interface IRenderer {
 }
 
 export class HighlightRenderer implements IRenderer {
-  private highlightByNode: WeakMap<HTMLElement, HTMLElement>;
+  private highlightByNode: Map<HTMLElement, HTMLElement>;
   private readonly view: HTMLElement;
 
   private static createView(): HTMLElement {
-    const view = document.createElement('kontent-plugin-overlay');
+    const view = document.createElement(HighlighterViewTag);
     window.document.body.appendChild(view);
     return view;
   }
 
-  private static createHighlightForDomRect(rect: DOMRect): HTMLElement {
-    const highlight = document.createElement('kontent-plugin-element');
-    highlight.style.top = `${rect.top}px`;
-    highlight.style.left = `${rect.left}px`;
-    highlight.style.width = `${rect.width}px`;
-    highlight.style.height = `${rect.height}px`;
-    return highlight;
-  }
-
   constructor() {
-    this.highlightByNode = new WeakMap<HTMLElement, HTMLElement>();
+    this.highlightByNode = new Map<HTMLElement, HTMLElement>();
     this.view = HighlightRenderer.createView();
   }
 
@@ -38,19 +31,10 @@ export class HighlightRenderer implements IRenderer {
     this.view?.parentElement?.removeChild(this.view);
   };
 
-  public render = (nodes: Set<HTMLElement>): void => {
-    this.clear();
-    this.doRender(nodes);
-  };
-
-  public clear = (): void => {
-    this.view.innerHTML = '';
-    this.highlightByNode = new WeakMap<HTMLElement, HTMLElement>();
-  };
-
   public selectNode = (node: HTMLElement): void => {
     const highlight = this.highlightByNode.get(node);
     if (highlight) {
+      node.style.cursor = 'pointer';
       highlight.classList.add('selected');
     }
   };
@@ -58,27 +42,52 @@ export class HighlightRenderer implements IRenderer {
   public deselectNode = (node: HTMLElement): void => {
     const highlight = this.highlightByNode.get(node);
     if (highlight) {
+      node.style.removeProperty('cursor');
       highlight.classList.remove('selected');
     }
   };
 
-  @debounced(100)
-  private doRender(nodes: Set<HTMLElement>): void {
-    if (nodes.size === 0) return;
+  public render = (nodes: Set<HTMLElement>): void => {
+    if (nodes.size === 0) {
+      this.clear();
+    } else {
+      const newHighlightByNode = new Map<HTMLElement, HTMLElement>();
 
-    const fragment = document.createDocumentFragment();
+      for (const node of nodes) {
+        const rect = node.getBoundingClientRect();
+        const overlapped = isNodeOverlapped(node, rect);
+        const flat = rect.height === 0 || rect.width === 0;
 
-    for (const node of nodes) {
-      const rect = node.getBoundingClientRect();
-      const overlapped = isNodeOverlapped(node, rect);
+        if (!overlapped && !flat) {
+          const highlight = this.highlightByNode.get(node) ?? this.createHighlightForNode();
 
-      if (!overlapped) {
-        const highlight = HighlightRenderer.createHighlightForDomRect(rect);
-        this.highlightByNode.set(node, highlight);
-        fragment.appendChild(highlight);
+          highlight.style.top = `${rect.top + window.pageYOffset}px`;
+          highlight.style.left = `${rect.left + window.pageXOffset}px`;
+          highlight.style.width = `${rect.width}px`;
+          highlight.style.height = `${rect.height}px`;
+
+          newHighlightByNode.set(node, highlight);
+          this.highlightByNode.delete(node);
+        }
       }
-    }
 
-    this.view.appendChild(fragment);
-  }
+      for (const [node, highlight] of this.highlightByNode.entries()) {
+        highlight.remove();
+        this.highlightByNode.delete(node);
+      }
+
+      this.highlightByNode = newHighlightByNode;
+    }
+  };
+
+  public clear = (): void => {
+    this.view.innerHTML = '';
+    this.highlightByNode = new Map<HTMLElement, HTMLElement>();
+  };
+
+  private createHighlightForNode = (): HTMLElement => {
+    const highlight = document.createElement(HighlighterElementTag);
+    this.view.appendChild(highlight);
+    return highlight;
+  };
 }
