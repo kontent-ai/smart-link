@@ -14,13 +14,13 @@ export class HighlightRenderer implements IRenderer {
   private readonly view: HTMLElement;
 
   private static createView(): HTMLElement {
-    const view = document.createElement('kk-plugin-overlay');
+    const view = document.createElement('kontent-plugin-overlay');
     window.document.body.appendChild(view);
     return view;
   }
 
   private static createHighlightForDomRect(rect: DOMRect): HTMLElement {
-    const highlight = document.createElement('kk-plugin-element');
+    const highlight = document.createElement('kontent-plugin-element');
     highlight.style.top = `${rect.top}px`;
     highlight.style.left = `${rect.left}px`;
     highlight.style.width = `${rect.width}px`;

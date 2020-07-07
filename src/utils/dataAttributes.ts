@@ -1,10 +1,10 @@
 export const DataAttribute = {
-  ElementCodename: 'data-kk-element-codename',
-  ItemId: 'data-kk-item-id',
-  LanguageCodename: 'data-kk-language-codename',
-  ProjectId: 'data-kk-project-id',
+  ElementCodename: 'data-kontent-element-codename',
+  ItemId: 'data-kontent-item-id',
+  LanguageCodename: 'data-kontent-language-codename',
+  ProjectId: 'data-kontent-project-id',
   // TODO: [NOT FOR ETP] add attributes for page-item-id and page-language-codename.
-  // TODO: [NOT FOR ETP] maybe add some attribute to show that item does not have elements inside and must be processed as a node with data-kk-element-codename attribute.
+  // TODO: [NOT FOR ETP] maybe add some attribute to show that item does not have elements inside and must be processed as a node with data-kontent-element-codename attribute.
 };
 
 export function dataToDatasetAttributeName(dataAttributeName: string): string {

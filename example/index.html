@@ -101,7 +101,7 @@ HOW TO USE:
               $toggleBtn.innerText = highlightsEnabled ? 'Turn off plugin' : 'Turn on plugin';
 
               const message = {
-                type: 'kk:highlights:status',
+                type: 'kontent:highlights:status',
                 data: {
                   enabled: highlightsEnabled,
                 },
@@ -120,7 +120,7 @@ HOW TO USE:
             const message = e.data;
             logMessage(message.type, message.data, true);
 
-            if (message.type === 'kk:initialized') {
+            if (message.type === 'kontent:initialized') {
               highlightsEnabled = message.data.highlighterEnabled;
               $toggleBtn.innerText = highlightsEnabled ? 'Turn off plugin' : 'Turn on plugin';
             }

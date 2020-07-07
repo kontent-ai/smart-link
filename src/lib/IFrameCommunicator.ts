@@ -19,9 +19,9 @@ export interface IHighlightsStatusMessageData {
 }
 
 export enum IFrameMessageType {
-  Initialized = 'kk:initialized',
-  ElementClicked = 'kk:element:click',
-  HighlightsStatus = 'kk:highlights:status',
+  Initialized = 'kontent:initialized',
+  ElementClicked = 'kontent:element:click',
+  HighlightsStatus = 'kontent:highlights:status',
 }
 
 export type IFrameMessagesMap = {
