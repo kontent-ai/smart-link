@@ -1,5 +1,5 @@
 module.exports = {
-  endOfLine: 'lf',
+  endOfLine: 'crlf',
   printWidth: 120,
   semi: true,
   singleQuote: true,
