@@ -1,8 +1,8 @@
-import { IElementClickMessageData } from '../lib/IFrameCommunicator';
+import { IElementClickedMessageData } from '../lib/IFrameCommunicator';
 
 export function validateElementClickMessageData(
-  data: Partial<IElementClickMessageData>
-): data is IElementClickMessageData {
+  data: Partial<IElementClickedMessageData>
+): data is IElementClickedMessageData {
   const errors: string[] = [];
 
   if (!data.projectId) {

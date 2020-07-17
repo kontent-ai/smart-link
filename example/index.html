@@ -101,7 +101,7 @@ HOW TO USE:
               $toggleBtn.innerText = highlightsEnabled ? 'Turn off plugin' : 'Turn on plugin';
 
               const message = {
-                type: 'kontent:highlights:status',
+                type: 'kontent-smart-link:status',
                 data: {
                   enabled: highlightsEnabled,
                 },
@@ -120,7 +120,7 @@ HOW TO USE:
             const message = e.data;
             logMessage(message.type, message.data, true);
 
-            if (message.type === 'kontent:initialized') {
+            if (message.type === 'kontent-smart-link:initialized') {
               highlightsEnabled = message.data.highlighterEnabled;
               $toggleBtn.innerText = highlightsEnabled ? 'Turn off plugin' : 'Turn on plugin';
             }

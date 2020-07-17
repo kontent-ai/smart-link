@@ -1,10 +1,10 @@
 import { isInsideIFrame } from './utils/iframe';
 import { buildElementLink } from './utils/link';
 import {
-  IElementClickMessageData,
+  IElementClickedMessageData,
   IFrameCommunicator,
   IFrameMessageType,
-  IHighlightsStatusMessageData,
+  IPluginStatusMessageData,
 } from './lib/IFrameCommunicator';
 import { NodeSmartLinkProvider, NodeSmartLinkProviderEventType } from './lib/NodeSmartLinkProvider';
 import { createStorage } from './utils/storage';
@@ -77,7 +77,7 @@ class Plugin {
 
     this.iFrameCommunicator = new IFrameCommunicator();
 
-    const storage = createStorage<IPluginIFrameSettings>('kontent:plugin:iframe-settings');
+    const storage = createStorage<IPluginIFrameSettings>('kontent-smart-link:iframe-settings');
     const stored = storage.get();
     const highlighterEnabled = stored !== null ? stored?.highlighterEnabled : true;
 
@@ -85,18 +85,15 @@ class Plugin {
       this.nodeSmartLinkProvider.enable();
     }
 
-    this.iFrameCommunicator.addMessageListener(
-      IFrameMessageType.HighlightsStatus,
-      (data: IHighlightsStatusMessageData) => {
-        if (!data || !this.nodeSmartLinkProvider) return;
+    this.iFrameCommunicator.addMessageListener(IFrameMessageType.Status, (data: IPluginStatusMessageData) => {
+      if (!data || !this.nodeSmartLinkProvider) return;
 
-        this.toggleNodeSmartLinkProvider(data.enabled);
+      this.toggleNodeSmartLinkProvider(data.enabled);
 
-        storage.set({
-          highlighterEnabled: data.enabled,
-        });
-      }
-    );
+      storage.set({
+        highlighterEnabled: data.enabled,
+      });
+    });
 
     this.iFrameCommunicator.sendMessage(IFrameMessageType.Initialized, {
       projectId: this.configuration.projectId,
@@ -134,8 +131,8 @@ class Plugin {
     this.nodeSmartLinkProvider.addEventListener(NodeSmartLinkProviderEventType.ElementClicked, this.onElementClick);
   };
 
-  private onElementClick = (elementClickData: Partial<IElementClickMessageData>): void => {
-    const data: Partial<IElementClickMessageData> = {
+  private onElementClick = (elementClickData: Partial<IElementClickedMessageData>): void => {
+    const data: Partial<IElementClickedMessageData> = {
       ...elementClickData,
       projectId: elementClickData.projectId || this.configuration.projectId || undefined,
       languageCodename: elementClickData.languageCodename || this.configuration.languageCodename || undefined,
@@ -143,7 +140,7 @@ class Plugin {
 
     if (validateElementClickMessageData(data)) {
       if (isInsideIFrame() && this.iFrameCommunicator) {
-        this.iFrameCommunicator.sendMessage(IFrameMessageType.ElementClicked, data as IElementClickMessageData);
+        this.iFrameCommunicator.sendMessage(IFrameMessageType.ElementClicked, data as IElementClickedMessageData);
       } else {
         const link = buildElementLink(data.projectId, data.languageCodename, data.itemId, data.elementCodename);
         window.open(link, '_blank');
@@ -162,35 +159,42 @@ class Plugin {
 }
 
 class PluginWrapper {
-  private static plugin: Plugin | null;
+  private static instance: PluginWrapper;
 
-  public static initializeOnLoad(configuration?: Partial<IPluginConfiguration>): Promise<Plugin> {
-    return new Promise<Plugin>((resolve) => {
+  private plugin: Plugin | null = null;
+
+  public static initializeOnLoad(configuration?: Partial<IPluginConfiguration>): Promise<PluginWrapper> {
+    return new Promise<PluginWrapper>((resolve) => {
       window.addEventListener('load', () => {
         resolve(PluginWrapper.initialize(configuration));
       });
     });
   }
 
-  public static initialize(configuration?: Partial<IPluginConfiguration>): Plugin {
-    if (!PluginWrapper.plugin) {
-      PluginWrapper.plugin = new Plugin(configuration);
+  public static initialize(configuration?: Partial<IPluginConfiguration>): PluginWrapper {
+    if (!PluginWrapper.instance) {
+      PluginWrapper.instance = new PluginWrapper();
     }
-    return PluginWrapper.plugin;
+
+    if (!PluginWrapper.instance.plugin) {
+      PluginWrapper.instance.plugin = new Plugin(configuration);
+    }
+
+    return PluginWrapper.instance;
   }
 
-  public destroy(): void {
-    PluginWrapper.plugin?.destroy();
-    PluginWrapper.plugin = null;
-  }
+  public destroy = (): void => {
+    this.plugin?.destroy();
+    this.plugin = null;
+  };
 
-  public setConfiguration(configuration: Partial<IPluginConfiguration>): void {
-    if (!PluginWrapper.plugin) {
+  public setConfiguration = (configuration: Partial<IPluginConfiguration>): void => {
+    if (!this.plugin) {
       throw new Error('KontentSmartLink is not initialized or has already been destroyed.');
     } else {
-      PluginWrapper.plugin.updateConfiguration(configuration);
+      this.plugin.updateConfiguration(configuration);
     }
-  }
+  };
 }
 
 export default PluginWrapper;
