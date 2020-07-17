@@ -72,6 +72,9 @@ The plugin uses a query parameter to enable/disable smart link injection. That i
 The name of the query parameter defaults to `kontent-smart-link-enabled`, but can be changed using the configuration argument of the `initialize` or `initializeOnLoad` methods or using the `setConfiguration` method.
 Only the presence of the query parameter is checked and its value is ignored, so all of the following options are valid: `?kontent-smart-link-enabled=true`, `?kontent-smart-link-enabled`, `?kontent-smart-link-enabled=1`, etc.
 
+When run inside an iframe element, the KontentSmartLink plugin will send iframe messages to the parent window instead of redirecting user to the Kontent page.
+This is needed for the plugin to work properly inside Web Spotlight.
+
 ### Configuration
 
 You can pass the configuration object as a first argument of the `initialize`, `initializeOnLoad` or `setConfiguration` methods.

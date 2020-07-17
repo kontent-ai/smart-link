@@ -7,27 +7,27 @@ export interface IPluginInitializedMessageData {
   readonly highlighterEnabled: boolean;
 }
 
-export interface IElementClickMessageData {
+export interface IElementClickedMessageData {
   readonly projectId: string;
   readonly languageCodename: string;
   readonly itemId: string;
   readonly elementCodename: string;
 }
 
-export interface IHighlightsStatusMessageData {
+export interface IPluginStatusMessageData {
   readonly enabled: boolean;
 }
 
 export enum IFrameMessageType {
-  Initialized = 'kontent:initialized',
-  ElementClicked = 'kontent:element:click',
-  HighlightsStatus = 'kontent:highlights:status',
+  ElementClicked = 'kontent-smart-link:element:clicked',
+  Initialized = 'kontent-smart-link:initialized',
+  Status = 'kontent-smart-link:status',
 }
 
 export type IFrameMessagesMap = {
   readonly [IFrameMessageType.Initialized]: (data: IPluginInitializedMessageData) => void;
-  readonly [IFrameMessageType.ElementClicked]: (data: IElementClickMessageData) => void;
-  readonly [IFrameMessageType.HighlightsStatus]: (data: IHighlightsStatusMessageData) => void;
+  readonly [IFrameMessageType.ElementClicked]: (data: IElementClickedMessageData) => void;
+  readonly [IFrameMessageType.Status]: (data: IPluginStatusMessageData) => void;
 };
 
 export interface IFrameMessage<E extends keyof IFrameMessagesMap> {

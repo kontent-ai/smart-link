@@ -1,6 +1,6 @@
-import { isNodeOverlapped } from '../utils/node';
+import { getRelativeParent, isNodeOverlapped } from '../utils/node';
 
-export const HighlighterViewTag = 'KONTENT-SMART-LINK-OVERLAY';
+export const HighlighterContainerTag = 'KONTENT-SMART-LINK-OVERLAY';
 export const HighlighterElementTag = 'KONTENT-SMART-LINK-ELEMENT';
 
 export interface IRenderer {
@@ -12,29 +12,29 @@ export interface IRenderer {
 }
 
 export class HighlightRenderer implements IRenderer {
+  private readonly defaultContainer: HTMLElement;
   private highlightByNode: Map<HTMLElement, HTMLElement>;
-  private readonly view: HTMLElement;
 
-  private static createView(): HTMLElement {
-    const view = document.createElement(HighlighterViewTag);
-    window.document.body.appendChild(view);
-    return view;
+  private static createDefaultContainer(): HTMLElement {
+    const container = document.createElement(HighlighterContainerTag);
+    window.document.body.appendChild(container);
+    return container;
   }
 
   constructor() {
     this.highlightByNode = new Map<HTMLElement, HTMLElement>();
-    this.view = HighlightRenderer.createView();
+    this.defaultContainer = HighlightRenderer.createDefaultContainer();
   }
 
   public destroy = (): void => {
     this.clear();
-    this.view?.parentElement?.removeChild(this.view);
+    this.defaultContainer.remove();
   };
 
   public selectNode = (node: HTMLElement): void => {
     const highlight = this.highlightByNode.get(node);
     if (highlight) {
-      node.style.cursor = 'pointer';
+      node.classList.add('kontent-smart-link__node--selected');
       highlight.classList.add('selected');
     }
   };
@@ -42,7 +42,7 @@ export class HighlightRenderer implements IRenderer {
   public deselectNode = (node: HTMLElement): void => {
     const highlight = this.highlightByNode.get(node);
     if (highlight) {
-      node.style.removeProperty('cursor');
+      node.classList.remove('kontent-smart-link__node--selected');
       highlight.classList.remove('selected');
     }
   };
@@ -54,17 +54,25 @@ export class HighlightRenderer implements IRenderer {
       const newHighlightByNode = new Map<HTMLElement, HTMLElement>();
 
       for (const node of nodes) {
-        const rect = node.getBoundingClientRect();
-        const overlapped = isNodeOverlapped(node, rect);
-        const flat = rect.height === 0 || rect.width === 0;
+        const nodeRect = node.getBoundingClientRect();
+        const isOverlapped = isNodeOverlapped(node, nodeRect);
+        const isFlat = nodeRect.height === 0 || nodeRect.width === 0;
 
-        if (!overlapped && !flat) {
-          const highlight = this.highlightByNode.get(node) ?? this.createHighlightForNode();
+        if (!isOverlapped && !isFlat) {
+          const parent = getRelativeParent(node);
+          const highlight = this.highlightByNode.get(node) ?? this.createHighlight(parent);
 
-          highlight.style.top = `${rect.top + window.pageYOffset}px`;
-          highlight.style.left = `${rect.left + window.pageXOffset}px`;
-          highlight.style.width = `${rect.width}px`;
-          highlight.style.height = `${rect.height}px`;
+          if (parent) {
+            const parentRect = parent.getBoundingClientRect();
+            highlight.style.top = `${nodeRect.top - parentRect.top}px`;
+            highlight.style.left = `${nodeRect.left - parentRect.left}px`;
+          } else {
+            highlight.style.top = `${nodeRect.top + window.pageYOffset}px`;
+            highlight.style.left = `${nodeRect.left + window.pageXOffset}px`;
+          }
+
+          highlight.style.width = `${nodeRect.width}px`;
+          highlight.style.height = `${nodeRect.height}px`;
 
           newHighlightByNode.set(node, highlight);
           this.highlightByNode.delete(node);
@@ -81,13 +89,18 @@ export class HighlightRenderer implements IRenderer {
   };
 
   public clear = (): void => {
-    this.view.innerHTML = '';
+    for (const [node, highlight] of this.highlightByNode.entries()) {
+      highlight.remove();
+      this.highlightByNode.delete(node);
+    }
+
     this.highlightByNode = new Map<HTMLElement, HTMLElement>();
+    this.defaultContainer.innerHTML = '';
   };
 
-  private createHighlightForNode = (): HTMLElement => {
+  private createHighlight = (parent: HTMLElement | null): HTMLElement => {
     const highlight = document.createElement(HighlighterElementTag);
-    this.view.appendChild(highlight);
+    (parent ?? this.defaultContainer).appendChild(highlight);
     return highlight;
   };
 }

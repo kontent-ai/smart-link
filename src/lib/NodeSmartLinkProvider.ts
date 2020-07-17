@@ -1,16 +1,16 @@
 import { DataAttribute, dataToDatasetAttributeName, getDataAttributesFromEventPath } from '../utils/dataAttributes';
 import { EventManager } from './EventManager';
-import { HighlighterElementTag, HighlighterViewTag, HighlightRenderer, IRenderer } from './HighlightRenderer';
-import { IElementClickMessageData } from './IFrameCommunicator';
+import { HighlighterContainerTag, HighlighterElementTag, HighlightRenderer, IRenderer } from './HighlightRenderer';
+import { IElementClickedMessageData } from './IFrameCommunicator';
 
-export const NodeVisibilityThreshold = 0.5;
+export const MinimumVisiblePartForHighlight = 0.5;
 
 export enum NodeSmartLinkProviderEventType {
-  ElementClicked = 'kontent:element:click',
+  ElementClicked = 'kontent-smart-link:element:clicked',
 }
 
 export type NodeSmartLinkProviderMessagesMap = {
-  readonly [NodeSmartLinkProviderEventType.ElementClicked]: (data: Partial<IElementClickMessageData>) => void;
+  readonly [NodeSmartLinkProviderEventType.ElementClicked]: (data: Partial<IElementClickedMessageData>) => void;
 };
 
 export class NodeSmartLinkProvider {
@@ -29,7 +29,7 @@ export class NodeSmartLinkProvider {
   constructor() {
     this.mutationObserver = new MutationObserver(this.onDomMutation);
     this.intersectionObserver = new IntersectionObserver(this.onElementVisibilityChange, {
-      threshold: [NodeVisibilityThreshold],
+      threshold: [MinimumVisiblePartForHighlight],
     });
 
     this.events = new EventManager<NodeSmartLinkProviderMessagesMap>();
@@ -83,9 +83,10 @@ export class NodeSmartLinkProvider {
   };
 
   /**
-   * Start an interval rendering (1s) using `setTimeout`. This helps to adjust highlights position in case of CSS
-   * animations, DOM attribute animations, etc. for better user experience since the NodeSmartLinkProvider currently
-   * can't detect those changes of element position.
+   * Start an interval rendering (1s) that will re-render highlights for all visible elements using `setTimeout`.
+   * It helps to adjust highlights position even in situations that are currently not supported by
+   * the SDK (e.g. element position change w/o animations, some infinite animations and other possible unhandled cases)
+   * for better user experience.
    */
   private startRenderingInterval = (): void => {
     this.highlightVisibleElements();
@@ -102,12 +103,20 @@ export class NodeSmartLinkProvider {
   private listenToGlobalEvents = (): void => {
     window.addEventListener('scroll', this.highlightVisibleElements, { capture: true });
     window.addEventListener('resize', this.highlightVisibleElements, { passive: true });
+
+    window.addEventListener('animationend', this.highlightVisibleElements, { passive: true, capture: true });
+    window.addEventListener('transitionend', this.highlightVisibleElements, { passive: true, capture: true });
+
     window.addEventListener('click', this.onElementClick, { capture: true });
   };
 
   private unlistenToGlobalEvents = (): void => {
     window.removeEventListener('scroll', this.highlightVisibleElements, { capture: true });
     window.removeEventListener('resize', this.highlightVisibleElements);
+
+    window.removeEventListener('animationend', this.highlightVisibleElements, { capture: true });
+    window.removeEventListener('transitionend', this.highlightVisibleElements, { capture: true });
+
     window.removeEventListener('click', this.onElementClick, { capture: true });
   };
 
@@ -162,13 +171,14 @@ export class NodeSmartLinkProvider {
   private onDomMutation = (mutations: MutationRecord[]): void => {
     const attrName = dataToDatasetAttributeName(DataAttribute.ElementCodename);
 
-    const relevantMutations = mutations.filter((mutation) => {
-      return (
+    const relevantMutations = mutations.filter(
+      (mutation) =>
         mutation.target instanceof Element &&
-        ![HighlighterElementTag, HighlighterViewTag].includes(mutation.target.tagName) &&
-        mutation.type === 'childList'
-      );
-    });
+        mutation.type === 'childList' &&
+        ![HighlighterElementTag, HighlighterContainerTag].includes(mutation.target.tagName) &&
+        Array.from(mutation.addedNodes).some((node) => (node as HTMLElement).tagName !== HighlighterElementTag) &&
+        Array.from(mutation.removedNodes).some((node) => (node as HTMLElement).tagName !== HighlighterElementTag)
+    );
 
     for (const mutation of relevantMutations) {
       for (const node of mutation.addedNodes) {
@@ -210,7 +220,7 @@ export class NodeSmartLinkProvider {
 
     for (const entry of filteredEntries) {
       const target = entry.target as HTMLElement;
-      if (entry.isIntersecting && entry.intersectionRatio >= NodeVisibilityThreshold) {
+      if (entry.isIntersecting && entry.intersectionRatio >= MinimumVisiblePartForHighlight) {
         this.visibleElements.add(target);
       } else {
         this.visibleElements.delete(target);
