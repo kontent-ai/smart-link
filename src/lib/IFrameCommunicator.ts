@@ -4,7 +4,7 @@ import { EventManager } from './EventManager';
 export interface IPluginInitializedMessageData {
   readonly projectId: string | null;
   readonly languageCodename: string | null;
-  readonly highlighterEnabled: boolean;
+  readonly enabled: boolean;
 }
 
 export interface IElementClickedMessageData {

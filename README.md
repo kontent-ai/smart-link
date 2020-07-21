@@ -72,9 +72,6 @@ The plugin uses a query parameter to enable/disable smart link injection. That i
 The name of the query parameter defaults to `kontent-smart-link-enabled`, but can be changed using the configuration argument of the `initialize` or `initializeOnLoad` methods or using the `setConfiguration` method.
 Only the presence of the query parameter is checked and its value is ignored, so all of the following options are valid: `?kontent-smart-link-enabled=true`, `?kontent-smart-link-enabled`, `?kontent-smart-link-enabled=1`, etc.
 
-When run inside an iframe element, the KontentSmartLink plugin will send iframe messages to the parent window instead of redirecting user to the Kontent page.
-This is needed for the plugin to work properly inside Web Spotlight.
-
 ### Configuration
 
 You can pass the configuration object as a first argument of the `initialize`, `initializeOnLoad` or `setConfiguration` methods.
@@ -102,6 +99,17 @@ The plugin will then find all elements that have `data-kontent-element-codename`
 | data-kontent-language-codename| Can be set globally using the `languageCodename` attribute of the first argument of `initialize` or `initializeOnLoad` methods. If both are used, data-attribute will have a higher priority.  | Specifies codename of a language in Kentico Kontent.  |
 | data-kontent-item-id| - | Specifies ID of an item in Kentico Kontent.|
 | data-kontent-element-codename| - | Specifies codename of an element in Kentico Kontent.|
+
+### iFrame Communication
+
+When run inside an iframe element, the KontentSmartLink plugin will send iframe messages to the parent window instead of redirecting user to the Kontent page.
+This is needed for the plugin to work properly inside Web Spotlight.
+
+|Message|Data|Origin|Description|
+|---|---|---|---|
+|kontent-smart-link:initialized|<code>{ projectId: string &#124; null, languageCodename: string &#124; null, enabled: boolean }</code>|Plugin|This event is fired by the KontentSmartLink plugin when it is initialized.|
+|kontent-smart-link:status|<code>{ enabled: boolean }</code>|Client|You can send this event to turn on/off the plugin.|
+|kontent-smart-link:element:clicked|<code>{ projectId: string, languageCodename: string, itemId: string, elementCodename: string }</code>|Plugin|This message is sent by the KontentSmartLink plugin when element with `data-kontent-element-codename` attribute is clicked.|
 
 ### Examples
 

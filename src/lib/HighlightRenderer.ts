@@ -13,6 +13,7 @@ export interface IRenderer {
 
 export class HighlightRenderer implements IRenderer {
   private readonly defaultContainer: HTMLElement;
+  private containerByParent: Map<HTMLElement, HTMLElement>;
   private highlightByNode: Map<HTMLElement, HTMLElement>;
 
   private static createDefaultContainer(): HTMLElement {
@@ -22,6 +23,7 @@ export class HighlightRenderer implements IRenderer {
   }
 
   constructor() {
+    this.containerByParent = new Map<HTMLElement, HTMLElement>();
     this.highlightByNode = new Map<HTMLElement, HTMLElement>();
     this.defaultContainer = HighlightRenderer.createDefaultContainer();
   }
@@ -56,6 +58,9 @@ export class HighlightRenderer implements IRenderer {
       for (const node of nodes) {
         const nodeRect = node.getBoundingClientRect();
         const isOverlapped = isNodeOverlapped(node, nodeRect);
+
+        // This check is needed to prevent highlight rendering for the "flat" elements (height or/and width === 0),
+        // because those elements are basically invisible and cannot be clicked.
         const isFlat = nodeRect.height === 0 || nodeRect.width === 0;
 
         if (!isOverlapped && !isFlat) {
@@ -84,6 +89,13 @@ export class HighlightRenderer implements IRenderer {
         this.highlightByNode.delete(node);
       }
 
+      for (const [parent, container] of this.containerByParent.entries()) {
+        if (container.children.length === 0) {
+          container.remove();
+          this.containerByParent.delete(parent);
+        }
+      }
+
       this.highlightByNode = newHighlightByNode;
     }
   };
@@ -94,13 +106,35 @@ export class HighlightRenderer implements IRenderer {
       this.highlightByNode.delete(node);
     }
 
+    for (const [parent, container] of this.containerByParent.entries()) {
+      container.remove();
+      this.containerByParent.delete(parent);
+    }
+
     this.highlightByNode = new Map<HTMLElement, HTMLElement>();
+    this.containerByParent = new Map<HTMLElement, HTMLElement>();
     this.defaultContainer.innerHTML = '';
   };
 
   private createHighlight = (parent: HTMLElement | null): HTMLElement => {
     const highlight = document.createElement(HighlighterElementTag);
-    (parent ?? this.defaultContainer).appendChild(highlight);
+    const container = this.createContainerIfNotExist(parent);
+    container.appendChild(highlight);
     return highlight;
+  };
+
+  private createContainerIfNotExist = (parent: HTMLElement | null): HTMLElement => {
+    if (!parent) {
+      return this.defaultContainer;
+    }
+
+    if (this.containerByParent.has(parent)) {
+      return this.containerByParent.get(parent) as HTMLElement;
+    }
+
+    const container = document.createElement(HighlighterContainerTag);
+    parent.appendChild(container);
+    this.containerByParent.set(parent, container);
+    return container;
   };
 }

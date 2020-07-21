@@ -16,7 +16,7 @@ interface IPluginState {
 }
 
 interface IPluginIFrameSettings {
-  readonly highlighterEnabled: boolean;
+  readonly enabled: boolean;
 }
 
 export interface IPluginConfiguration {
@@ -79,9 +79,9 @@ class Plugin {
 
     const storage = createStorage<IPluginIFrameSettings>('kontent-smart-link:iframe-settings');
     const stored = storage.get();
-    const highlighterEnabled = stored !== null ? stored?.highlighterEnabled : true;
+    const enabled = stored !== null ? stored?.enabled : true;
 
-    if (highlighterEnabled) {
+    if (enabled) {
       this.nodeSmartLinkProvider.enable();
     }
 
@@ -91,14 +91,14 @@ class Plugin {
       this.toggleNodeSmartLinkProvider(data.enabled);
 
       storage.set({
-        highlighterEnabled: data.enabled,
+        enabled: data.enabled,
       });
     });
 
     this.iFrameCommunicator.sendMessage(IFrameMessageType.Initialized, {
       projectId: this.configuration.projectId,
       languageCodename: this.configuration.languageCodename,
-      highlighterEnabled,
+      enabled: enabled,
     });
   };
 
