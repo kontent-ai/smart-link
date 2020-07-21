@@ -121,7 +121,7 @@ HOW TO USE:
             logMessage(message.type, message.data, true);
 
             if (message.type === 'kontent-smart-link:initialized') {
-              highlightsEnabled = message.data.highlighterEnabled;
+              highlightsEnabled = message.data.enabled;
               $toggleBtn.innerText = highlightsEnabled ? 'Turn off plugin' : 'Turn on plugin';
             }
           }
