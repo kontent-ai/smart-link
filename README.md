@@ -6,7 +6,10 @@
 ![jsdelivr](https://img.shields.io/jsdelivr/npm/hm/@kentico/kontent-smart-link)
 ![snyk](https://img.shields.io/snyk/vulnerabilities/github/Kentico/kontent-smart-link)
 
->KontentSmartLink plugin allowing to automatically inject [smart links](https://docs.kontent.ai/tutorials/develop-apps/build-strong-foundation/set-up-editing-from-preview#a-using-smart-links) to Kentico Kontent according to specified [HTML data attributes](https://www.w3schools.com/tags/att_data-.asp).
+>Kontent Smart Link SDK can be used to automatically inject 
+>[smart links](https://docs.kontent.ai/tutorials/develop-apps/build-strong-foundation/set-up-editing-from-preview#a-using-smart-links) 
+>to Kentico Kontent according to manually specified [HTML data attributes](https://www.w3schools.com/tags/att_data-.asp) 
+>on your website. It also lets you connect your website with Web Spotlight (for faster editing and preview of your content).
 
 ## Installation
 
@@ -28,7 +31,7 @@ JS bundle and its minified version are distributed in `dist` folder.
 
 ### CSS
 
-The plugin has one CSS file that contains styles needed for the plugin to work properly.
+The SDK has one CSS file that contains styles needed for the SDK to work properly.
 This CSS file is located next to the UMD bundle in the `dist` folder.
 
 - `kontent-smart-link.styles.css`
@@ -54,17 +57,17 @@ https://cdn.jsdelivr.net/npm/@kentico/kontent-smart-link@latest/dist/kontent-sma
 
 ## Usage
 
-The KontentSmartLink plugin uses data-attributes to find HTML elements that represent some content item from the Kentico Kontent on your page and automatically injects [smart links](https://docs.kontent.ai/tutorials/develop-apps/build-strong-foundation/set-up-editing-from-preview#a-using-smart-links).
-Injecting smart links to Kontent means that all elements that are marked with special data-attributes will be highlighted and made interactive (handle clicks/redirect to Kontent/navigates from preview in Web Spotlight/etc.).
+The Kontent Smart Link SDK uses [HTML data attributes](https://www.w3schools.com/tags/att_data-.asp) to find elements on your page that represent some content item from the Kentico Kontent and automatically inject [smart links](https://docs.kontent.ai/tutorials/develop-apps/build-strong-foundation/set-up-editing-from-preview#a-using-smart-links).
+Injecting smart links to Kontent means that all elements that are marked with special data attributes will be highlighted and made interactive (handle clicks/redirect to Kontent/navigates from the preview in Web Spotlight/etc.).
 
-In order to initialize the KontentSmartLink plugin on your website, you have to call its `initialize` or `initializeOnLoad` method. Both of the previously mentioned methods return an instance of the initialized KontentSmartLink plugin (`initializeOnLoad` returns a Promise resolving to instance) that has two methods:
+In order to initialize the Kontent Smart Link SDK on your website, you have to call its `initialize` or `initializeOnLoad` method. Both of the previously mentioned methods return an instance of the initialized SDK (`initializeOnLoad` returns a Promise resolving to instance) that has two methods:
 - `setConfiguration(config)`;
 - `destroy()`.
 
-The main difference between the two methods is that the `initializeOnLoad` method will add an event listener to the window `load` event, and initialize the KontentSmartLink plugin only when everything on the page has been loaded.
-That is why it wraps an instance of the plugin into a Promise. Therefore, if you want to initialize the KontentSmartLink plugin inside the `head` tag when the page may not be loaded yet, you should probably use `initializeOnLoad` method.
+The main difference between the two methods is that the `initializeOnLoad` method will add an event listener to the window `load` event, and initialize the Kontent Smart Link SDK only when everything on the page has been loaded.
+That is why it wraps an instance of the SDK into a Promise. Therefore, if you want to initialize the Kontent Smart Link SDK inside the `head` tag when the page may not be loaded yet, you should probably use `initializeOnLoad` method.
 
-The plugin uses a query parameter to enable/disable smart link injection. That is why, when the plugin is initialized, it starts listening to query parameters in the URL.
+The SDK uses a query parameter to enable/disable smart link injection. That is why, when the SDK is initialized, it starts listening to query parameters in the URL.
 The name of the query parameter defaults to `kontent-smart-link-enabled`, but can be changed using the configuration argument of the `initialize` or `initializeOnLoad` methods or using the `setConfiguration` method.
 Only the presence of the query parameter is checked and its value is ignored, so all of the following options are valid: `?kontent-smart-link-enabled=true`, `?kontent-smart-link-enabled`, `?kontent-smart-link-enabled=1`, etc.
 
@@ -76,18 +79,21 @@ You can pass the configuration object as a first argument of the `initialize`, `
 |---------|-------|-----------|
 |projectId|null|Can be used instead of the data-kontent-project-id attribute to set project ID globally.|
 |languageCodename|null|Can be used instead of the data-kontent-language-codename attribute to set language codename globally.|
-|queryParam|'kontent-smart-link-enabled'|Name of the query parameter that must be present in the URL to turn the smart link injection on. It is not necessary for query parameter to have a truthy value (just the presence is checked).|
+|queryParam|'kontent-smart-link-enabled'|Name of the query parameter that must be present in the URL to turn the smart link injection on. It is not necessary for query parameter to have a truthy value (just the presence of this query parameter is checked).|
 
-### Data-attributes
+### Data attributes
 
-In order for the plugin to work correctly, several specific data-attributes need to be present in your HTML.
+The Kontent Smart Link SDK highly depends on the data attributes in your HTML markup and it won't work as expected without them. The SDK won't add
+those data attributes to your HTML, you must add all of those attributes yourself. The SDK will then use those attributes as a source
+of data (project id, element codename, etc.) when injecting the smart links.
 
-The plugin supports hierarchical inheritance of data-attributes, that means that you don't
-have to put all of those data-attributes on the same item. Usually you will put `data-kontent-project-id` and `data-kontent-language-codename`
-attributes on a body node, so that the project id and language codename values are the same for all elements inside of the body.
-Next you will put `data-kontent-item-id` attributes on all HTML nodes that represent a Kontent item.
-Then inside of those nodes you will find all child nodes that represent elements of the Kontent item and put `data-kontent-element-codename` attribute on them.
-The plugin will then find all elements that have `data-kontent-element-codename` attribute, highlight them and make those elements interactive (handle clicks/redirect to Kontent/navigates from preview in Web Spotlight/etc.). 
+The SDK supports the hierarchical inheritance of data attributes, which means that you don't have to put all of those data attributes
+on the same item. Usually, you will put `data-kontent-project-id` and `data-kontent-language-codename` attributes on a body node
+so that the project id and language codename values are the same for all elements inside of the body. Next, you will put 
+`data-kontent-item-id` attributes on all HTML nodes that represent a Kontent item. Then inside of those nodes, you will find
+all child nodes that represent elements of the Kontent item and put `data-kontent-element-codename` attribute on them. The SDK will then find all
+elements that have `data-kontent-element-codename` attribute, highlight them and make those elements
+interactive (handle clicks/redirect to Kontent/navigates from the preview in Web Spotlight/etc.). 
 
 |Attribute|Alternative|Description|
 |---------|-----------|---------- |
@@ -98,14 +104,14 @@ The plugin will then find all elements that have `data-kontent-element-codename`
 
 ### iFrame Communication
 
-When run inside an iframe element, the KontentSmartLink plugin will send iframe messages to the parent window instead of redirecting user to the Kontent page.
-This is needed for the plugin to work properly inside Web Spotlight.
+When running inside an iframe element, the Kontent Smart Link SDK will send iframe messages to the parent window instead of redirecting user to the Kontent page.
+This is needed for the SDK to work properly inside Web Spotlight.
 
 |Message|Data|Origin|Description|
 |---|---|---|---|
-|kontent-smart-link:initialized|<code>{ projectId: string &#124; null, languageCodename: string &#124; null, enabled: boolean }</code>|Plugin|This event is fired by the KontentSmartLink plugin when it is initialized.|
-|kontent-smart-link:status|<code>{ enabled: boolean }</code>|Client|You can send this event to turn on/off the plugin.|
-|kontent-smart-link:element:clicked|<code>{ projectId: string, languageCodename: string, itemId: string, elementCodename: string }</code>|Plugin|This message is sent by the KontentSmartLink plugin when element with `data-kontent-element-codename` attribute is clicked.|
+|kontent-smart-link:initialized|<code>{ projectId: string &#124; null, languageCodename: string &#124; null, enabled: boolean }</code>|SDK|This event is fired by the SDK when it is initialized.|
+|kontent-smart-link:status|<code>{ enabled: boolean }</code>|Client|You can send this event to turn on/off the SDK.|
+|kontent-smart-link:element:clicked|<code>{ projectId: string, languageCodename: string, itemId: string, elementCodename: string }</code>|SDK|This message is sent by the SDK when element with `data-kontent-element-codename` attribute is clicked.|
 
 ### Examples
 
@@ -136,7 +142,7 @@ This is needed for the plugin to work properly inside Web Spotlight.
 import KontentSmartLink from '@kentico/kontent-smart-link';
 import '@kentico/kontent-smart-link/dist/kontent-smart-link.styles.css';
 
-const plugin = KontentSmartLink.initializeOnLoad({
+const kontentSmartLink = KontentSmartLink.initializeOnLoad({
     projectId: '1d50a0f7-9033-48f3-a96e-7771c73f9683',
     languageCodename: 'default',
     queryParam: 'preview',
@@ -145,8 +151,8 @@ const plugin = KontentSmartLink.initializeOnLoad({
 
 #### Next.js
 
-In order to use the plugin with the Next.js framework you can either initialize it separately on each page or initialize it once for the whole application
-using the `_app.jsx` file. Do not forget to `destroy()` plugin for it to work properly.
+In order to use the SDK with the Next.js framework you can either initialize it separately on each page or initialize it once for the whole application
+using the `_app.jsx` file. Do not forget to `destroy()` SDK for it to work properly.
 
 ```js
 // _app.jsx
@@ -158,11 +164,11 @@ const MyApp = ({
   pageProps,
 }) => {
   useEffect(() => {
-    const plugin = KontentSmartLink.initialize({
+    const kontentSmartLink = KontentSmartLink.initialize({
       queryParam: 'preview-mode'    
     });
     return () => {
-      plugin.destroy();
+      kontentSmartLink.destroy();
     }; 
   });
  
@@ -172,20 +178,20 @@ const MyApp = ({
 
 ### Gatsby
 
-You can either initialize the plugin on every page or use a layout to initialize the plugin while using Gatsby. Do not forget to `destroy()` plugin for it to work properly.
+You can either initialize the SDK on every page or use a layout to initialize the SDK while using Gatsby. Do not forget to `destroy()` SDK for it to work properly.
 
 ```js
-// src/components/layout.js
+// src/components/layout.jsx
 import KontentSmartLink from '@kentico/kontent-smart-link';
 import '@kentico/kontent-smart-link/dist/kontent-smart-link.styles.css';
 
 export default function Layout({ children }) {
     useEffect(() => {
-        const plugin = KontentSmartLink.initialize({
+        const kontentSmartLink = KontentSmartLink.initialize({
           queryParam: 'preview-mode'    
         });
         return () => {
-          plugin.destroy();
+          kontentSmartLink.destroy();
         }; 
     });
 

@@ -6,7 +6,7 @@
     "type": "git",
     "url": "git+https://github.com/Kentico/kontent-smart-link.git"
   },
-  "description": "Html element decorator allowing injecting [smart links](https://docs.kontent.ai/tutorials/develop-apps/build-strong-foundation/set-up-editing-from-preview#a-using-smart-links) to Kentico Kontent according to specified [HTML data attributes](https://www.w3schools.com/tags/att_data-.asp).",
+  "description": "Kontent Smart Link SDK allowing to automatically inject [smart links](https://docs.kontent.ai/tutorials/develop-apps/build-strong-foundation/set-up-editing-from-preview#a-using-smart-links) to Kentico Kontent according to manually specified [HTML data attributes](https://www.w3schools.com/tags/att_data-.asp) on your website. It also lets you connect your website with Web Spotlight.",
   "main": "./commonjs/index.js",
   "types": "./commonjs/index.d.ts",
   "module": "./es/index.js",
