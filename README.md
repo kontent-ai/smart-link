@@ -2,15 +2,11 @@
 
 ![licence](https://img.shields.io/github/license/Kentico/kontent-smart-link)
 ![npm](https://img.shields.io/npm/v/@kentico/kontent-smart-link)
-![downloads](https://img.shields.io/npm/dt/kontent-smart-link)
+![downloads](https://img.shields.io/npm/dt/@kentico/kontent-smart-link)
 ![jsdelivr](https://img.shields.io/jsdelivr/npm/hm/@kentico/kontent-smart-link)
 ![snyk](https://img.shields.io/snyk/vulnerabilities/github/Kentico/kontent-smart-link)
 
-KontentSmartLink plugin allowing to automatically inject [smart links](https://docs.kontent.ai/tutorials/develop-apps/build-strong-foundation/set-up-editing-from-preview#a-using-smart-links) to Kentico Kontent according to specified [HTML data attributes](https://www.w3schools.com/tags/att_data-.asp).
-
-## ⚠ Disclaimer
-
-This project/repository is a work in progress and is not ready for production use yet. The features and APIs might be (and probably will be) changed.
+>KontentSmartLink plugin allowing to automatically inject [smart links](https://docs.kontent.ai/tutorials/develop-apps/build-strong-foundation/set-up-editing-from-preview#a-using-smart-links) to Kentico Kontent according to specified [HTML data attributes](https://www.w3schools.com/tags/att_data-.asp).
 
 ## Installation
 
