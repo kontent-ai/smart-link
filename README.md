@@ -1,4 +1,4 @@
-# kontent-smart-link
+# Kontent Smart Link SDK
 
 ![licence](https://img.shields.io/github/license/Kentico/kontent-smart-link)
 ![npm](https://img.shields.io/npm/v/@kentico/kontent-smart-link)
