@@ -121,7 +121,7 @@ This is needed for the SDK to work properly inside Web Spotlight.
     <head>
         <title>Kontent Smart Link - HTML example</title>
         <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@kentico/kontent-smart-link@latest/dist/kontent-smart-link.styles.css"/>
-        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@kentico/kontent-smart-link@latest/dist/kontent-smart-link.umd.min.js" />
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@kentico/kontent-smart-link@latest/dist/kontent-smart-link.umd.min.js"></script>
         <script type="text/javascript">
             KontentSmartLink.initializeOnLoad({
                 queryParam: 'preview',
