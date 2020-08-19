@@ -6,8 +6,7 @@
 ![jsdelivr](https://img.shields.io/jsdelivr/npm/hm/@kentico/kontent-smart-link)
 ![snyk](https://img.shields.io/snyk/vulnerabilities/github/Kentico/kontent-smart-link)
 
->Kontent Smart Link SDK can be used to automatically inject 
->[smart links](https://docs.kontent.ai/tutorials/develop-apps/build-strong-foundation/set-up-editing-from-preview#a-using-smart-links) 
+>Kontent Smart Link SDK can be used to automatically inject smart links 
 >to Kentico Kontent according to manually specified [HTML data attributes](https://www.w3schools.com/tags/att_data-.asp) 
 >on your website. It also lets you connect your website with Web Spotlight (for faster editing and preview of your content).
 
