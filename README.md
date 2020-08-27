@@ -86,20 +86,24 @@ The Kontent Smart Link SDK highly depends on the data attributes in your HTML ma
 those data attributes to your HTML, you must add all of those attributes yourself. The SDK will then use those attributes as a source
 of data (project id, element codename, etc.) when injecting the smart links.
 
+|Attribute|Alternative|Required|Description|
+|---------|-----------|----------|----------|
+| data-kontent-project-id | Can be set globally using the `projectId` attribute of the first argument of `initialize` or `initializeOnLoad` methods. If both are used, data-attribute will have a higher priority.  | ✔ | Specifies ID of a project in Kentico Kontent.|
+| data-kontent-language-codename | Can be set globally using the `languageCodename` attribute of the first argument of `initialize` or `initializeOnLoad` methods. If both are used, data-attribute will have a higher priority.  | ✔ | Specifies codename of a language in Kentico Kontent.  |
+| data-kontent-item-id | ❌ | ✔ | Specifies ID of an item in Kentico Kontent.|
+| data-kontent-component-id | ❌ | ❌ | Specifies ID of a content component in Kentico Kontent. |
+| data-kontent-element-codename | ❌ | ✔ | Specifies codename of an element in Kentico Kontent.|
+
 The SDK supports the hierarchical inheritance of data attributes, which means that you don't have to put all of those data attributes
-on the same item. Usually, you will put `data-kontent-project-id` and `data-kontent-language-codename` attributes on a body node
+on the same item. The parsing process starts with the `data-kontent-element-codename` attribute and goes up the list trying to find 
+other attributes on the same node or on all of its ancestors (up to the body element). 
+
+Usually, you will put `data-kontent-project-id` and `data-kontent-language-codename` attributes on a body node
 so that the project id and language codename values are the same for all elements inside of the body. Next, you will put 
 `data-kontent-item-id` attributes on all HTML nodes that represent a Kontent item. Then inside of those nodes, you will find
 all child nodes that represent elements of the Kontent item and put `data-kontent-element-codename` attribute on them. The SDK will then find all
 elements that have `data-kontent-element-codename` attribute, highlight them and make those elements
 interactive (handle clicks/redirect to Kontent/navigates from the preview in Web Spotlight/etc.). 
-
-|Attribute|Alternative|Description|
-|---------|-----------|---------- |
-| data-kontent-project-id| Can be set globally using the `projectId` attribute of the first argument of `initialize` or `initializeOnLoad` methods. If both are used, data-attribute will have a higher priority.  | Specifies ID of a project in Kentico Kontent.|
-| data-kontent-language-codename| Can be set globally using the `languageCodename` attribute of the first argument of `initialize` or `initializeOnLoad` methods. If both are used, data-attribute will have a higher priority.  | Specifies codename of a language in Kentico Kontent.  |
-| data-kontent-item-id| - | Specifies ID of an item in Kentico Kontent.|
-| data-kontent-element-codename| - | Specifies codename of an element in Kentico Kontent.|
 
 ### iFrame Communication
 

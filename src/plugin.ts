@@ -1,5 +1,5 @@
 import { isInsideIFrame } from './utils/iframe';
-import { buildElementLink } from './utils/link';
+import { buildKontentLink } from './utils/link';
 import {
   IElementClickedMessageData,
   IFrameCommunicator,
@@ -142,7 +142,7 @@ class Plugin {
       if (isInsideIFrame() && this.iFrameCommunicator) {
         this.iFrameCommunicator.sendMessage(IFrameMessageType.ElementClicked, data as IElementClickedMessageData);
       } else {
-        const link = buildElementLink(data.projectId, data.languageCodename, data.itemId, data.elementCodename);
+        const link = buildKontentLink(data);
         window.open(link, '_blank');
       }
     }
