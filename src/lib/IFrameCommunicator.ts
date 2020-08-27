@@ -11,6 +11,7 @@ export interface IElementClickedMessageData {
   readonly projectId: string;
   readonly languageCodename: string;
   readonly itemId: string;
+  readonly contentComponentId?: string;
   readonly elementCodename: string;
 }
 

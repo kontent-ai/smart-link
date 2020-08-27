@@ -242,6 +242,7 @@ export class NodeSmartLinkProvider {
         projectId: attributes.get(DataAttribute.ProjectId),
         languageCodename: attributes.get(DataAttribute.LanguageCodename),
         itemId: attributes.get(DataAttribute.ItemId),
+        contentComponentId: attributes.get(DataAttribute.ComponentId),
         elementCodename: attributes.get(DataAttribute.ElementCodename),
       });
     }
