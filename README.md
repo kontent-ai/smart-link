@@ -91,7 +91,7 @@ of data (project id, element codename, etc.) when injecting the smart links.
 | data-kontent-project-id | Can be set globally using the `projectId` attribute of the first argument of `initialize` or `initializeOnLoad` methods. If both are used, data-attribute will have a higher priority.  | ✔ | Specifies ID of a project in Kentico Kontent.|
 | data-kontent-language-codename | Can be set globally using the `languageCodename` attribute of the first argument of `initialize` or `initializeOnLoad` methods. If both are used, data-attribute will have a higher priority.  | ✔ | Specifies codename of a language in Kentico Kontent.  |
 | data-kontent-item-id | ❌ | ✔ | Specifies ID of an item in Kentico Kontent.|
-| data-kontent-component-id | ❌ | ❌ | Specifies ID of a content component in Kentico Kontent. |
+| data-kontent-component-id | ❌ | ❌ | Specifies ID of a [content component](https://docs.kontent.ai/tutorials/write-and-collaborate/structure-your-content/structure-your-content#a-create-single-use-content) in Kentico Kontent. |
 | data-kontent-element-codename | ❌ | ✔ | Specifies codename of an element in Kentico Kontent.|
 
 The SDK supports the hierarchical inheritance of data attributes, which means that you don't have to put all of those data attributes
@@ -104,6 +104,33 @@ so that the project id and language codename values are the same for all element
 all child nodes that represent elements of the Kontent item and put `data-kontent-element-codename` attribute on them. The SDK will then find all
 elements that have `data-kontent-element-codename` attribute, highlight them and make those elements
 interactive (handle clicks/redirect to Kontent/navigates from the preview in Web Spotlight/etc.). 
+
+#### Content components
+
+[Content component](https://docs.kontent.ai/tutorials/write-and-collaborate/structure-your-content/structure-your-content#a-create-single-use-content) is a single-use content, 
+that is also sometimes referred to as one-off, channel-specific, or non-reusable.
+Content components exist only within a specific rich text element in your content items and become
+their integral part. This means you won't find components in your list of items in Content Inventory in Kontent.
+
+You should use `data-kontent-component-id` attribute to specify that something represents a content component
+in your HTML, so that the SDK knows that this item has no separate page in the Kontent and must be opened
+in the context of its parent content item.
+
+Unfortunately, it is not an easy task to tell if something is a content component or a content item just looking at the data, 
+since there is no flag that can ensure that. That is why this SDK contains `isContentComponent` function, a helper to detect
+if something is a content component based on its id, name and codename.
+
+##### Example
+
+````js
+import { isContentComponent } from '@kentico/kontent-smart-link';
+
+if (isContentComponent(contentItem)) {
+  node.setAttribute('data-kontent-component-id', contentItem.system.id);
+} else {
+  node.setAttribute('data-kontent-item-id', contentItem.system.id);
+}
+```` 
 
 ### iFrame Communication
 

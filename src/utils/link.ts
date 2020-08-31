@@ -17,10 +17,14 @@ export function buildComponentElementLink(
   projectId: string,
   languageCodename: string,
   itemId: string,
-  componentId: string,
-  elementCodename: string
+  contentComponentId: string,
+  componentElementCodename: string
 ): string {
-  return `${buildItemLink(projectId, languageCodename, itemId)}/component/${componentId}/element/${elementCodename}`;
+  return `${buildItemLink(
+    projectId,
+    languageCodename,
+    itemId
+  )}/component/${contentComponentId}/element/${componentElementCodename}`;
 }
 
 export function buildKontentLink(data: IElementClickedMessageData): string {
