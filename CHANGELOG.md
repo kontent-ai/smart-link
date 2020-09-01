@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2020-09-01
+
 ### Added
 
 - A new `data-kontent-component-id` attribute to support [content components](https://docs.kontent.ai/tutorials/write-and-collaborate/structure-your-content/structure-your-content#a-create-single-use-content).
@@ -23,5 +25,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public release of SDK
 
-[unreleased]: https://github.com/Kentico/kontent-smart-link/compare/v1.0.0...HEAD
+[unreleased]: https://github.com/Kentico/kontent-smart-link/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/Kentico/kontent-smart-link/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/Kentico/kontent-smart-link/releases/tag/v1.0.0
