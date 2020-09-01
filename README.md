@@ -116,22 +116,6 @@ You should use `data-kontent-component-id` attribute to specify that something r
 in your HTML, so that the SDK knows that this item has no separate page in the Kontent and must be opened
 in the context of its parent content item.
 
-Unfortunately, it is not an easy task to tell if something is a content component or a content item just looking at the data, 
-since there is no flag that can ensure that. That is why this SDK contains `isContentComponent` function, a helper to detect
-if something is a content component based on its id, name and codename.
-
-##### Example
-
-````js
-import { isContentComponent } from '@kentico/kontent-smart-link';
-
-if (isContentComponent(contentItem)) {
-  node.setAttribute('data-kontent-component-id', contentItem.system.id);
-} else {
-  node.setAttribute('data-kontent-item-id', contentItem.system.id);
-}
-```` 
-
 ### iFrame Communication
 
 When running inside an iframe element, the Kontent Smart Link SDK will send iframe messages to the parent window instead of redirecting user to the Kontent page.
