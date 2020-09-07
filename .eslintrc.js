@@ -10,6 +10,7 @@ module.exports = {
     'prettier/@typescript-eslint',
     'plugin:prettier/recommended',
   ],
+  ignorePatterns: ['karma.conf.js'],
   rules: {
     '@typescript-eslint/no-explicit-any': 'off',
   },

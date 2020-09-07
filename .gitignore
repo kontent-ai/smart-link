@@ -3,3 +3,4 @@ dist/
 es/
 commonjs/
 .idea/
+coverage/

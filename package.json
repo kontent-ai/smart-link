@@ -18,9 +18,10 @@
   ],
   "scripts": {
     "clean": "rimraf commonjs dist es",
-    "lint": "eslint src/**/*.{js,ts,tsx}",
+    "lint": "eslint {src,test-browser}/**/*.{js,ts,tsx}",
     "lint:fix": "npm run lint -- --fix",
-    "test:browser": "echo \"Error: no test specified\" && exit 1",
+    "test:browser": "karma start karma.conf.js",
+    "test:browser:once": "npm run test:browser -- --single-run",
     "webpack:dev": "webpack --mode development --config webpack.config.js --progress --colors",
     "webpack:prod": "webpack --mode production --config webpack.config.js --progress --colors",
     "build": "npm run build:commonjs && npm run build:umd && npm run build:es",
@@ -29,7 +30,7 @@
     "build:es": "tsc -m es2015 --outDir es --p tsconfig.json",
     "bundle-stats": "npm run build:umd && webpack-bundle-analyzer dist/stats.json",
     "prepare": "npm run clean && npm run build",
-    "prepublishOnly": "npm run lint"
+    "prepublishOnly": "npm run lint && npm run test:browser:once"
   },
   "lint-staged": {
     "src/**/*.{js,ts,tsx}": [
@@ -55,6 +56,7 @@
   },
   "homepage": "https://github.com/Kentico/kontent-smart-link#readme",
   "devDependencies": {
+    "@types/jasmine": "3.5.14",
     "@typescript-eslint/eslint-plugin": "3.0.1",
     "@typescript-eslint/parser": "3.0.1",
     "autoprefixer": "9.8.4",
@@ -64,6 +66,15 @@
     "eslint-config-prettier": "6.11.0",
     "eslint-plugin-prettier": "3.1.3",
     "husky": "4.2.5",
+    "jasmine-core": "3.6.0",
+    "karma": "5.2.0",
+    "karma-chrome-launcher": "3.1.0",
+    "karma-cli": "2.0.0",
+    "karma-coverage-istanbul-reporter": "3.0.3",
+    "karma-jasmine": "4.0.1",
+    "karma-jasmine-html-reporter": "1.5.4",
+    "karma-typescript": "5.1.0",
+    "karma-typescript-es6-transform": "5.1.0",
     "lint-staged": "10.2.6",
     "mini-css-extract-plugin": "0.9.0",
     "node-sass": "4.14.1",

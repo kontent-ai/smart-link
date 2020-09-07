@@ -215,6 +215,12 @@ export default function Layout({ children }) {
 }
 ```
 
+## Tests
+
+Since this SDK highly depends on browser APIs, the tests are run by Karma test runner (+ Jasmine) inside Chrome browser.
+To run all tests in a watch mode you can use the `npm run test:browser` command. To run all tests only once you can use
+the `npm run test:browser:once` command.
+
 ## Feedback & Contribution
 
 Feedback & Contributions are welcomed. Feel free to take/start an issue & submit PR.
