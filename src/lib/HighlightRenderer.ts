@@ -1,4 +1,4 @@
-import { getRelativeParent, isNodeOverlapped } from '../utils/node';
+import { getParentForHighlight, getRelativeScrollOffset } from '../utils/node';
 
 export const HighlighterContainerTag = 'KONTENT-SMART-LINK-OVERLAY';
 export const HighlighterElementTag = 'KONTENT-SMART-LINK-ELEMENT';
@@ -18,6 +18,7 @@ export class HighlightRenderer implements IRenderer {
 
   private static createDefaultContainer(): HTMLElement {
     const container = document.createElement(HighlighterContainerTag);
+    container.classList.add('kontent-smart-link-default-overlay');
     window.document.body.appendChild(container);
     return container;
   }
@@ -57,21 +58,50 @@ export class HighlightRenderer implements IRenderer {
 
       for (const node of nodes) {
         const nodeRect = node.getBoundingClientRect();
-        const isOverlapped = isNodeOverlapped(node, nodeRect);
 
         // This check is needed to prevent highlight rendering for the "flat" elements (height or/and width === 0),
         // because those elements are basically invisible and cannot be clicked.
         const isFlat = nodeRect.height === 0 || nodeRect.width === 0;
 
-        if (!isOverlapped && !isFlat) {
-          const parent = getRelativeParent(node);
-          const highlight = this.highlightByNode.get(node) ?? this.createHighlight(parent);
+        if (!isFlat) {
+          const [parentElement, parentMetadata] = getParentForHighlight(node);
+          const highlight = this.highlightByNode.get(node) ?? this.createHighlight(parentElement);
 
-          if (parent) {
-            const parentRect = parent.getBoundingClientRect();
-            highlight.style.top = `${nodeRect.top - parentRect.top}px`;
-            highlight.style.left = `${nodeRect.left - parentRect.left}px`;
+          if (parentElement) {
+            const parentRect = parentElement.getBoundingClientRect();
+            const container = this.containerByParent.get(parentElement);
+
+            if (container) {
+              if (!parentMetadata?.hasRelativePosition) {
+                // When parent element is not relatively positioned it means that highlight
+                // will be positioned relatively to some other element. That is why we need
+                // to keep in mind all of the scroll offsets on the way to this relative element.
+                const [scrollOffsetTop, scrollOffsetLeft] = getRelativeScrollOffset(parentElement);
+
+                container.style.height = `${parentRect.height}px`;
+                container.style.width = `${parentRect.width}px`;
+                container.style.top = `${parentElement.offsetTop - scrollOffsetTop}px`;
+                container.style.left = `${parentElement.offsetLeft - scrollOffsetLeft}px`;
+
+                if (parentMetadata?.hasRestrictedOverflow) {
+                  // When parent element has not relative position but its overflow is restricted
+                  // we need to hide overflow of the container as well to prevent
+                  // highlights from appearing for hidden content.
+                  container.classList.add('kontent-smart-link-overlay--restricted');
+                }
+              }
+            }
+
+            if (parentMetadata?.hasRelativePosition && parentMetadata?.hasRestrictedOverflow) {
+              highlight.style.top = `${nodeRect.top - parentRect.top + parentElement.scrollTop}px`;
+              highlight.style.left = `${nodeRect.left - parentRect.left + parentElement.scrollLeft}px`;
+            } else {
+              highlight.style.top = `${nodeRect.top - parentRect.top}px`;
+              highlight.style.left = `${nodeRect.left - parentRect.left}px`;
+            }
           } else {
+            // When there is no ancestor with relative position or restricted overflow (hidden, scroll, etc.)
+            // highlight is placed into the body and page offset is used.
             highlight.style.top = `${nodeRect.top + window.pageYOffset}px`;
             highlight.style.left = `${nodeRect.left + window.pageXOffset}px`;
           }

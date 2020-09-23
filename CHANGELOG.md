@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Unit tests for utilities.
+
+### Fixed
+
+- Fixed the problem when big elements were not highlighted properly by improving the rendering algorithm.
+
 ## [1.1.0] - 2020-09-01
 
 ### Added
