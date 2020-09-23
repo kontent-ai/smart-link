@@ -3,8 +3,6 @@ import { EventManager } from './EventManager';
 import { HighlighterContainerTag, HighlighterElementTag, HighlightRenderer, IRenderer } from './HighlightRenderer';
 import { IElementClickedMessageData } from './IFrameCommunicator';
 
-export const MinimumVisiblePartForHighlight = 0.5;
-
 export enum NodeSmartLinkProviderEventType {
   ElementClicked = 'kontent-smart-link:element:clicked',
 }
@@ -28,9 +26,7 @@ export class NodeSmartLinkProvider {
 
   constructor() {
     this.mutationObserver = new MutationObserver(this.onDomMutation);
-    this.intersectionObserver = new IntersectionObserver(this.onElementVisibilityChange, {
-      threshold: [MinimumVisiblePartForHighlight],
-    });
+    this.intersectionObserver = new IntersectionObserver(this.onElementVisibilityChange);
 
     this.events = new EventManager<NodeSmartLinkProviderMessagesMap>();
     this.renderer = new HighlightRenderer();
@@ -220,7 +216,7 @@ export class NodeSmartLinkProvider {
 
     for (const entry of filteredEntries) {
       const target = entry.target as HTMLElement;
-      if (entry.isIntersecting && entry.intersectionRatio >= MinimumVisiblePartForHighlight) {
+      if (entry.isIntersecting) {
         this.visibleElements.add(target);
       } else {
         this.visibleElements.delete(target);

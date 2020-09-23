@@ -8,6 +8,10 @@ kontent-smart-link-overlay {
   left: 0;
 }
 
+kontent-smart-link-overlay.kontent-smart-link-overlay--restricted {
+  overflow: hidden;
+}
+
 kontent-smart-link-element {
   --kontent-primary-color: #0a68f5;
   --kontent-secondary-color: #84b3fa;

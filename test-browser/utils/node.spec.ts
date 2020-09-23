@@ -1,8 +1,8 @@
-import { getRelativeParent } from '../../src/utils/node';
 import { createHtmlFixture } from '../test-helpers/createHtmlFixture';
+import { getParentForHighlight } from '../../src/utils/node';
 
 describe('node.ts', () => {
-  describe('getRelativeParent', () => {
+  describe('getParentForHighlight', () => {
     const fixture = createHtmlFixture();
 
     it('should return the closest parent with relative position', () => {
@@ -23,17 +23,24 @@ describe('node.ts', () => {
       // </editor-fold>
 
       const target = fixture.querySelector('#target') as HTMLElement;
-      expect(getRelativeParent(target)?.id).toEqual('c');
+      const [element, metadata] = getParentForHighlight(target);
+      expect(element?.id).toEqual('c');
+      expect(metadata).toEqual({
+        hasRelativePosition: true,
+        hasRestrictedOverflow: false,
+      });
     });
 
-    it('should return null when none of the ancestors have relative position', () => {
+    it('should return the closest parent with restricted overflow', () => {
       // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
       fixture.setHtml(`
-        <div id="a">
+        <div id="a" style="position: relative">
             <div id="b" style="position: absolute">
-                <div id="c" style="position: static">
+                <div id="c" style="overflow: scroll">
                     <div id="d">
-                        <div id="target"></div>
+                        <div id="e" style="position: static">
+                            <div id="target"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -42,7 +49,12 @@ describe('node.ts', () => {
       // </editor-fold>
 
       const target = fixture.querySelector('#target') as HTMLElement;
-      expect(getRelativeParent(target)).toEqual(null);
+      const [element, metadata] = getParentForHighlight(target);
+      expect(element?.id).toEqual('c');
+      expect(metadata).toEqual({
+        hasRelativePosition: false,
+        hasRestrictedOverflow: true,
+      });
     });
   });
 });
