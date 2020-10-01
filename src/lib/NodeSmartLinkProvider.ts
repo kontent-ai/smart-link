@@ -1,14 +1,23 @@
-import { DataAttribute, dataToDatasetAttributeName, getDataAttributesFromEventPath } from '../utils/dataAttributes';
+import {
+  DataAttribute,
+  dataToDatasetAttributeName,
+  getDataAttributesFromEventPath,
+  getHighlightedElementFromEventPath,
+} from '../utils/dataAttributes';
 import { EventManager } from './EventManager';
 import { HighlighterContainerTag, HighlighterElementTag, HighlightRenderer, IRenderer } from './HighlightRenderer';
-import { IElementClickedMessageData } from './IFrameCommunicator';
+import { IElementClickedMessageData, IElementClickedMessageMetadata } from './IFrameCommunicator';
+import { assert } from '../utils/assert';
 
 export enum NodeSmartLinkProviderEventType {
   ElementClicked = 'kontent-smart-link:element:clicked',
 }
 
 export type NodeSmartLinkProviderMessagesMap = {
-  readonly [NodeSmartLinkProviderEventType.ElementClicked]: (data: Partial<IElementClickedMessageData>) => void;
+  readonly [NodeSmartLinkProviderEventType.ElementClicked]: (
+    data: Partial<IElementClickedMessageData>,
+    metadata: IElementClickedMessageMetadata
+  ) => void;
 };
 
 export class NodeSmartLinkProvider {
@@ -234,13 +243,22 @@ export class NodeSmartLinkProvider {
     if (attributes.has(DataAttribute.ElementCodename)) {
       event.preventDefault();
 
-      this.events.emit(NodeSmartLinkProviderEventType.ElementClicked, {
+      const data: Partial<IElementClickedMessageData> = {
         projectId: attributes.get(DataAttribute.ProjectId),
         languageCodename: attributes.get(DataAttribute.LanguageCodename),
         itemId: attributes.get(DataAttribute.ItemId),
         contentComponentId: attributes.get(DataAttribute.ComponentId),
         elementCodename: attributes.get(DataAttribute.ElementCodename),
-      });
+      };
+
+      const element = getHighlightedElementFromEventPath(event);
+      assert(element, 'Highlighted element is not found in the event path.');
+
+      const metadata: IElementClickedMessageMetadata = {
+        elementRect: element.getBoundingClientRect(),
+      };
+
+      this.events.emit(NodeSmartLinkProviderEventType.ElementClicked, data, metadata);
     }
   };
 

@@ -14,11 +14,11 @@ export class EventManager<Events extends EventsMap> {
     this.listeners.get(event)?.delete(listener);
   };
 
-  public emit = <E extends keyof Events>(event: E, data: Parameters<Events[E]>[0]): void => {
+  public emit = <E extends keyof Events>(event: E, ...data: Parameters<Events[E]>): void => {
     const listeners = this.listeners.get(event);
     if (listeners && listeners.size > 0) {
       listeners.forEach((callback: Events[E]) => {
-        callback(data);
+        callback(...data);
       });
     }
   };
