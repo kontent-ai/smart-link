@@ -2,6 +2,7 @@ import { isInsideIFrame } from './utils/iframe';
 import { buildKontentLink } from './utils/link';
 import {
   IElementClickedMessageData,
+  IElementClickedMessageMetadata,
   IFrameCommunicator,
   IFrameMessageType,
   IPluginStatusMessageData,
@@ -131,7 +132,10 @@ class Plugin {
     this.nodeSmartLinkProvider.addEventListener(NodeSmartLinkProviderEventType.ElementClicked, this.onElementClick);
   };
 
-  private onElementClick = (elementClickData: Partial<IElementClickedMessageData>): void => {
+  private onElementClick = (
+    elementClickData: Partial<IElementClickedMessageData>,
+    elementClickMetadata: IElementClickedMessageMetadata
+  ): void => {
     const data: Partial<IElementClickedMessageData> = {
       ...elementClickData,
       projectId: elementClickData.projectId || this.configuration.projectId || undefined,
@@ -140,7 +144,7 @@ class Plugin {
 
     if (validateElementClickMessageData(data)) {
       if (isInsideIFrame() && this.iFrameCommunicator) {
-        this.iFrameCommunicator.sendMessage(IFrameMessageType.ElementClicked, data as IElementClickedMessageData);
+        this.iFrameCommunicator.sendMessage(IFrameMessageType.ElementClicked, data, elementClickMetadata);
       } else {
         const link = buildKontentLink(data);
         window.open(link, '_blank');

@@ -80,3 +80,12 @@ export function getDataAttributesFromEventPath(event: Event): ReadonlyMap<string
 
   return parsed;
 }
+
+export function getHighlightedElementFromEventPath(event: Event): HTMLElement | null {
+  const elementCodenameAttributeName = dataToDatasetAttributeName(DataAttribute.ElementCodename);
+  const highlightedElement = event.composedPath().find((element: EventTarget) => {
+    return element instanceof HTMLElement && element.dataset[elementCodenameAttributeName];
+  });
+
+  return (highlightedElement as HTMLElement) ?? null;
+}

@@ -7,6 +7,10 @@ export interface IPluginInitializedMessageData {
   readonly enabled: boolean;
 }
 
+export interface IElementClickedMessageMetadata {
+  readonly elementRect: DOMRect;
+}
+
 export interface IElementClickedMessageData {
   readonly projectId: string;
   readonly languageCodename: string;
@@ -27,13 +31,17 @@ export enum IFrameMessageType {
 
 export type IFrameMessagesMap = {
   readonly [IFrameMessageType.Initialized]: (data: IPluginInitializedMessageData) => void;
-  readonly [IFrameMessageType.ElementClicked]: (data: IElementClickedMessageData) => void;
+  readonly [IFrameMessageType.ElementClicked]: (
+    data: IElementClickedMessageData,
+    metadata: IElementClickedMessageMetadata
+  ) => void;
   readonly [IFrameMessageType.Status]: (data: IPluginStatusMessageData) => void;
 };
 
 export interface IFrameMessage<E extends keyof IFrameMessagesMap> {
   readonly type: E;
   readonly data: Parameters<IFrameMessagesMap[E]>[0];
+  readonly metadata?: Parameters<IFrameMessagesMap[E]>[1];
 }
 
 export class IFrameCommunicator {
@@ -59,14 +67,15 @@ export class IFrameCommunicator {
 
   public sendMessage = <M extends keyof IFrameMessagesMap>(
     type: M,
-    data: Parameters<IFrameMessagesMap[M]>[0]
+    data: Parameters<IFrameMessagesMap[M]>[0],
+    metadata?: Parameters<IFrameMessagesMap[M]>[1]
   ): void => {
     if (!isInsideIFrame()) {
       console.error("Warning: can't send an iframe message, because the application is not hosted in an iframe");
       return;
     }
 
-    const message: IFrameMessage<M> = { type, data };
+    const message: IFrameMessage<M> = { type, data, metadata };
     window.parent.postMessage(message, '*');
   };
 
