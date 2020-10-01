@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.1] - 2020-10-01
+
 ### Added
 
 - Unit tests for utilities.
@@ -33,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public release of SDK
 
-[unreleased]: https://github.com/Kentico/kontent-smart-link/compare/v1.1.0...HEAD
+[unreleased]: https://github.com/Kentico/kontent-smart-link/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/Kentico/kontent-smart-link/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/Kentico/kontent-smart-link/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/Kentico/kontent-smart-link/releases/tag/v1.0.0
