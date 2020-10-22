@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed the positioning of the highlights inside body on pages with scrollbars by improving the rendering algorithm.
+- Fixed the positioning of the highlights inside table elements by improving the rendering algorithm.
+
 ## [1.2.0] - 2020-10-07
 
 ### Added

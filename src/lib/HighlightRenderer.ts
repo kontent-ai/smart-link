@@ -1,4 +1,4 @@
-import { getParentForHighlight, getRelativeScrollOffset } from '../utils/node';
+import { getParentForHighlight, getTotalScrollOffset } from '../utils/node';
 
 export const HighlighterContainerTag = 'KONTENT-SMART-LINK-OVERLAY';
 export const HighlighterElementTag = 'KONTENT-SMART-LINK-ELEMENT';
@@ -57,6 +57,7 @@ export class HighlightRenderer implements IRenderer {
       const newHighlightByNode = new Map<HTMLElement, HTMLElement>();
 
       for (const node of nodes) {
+        // Get size of the node and its position relative to viewport.
         const nodeRect = node.getBoundingClientRect();
 
         // This check is needed to prevent highlight rendering for the "flat" elements (height or/and width === 0),
@@ -67,41 +68,41 @@ export class HighlightRenderer implements IRenderer {
           const [parentElement, parentMetadata] = getParentForHighlight(node);
           const highlight = this.highlightByNode.get(node) ?? this.createHighlight(parentElement);
 
-          if (parentElement) {
+          if (parentElement && parentMetadata) {
             const parentRect = parentElement.getBoundingClientRect();
             const container = this.containerByParent.get(parentElement);
 
-            if (container) {
-              if (!parentMetadata?.hasRelativePosition) {
-                // When parent element is not relatively positioned it means that highlight
-                // will be positioned relatively to some other element. That is why we need
-                // to keep in mind all of the scroll offsets on the way to this relative element.
-                const [scrollOffsetTop, scrollOffsetLeft] = getRelativeScrollOffset(parentElement);
+            if (container && !parentMetadata.isPositioned) {
+              // When parent element is not positioned it means that highlight
+              // will be positioned relative to some other element. That is why we need
+              // to keep in mind all of the scroll offsets on the way to this relative element.
+              const [scrollOffsetTop, scrollOffsetLeft] = getTotalScrollOffset(parentElement);
 
-                container.style.height = `${parentRect.height}px`;
-                container.style.width = `${parentRect.width}px`;
-                container.style.top = `${parentElement.offsetTop - scrollOffsetTop}px`;
-                container.style.left = `${parentElement.offsetLeft - scrollOffsetLeft}px`;
+              container.style.height = `${parentElement.clientHeight}px`;
+              container.style.width = `${parentElement.clientWidth}px`;
+              container.style.top = `${parentElement.offsetTop - scrollOffsetTop}px`;
+              container.style.left = `${parentElement.offsetLeft - scrollOffsetLeft}px`;
 
-                if (parentMetadata?.hasRestrictedOverflow) {
-                  // When parent element has not relative position but its overflow is restricted
-                  // we need to hide overflow of the container as well to prevent
-                  // highlights from appearing for hidden content.
-                  container.classList.add('kontent-smart-link-overlay--restricted');
-                }
+              if (parentMetadata.isContentClipped) {
+                // When parent element is not positioned and its content is clipped
+                // we need to hide overflow of the container as well to prevent
+                // highlights from appearing for overflown content.
+                container.classList.add('kontent-smart-link-overlay--restricted');
               }
             }
 
-            if (parentMetadata?.hasRelativePosition && parentMetadata?.hasRestrictedOverflow) {
-              highlight.style.top = `${nodeRect.top - parentRect.top + parentElement.scrollTop}px`;
-              highlight.style.left = `${nodeRect.left - parentRect.left + parentElement.scrollLeft}px`;
-            } else {
-              highlight.style.top = `${nodeRect.top - parentRect.top}px`;
-              highlight.style.left = `${nodeRect.left - parentRect.left}px`;
-            }
+            // If the parent element is positioned and its content is clipped (hidden, scroll, auto, clipped),
+            // the parent element is an offset parent for the highlight and its scroll position can effect the position
+            // of the highlight, so we need to reckon with that.
+            const isPositionedAndClipped = parentMetadata.isPositioned && parentMetadata.isContentClipped;
+            const scrollOffsetTop = isPositionedAndClipped ? parentElement.scrollTop : 0;
+            const scrollOffsetLeft = isPositionedAndClipped ? parentElement.scrollLeft : 0;
+
+            highlight.style.top = `${nodeRect.top - parentRect.top + scrollOffsetTop}px`;
+            highlight.style.left = `${nodeRect.left - parentRect.left + scrollOffsetLeft}px`;
           } else {
-            // When there is no ancestor with relative position or restricted overflow (hidden, scroll, etc.)
-            // highlight is placed into the body and page offset is used.
+            // No parent element means that there is no positioned or clipped ancestor and that highlight will be
+            // placed into the body and page offset (page scroll) should be used.
             highlight.style.top = `${nodeRect.top + window.pageYOffset}px`;
             highlight.style.left = `${nodeRect.left + window.pageXOffset}px`;
           }
@@ -109,16 +110,21 @@ export class HighlightRenderer implements IRenderer {
           highlight.style.width = `${nodeRect.width}px`;
           highlight.style.height = `${nodeRect.height}px`;
 
+          // We are creating a new highlight by node map to be able to compare it with an old one to find out
+          // which nodes have been removed before renders and remove their highlights from the DOM.
           newHighlightByNode.set(node, highlight);
           this.highlightByNode.delete(node);
         }
       }
 
+      // All highlights that are left in the old highlightByNode map are the remnants of the old render
+      // and should be removed because their node has already been removed/or moved out of the viewport.
       for (const [node, highlight] of this.highlightByNode.entries()) {
         highlight.remove();
         this.highlightByNode.delete(node);
       }
 
+      // All highlight containers that have no children can be removed because they are not used by any highlight.
       for (const [parent, container] of this.containerByParent.entries()) {
         if (container.children.length === 0) {
           container.remove();
