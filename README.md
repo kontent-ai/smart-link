@@ -217,9 +217,22 @@ export default function Layout({ children }) {
 
 ## Tests
 
-Since this SDK highly depends on browser APIs, the tests are run by Karma test runner (+ Jasmine) inside Chrome browser.
-To run all tests in a watch mode you can use the `npm run test:browser` command. To run all tests only once you can use
-the `npm run test:browser:once` command.
+### Unit tests
+
+Since this SDK highly depends on browser APIs, the unit tests are run by Karma test runner (+ Jasmine) inside Chrome browser.
+To run all tests in a watch mode you can use the `npm run test:unit` command. To run all tests only once you can use
+the `npm run test:unit:ci` command. All unit tests are located in the `test-browser` folder.
+
+### Visual regression tests
+
+Visual regression testing is implemented using Storybook and Loki. Each story in Storybook represents a test case, which is 
+then used by Loki to generate screenshots. In order to run visual regression tests you need to start Storybook using
+the `npm run storybook` command and then start loki testing using the `npm run test:visual` command. Or you can use
+the `npm run test:visual:ci` command to automatically start the Storybook server in a CI mode and run visual tests. 
+
+Visual regression tests use the built version of SDK, so before running them make sure you rebuild the SDK
+after the last change you made. You can this using the `npm run build` command or using the `npm run dev` command to
+start build in a watch mode.
 
 ## Feedback & Contribution
 

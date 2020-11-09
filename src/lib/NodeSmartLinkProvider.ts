@@ -28,7 +28,7 @@ export class NodeSmartLinkProvider {
   private readonly intersectionObserver: IntersectionObserver;
   private readonly renderer: IRenderer;
 
-  private renderingTimeoutId: ReturnType<typeof setTimeout> = 0;
+  private renderingTimeoutId = 0;
 
   private observedElements = new Set<HTMLElement>();
   private visibleElements = new Set<HTMLElement>();
@@ -95,7 +95,7 @@ export class NodeSmartLinkProvider {
    */
   private startRenderingInterval = (): void => {
     this.highlightVisibleElements();
-    this.renderingTimeoutId = setTimeout(this.startRenderingInterval, 1000);
+    this.renderingTimeoutId = window.setTimeout(this.startRenderingInterval, 1000);
   };
 
   private stopRenderingInterval = (): void => {
