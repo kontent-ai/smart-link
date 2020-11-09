@@ -13,7 +13,7 @@ import { validateElementClickMessageData } from './utils/validation';
 import { isQueryParamPresent } from './utils/query';
 
 interface IPluginState {
-  readonly queryTimerId: ReturnType<typeof setTimeout>;
+  readonly queryTimerId: number;
 }
 
 interface IPluginIFrameSettings {
@@ -120,7 +120,7 @@ class Plugin {
     }
 
     this.updateState({
-      queryTimerId: setTimeout(this.watchQueryParams, 1000),
+      queryTimerId: window.setTimeout(this.watchQueryParams, 1000),
     });
   };
 

@@ -4,3 +4,5 @@ es/
 commonjs/
 .idea/
 coverage/
+storybook-static/
+debug.log
