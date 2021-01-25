@@ -128,15 +128,15 @@ export class NodeSmartLinkProvider {
   private observeDomMutations = (): void => {
     if (this.enabled) return;
 
+    this.mutationObserver.observe(window.document.body, {
+      childList: true,
+      subtree: true,
+    });
+
     document.querySelectorAll(`*[${DataAttribute.ElementCodename}]`).forEach((element: Element) => {
       if (element instanceof HTMLElement) {
         this.observeElementVisibility(element);
       }
-    });
-
-    this.mutationObserver.observe(window.document.body, {
-      childList: true,
-      subtree: true,
     });
   };
 
@@ -176,14 +176,25 @@ export class NodeSmartLinkProvider {
   private onDomMutation = (mutations: MutationRecord[]): void => {
     const attrName = dataToDatasetAttributeName(DataAttribute.ElementCodename);
 
-    const relevantMutations = mutations.filter(
-      (mutation) =>
+    const relevantMutations = mutations.filter((mutation: MutationRecord) => {
+      const isTypeRelevant = mutation.type === 'childList';
+      const isTargetRelevant =
         mutation.target instanceof Element &&
-        mutation.type === 'childList' &&
-        ![HighlighterElementTag, HighlighterContainerTag].includes(mutation.target.tagName) &&
-        Array.from(mutation.addedNodes).some((node) => (node as HTMLElement).tagName !== HighlighterElementTag) &&
-        Array.from(mutation.removedNodes).some((node) => (node as HTMLElement).tagName !== HighlighterElementTag)
-    );
+        ![HighlighterElementTag, HighlighterContainerTag].includes(mutation.target.tagName);
+
+      if (!isTypeRelevant && !isTargetRelevant) {
+        return false;
+      }
+
+      const hasRelevantAddedNodes = Array.from(mutation.addedNodes).some(
+        (node) => (node as HTMLElement).tagName !== HighlighterElementTag
+      );
+      const hasRelevantRemovedNodes = Array.from(mutation.removedNodes).some(
+        (node) => (node as HTMLElement).tagName !== HighlighterElementTag
+      );
+
+      return hasRelevantAddedNodes || hasRelevantRemovedNodes;
+    });
 
     for (const mutation of relevantMutations) {
       for (const node of mutation.addedNodes) {
