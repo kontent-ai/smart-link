@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed first load smart links rendering [bug](https://github.com/Kentico/kontent-smart-link/issues/21).
+
 ## [1.2.1] - 2020-10-26
 
 ### Fixed
