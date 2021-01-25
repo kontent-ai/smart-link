@@ -182,7 +182,7 @@ export class NodeSmartLinkProvider {
         mutation.target instanceof Element &&
         ![HighlighterElementTag, HighlighterContainerTag].includes(mutation.target.tagName);
 
-      if (!isTypeRelevant && !isTargetRelevant) {
+      if (!isTypeRelevant || !isTargetRelevant) {
         return false;
       }
 
