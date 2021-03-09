@@ -1,4 +1,4 @@
-import { IElementClickedMessageData } from '../lib/IFrameCommunicator';
+import { IElementClickedMessageData } from '../lib/IFrameCommunicatorTypes';
 
 function buildItemLink(projectId: string, languageCodename: string, itemId: string): string {
   return `https://app.kontent.ai/goto/edit-item/project/${projectId}/variant-codename/${languageCodename}/item/${itemId}`;

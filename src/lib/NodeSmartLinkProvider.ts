@@ -1,16 +1,21 @@
 import { DataAttribute } from '../utils/dataAttributes';
 import { EventManager } from './EventManager';
 import { HighlightRenderer, IRenderer } from './HighlightRenderer';
-import { IElementClickedMessageData, IElementClickedMessageMetadata } from './IFrameCommunicator';
 import { getDescendantsWithHighlights, shouldNodeHaveHighlight } from '../utils/highlight';
 import { webComponentTags } from '../web-components/components';
 import { KSLHighlightElementEvent } from '../web-components/KSLHighlightElement';
+import { IElementClickedMessageData, IElementClickedMessageMetadata } from './IFrameCommunicatorTypes';
 
 export enum NodeSmartLinkProviderEventType {
+  ElementDummy = 'kontent-smart-link:element:dummy',
   ElementClicked = 'kontent-smart-link:element:clicked',
 }
 
 export type NodeSmartLinkProviderMessagesMap = {
+  readonly [NodeSmartLinkProviderEventType.ElementDummy]: (
+    data: Partial<any>,
+    metadata: IElementClickedMessageMetadata
+  ) => void;
   readonly [NodeSmartLinkProviderEventType.ElementClicked]: (
     data: Partial<IElementClickedMessageData>,
     metadata: IElementClickedMessageMetadata
