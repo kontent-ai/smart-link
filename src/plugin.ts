@@ -1,15 +1,15 @@
 import { isInsideIFrame } from './utils/iframe';
 import { buildKontentLink } from './utils/link';
+import { NodeSmartLinkProvider, NodeSmartLinkProviderEventType } from './lib/NodeSmartLinkProvider';
+import { createStorage } from './utils/storage';
+import { validateDummyElementMessageData, validateElementClickMessageData } from './utils/validation';
+import { IFrameCommunicator } from './lib/IFrameCommunicator';
 import {
   IElementClickedMessageData,
   IElementClickedMessageMetadata,
-  IFrameCommunicator,
   IFrameMessageType,
   IPluginStatusMessageData,
-} from './lib/IFrameCommunicator';
-import { NodeSmartLinkProvider, NodeSmartLinkProviderEventType } from './lib/NodeSmartLinkProvider';
-import { createStorage } from './utils/storage';
-import { validateElementClickMessageData } from './utils/validation';
+} from './lib/IFrameCommunicatorTypes';
 import { QueryParamPresenceWatcher } from './lib/QueryParamPresenceWatcher';
 import { defineAllRequiredWebComponents } from './web-components/components';
 
@@ -114,10 +114,11 @@ class Plugin {
   };
 
   private listenToHighlighterEvents = (): void => {
-    this.nodeSmartLinkProvider.addEventListener(NodeSmartLinkProviderEventType.ElementClicked, this.onElementClick);
+    this.nodeSmartLinkProvider.addEventListener(NodeSmartLinkProviderEventType.ElementClicked, this.onEditElementClick);
+    this.nodeSmartLinkProvider.addEventListener(NodeSmartLinkProviderEventType.ElementDummy, this.onDummyAction);
   };
 
-  private onElementClick = (
+  private onEditElementClick = (
     elementClickData: Partial<IElementClickedMessageData>,
     elementClickMetadata: IElementClickedMessageMetadata
   ): void => {
@@ -133,6 +134,31 @@ class Plugin {
       } else {
         const link = buildKontentLink(data);
         window.open(link, '_blank');
+      }
+    }
+  };
+
+  private onDummyAction = (
+    elementClickData: Partial<any>,
+    elementClickMetadata: IElementClickedMessageMetadata
+  ): void => {
+    const data: Partial<any> = {
+      ...elementClickData,
+      projectId: elementClickData.projectId || this.configuration.projectId || undefined,
+      languageCodename: elementClickData.languageCodename || this.configuration.languageCodename || undefined,
+      dummy: 'This is dummy data payload',
+    };
+
+    if (validateDummyElementMessageData(data)) {
+      if (isInsideIFrame() && this.iFrameCommunicator) {
+        this.iFrameCommunicator.sendMessageWithResponse(
+          IFrameMessageType.ElementDummy,
+          data,
+          () => console.log('This is a registered callback method'),
+          elementClickMetadata
+        );
+      } else {
+        return;
       }
     }
   };

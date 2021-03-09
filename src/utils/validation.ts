@@ -1,4 +1,4 @@
-import { IElementClickedMessageData } from '../lib/IFrameCommunicator';
+import { IElementClickedMessageData } from '../lib/IFrameCommunicatorTypes';
 
 export function validateElementClickMessageData(
   data: Partial<IElementClickedMessageData>
@@ -24,6 +24,16 @@ export function validateElementClickMessageData(
   errors.forEach((error: string) => {
     console.error(error);
   });
+
+  return errors.length === 0;
+}
+
+export function validateDummyElementMessageData(data: any): any {
+  const errors: string[] = [];
+
+  if (!data) {
+    errors.push('Data missing');
+  }
 
   return errors.length === 0;
 }
