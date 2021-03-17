@@ -1,11 +1,11 @@
-import PluginWrapper from '../src';
+import KontentSmartLink from '../src';
 
 describe('plugin.ts', () => {
   describe('PluginWrapper', () => {
-    let pluginWrapper: PluginWrapper;
+    let pluginWrapper: KontentSmartLink;
 
     beforeEach(() => {
-      pluginWrapper = PluginWrapper.initialize();
+      pluginWrapper = KontentSmartLink.initialize();
     });
 
     afterEach(() => {
@@ -13,7 +13,7 @@ describe('plugin.ts', () => {
     });
 
     it('should have only one instance', () => {
-      const newPluginWrapper = PluginWrapper.initialize();
+      const newPluginWrapper = KontentSmartLink.initialize();
       expect(newPluginWrapper).toBe(pluginWrapper);
     });
 

@@ -1,13 +1,11 @@
 const path = require('path');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const libName = 'kontent-smart-link';
 
 module.exports = (env, argv) => ({
   entry: {
     [`${libName}.umd`]: './src/index.ts',
-    [`${libName}.styles`]: './src/scss/styles.scss',
   },
   resolve: {
     extensions: ['.ts', '.js'],
@@ -25,15 +23,6 @@ module.exports = (env, argv) => ({
           configFile: require.resolve('./tsconfig.webpack.json'),
         },
       },
-      {
-        test: /\.scss$/,
-        use: [
-          MiniCssExtractPlugin.loader,
-          'css-loader',
-          'postcss-loader',
-          'sass-loader',
-        ],
-      },
     ],
   },
   optimization: {
@@ -44,9 +33,6 @@ module.exports = (env, argv) => ({
       statsFilename: 'stats.json',
       generateStatsFile: true,
       analyzerMode: 'disabled',
-    }),
-    new MiniCssExtractPlugin({
-      filename: '[name].css',
     }),
   ],
 });
