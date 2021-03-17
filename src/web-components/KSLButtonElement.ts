@@ -23,7 +23,7 @@ const templateHTML = `
     :host(:focus) {
       outline: none;
     }
-    
+
     .ksl-button {
       display: flex;
       flex-direction: column;
