@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- New smart link rendering logic using Web Components
+
+### Changed
+
+- If query parameter is set to empty string or null, the smart links will be always enabled.
+
+### Removed
+
+- Removed SCSS files and external CSS files that must be imported to use the SDK.
+
 ## [1.3.0] - 2021-03-30
 
 ### Changed

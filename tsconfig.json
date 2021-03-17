@@ -5,9 +5,9 @@
     "alwaysStrict": true,
     "baseUrl": ".",
     "declaration": true,
+    "declarationDir": "./types",
     "downlevelIteration": true,
     "forceConsistentCasingInFileNames": true,
-    "experimentalDecorators": true,
     "lib": [
       "es2017",
       "dom",
@@ -23,7 +23,7 @@
     "strictFunctionTypes": true,
     "strictNullChecks": true,
     "strictPropertyInitialization": true,
-    "target": "es5",
+    "target": "es2015",
     "typeRoots": [
       "./node_modules/@types"
     ]

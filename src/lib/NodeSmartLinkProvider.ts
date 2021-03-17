@@ -1,13 +1,10 @@
-import {
-  DataAttribute,
-  dataToDatasetAttributeName,
-  getDataAttributesFromEventPath,
-  getHighlightedElementFromEventPath,
-} from '../utils/dataAttributes';
+import { DataAttribute } from '../utils/dataAttributes';
 import { EventManager } from './EventManager';
-import { HighlighterContainerTag, HighlighterElementTag, HighlightRenderer, IRenderer } from './HighlightRenderer';
+import { HighlightRenderer, IRenderer } from './HighlightRenderer';
 import { IElementClickedMessageData, IElementClickedMessageMetadata } from './IFrameCommunicator';
-import { assert } from '../utils/assert';
+import { getDescendantsWithHighlights, shouldNodeHaveHighlight } from '../utils/highlight';
+import { webComponentTags } from '../web-components/components';
+import { KSLHighlightElementEvent } from '../web-components/KSLHighlightElement';
 
 export enum NodeSmartLinkProviderEventType {
   ElementClicked = 'kontent-smart-link:element:clicked',
@@ -39,6 +36,10 @@ export class NodeSmartLinkProvider {
 
     this.events = new EventManager<NodeSmartLinkProviderMessagesMap>();
     this.renderer = new HighlightRenderer();
+  }
+
+  private static shouldIgnoreNode(node: HTMLElement): boolean {
+    return webComponentTags.includes(node.tagName.toLowerCase());
   }
 
   public destroy = (): void => {
@@ -83,7 +84,7 @@ export class NodeSmartLinkProvider {
 
   private highlightVisibleElements = (): void => {
     requestAnimationFrame(() => {
-      this.renderer.render(this.visibleElements);
+      this.renderer.render(this.visibleElements, this.observedElements);
     });
   };
 
@@ -112,7 +113,7 @@ export class NodeSmartLinkProvider {
     window.addEventListener('animationend', this.highlightVisibleElements, { passive: true, capture: true });
     window.addEventListener('transitionend', this.highlightVisibleElements, { passive: true, capture: true });
 
-    window.addEventListener('click', this.onElementClick, { capture: true });
+    window.addEventListener('ksl:highlight:edit', this.onEditElement, { capture: true });
   };
 
   private unlistenToGlobalEvents = (): void => {
@@ -122,7 +123,7 @@ export class NodeSmartLinkProvider {
     window.removeEventListener('animationend', this.highlightVisibleElements, { capture: true });
     window.removeEventListener('transitionend', this.highlightVisibleElements, { capture: true });
 
-    window.removeEventListener('click', this.onElementClick, { capture: true });
+    window.removeEventListener('ksl:highlight:edit', this.onEditElement, { capture: true });
   };
 
   private observeDomMutations = (): void => {
@@ -133,7 +134,7 @@ export class NodeSmartLinkProvider {
       subtree: true,
     });
 
-    document.querySelectorAll(`*[${DataAttribute.ElementCodename}]`).forEach((element: Element) => {
+    getDescendantsWithHighlights(document).forEach((element: Element) => {
       if (element instanceof HTMLElement) {
         this.observeElementVisibility(element);
       }
@@ -157,9 +158,6 @@ export class NodeSmartLinkProvider {
 
     this.intersectionObserver.observe(element);
     this.observedElements.add(element);
-
-    element.addEventListener('mousemove', this.onElementMouseEnter);
-    element.addEventListener('mouseleave', this.onElementMouseLeave);
   };
 
   private unobserveElementVisibility = (element: HTMLElement): void => {
@@ -168,29 +166,23 @@ export class NodeSmartLinkProvider {
     this.intersectionObserver.unobserve(element);
     this.observedElements.delete(element);
     this.visibleElements.delete(element);
-
-    element.removeEventListener('mousemove', this.onElementMouseEnter);
-    element.removeEventListener('mouseleave', this.onElementMouseLeave);
   };
 
   private onDomMutation = (mutations: MutationRecord[]): void => {
-    const attrName = dataToDatasetAttributeName(DataAttribute.ElementCodename);
-
     const relevantMutations = mutations.filter((mutation: MutationRecord) => {
       const isTypeRelevant = mutation.type === 'childList';
       const isTargetRelevant =
-        mutation.target instanceof Element &&
-        ![HighlighterElementTag, HighlighterContainerTag].includes(mutation.target.tagName);
+        mutation.target instanceof HTMLElement && !NodeSmartLinkProvider.shouldIgnoreNode(mutation.target);
 
       if (!isTypeRelevant || !isTargetRelevant) {
         return false;
       }
 
       const hasRelevantAddedNodes = Array.from(mutation.addedNodes).some(
-        (node) => (node as HTMLElement).tagName !== HighlighterElementTag
+        (node) => node instanceof HTMLElement && !NodeSmartLinkProvider.shouldIgnoreNode(node)
       );
       const hasRelevantRemovedNodes = Array.from(mutation.removedNodes).some(
-        (node) => (node as HTMLElement).tagName !== HighlighterElementTag
+        (node) => node instanceof HTMLElement && !NodeSmartLinkProvider.shouldIgnoreNode(node)
       );
 
       return hasRelevantAddedNodes || hasRelevantRemovedNodes;
@@ -200,11 +192,11 @@ export class NodeSmartLinkProvider {
       for (const node of mutation.addedNodes) {
         if (!(node instanceof HTMLElement)) continue;
 
-        if (node.dataset[attrName]) {
+        if (shouldNodeHaveHighlight(node)) {
           this.observeElementVisibility(node);
         }
 
-        for (const element of node.querySelectorAll(`*[${DataAttribute.ElementCodename}]`)) {
+        for (const element of getDescendantsWithHighlights(node)) {
           if (!(element instanceof HTMLElement)) continue;
 
           this.observeElementVisibility(element);
@@ -214,11 +206,11 @@ export class NodeSmartLinkProvider {
       for (const node of mutation.removedNodes) {
         if (!(node instanceof HTMLElement)) continue;
 
-        if (node.dataset[attrName]) {
+        if (shouldNodeHaveHighlight(node)) {
           this.unobserveElementVisibility(node);
         }
 
-        for (const element of node.querySelectorAll(`*[${DataAttribute.ElementCodename}]`)) {
+        for (const element of getDescendantsWithHighlights(node)) {
           if (!(element instanceof HTMLElement)) continue;
 
           this.unobserveElementVisibility(element);
@@ -248,12 +240,10 @@ export class NodeSmartLinkProvider {
     }
   };
 
-  private onElementClick = (event: MouseEvent): void => {
-    const attributes = getDataAttributesFromEventPath(event);
+  private onEditElement = (event: KSLHighlightElementEvent): void => {
+    const attributes = event.detail.dataAttributes;
 
     if (attributes.has(DataAttribute.ElementCodename)) {
-      event.preventDefault();
-
       const data: Partial<IElementClickedMessageData> = {
         projectId: attributes.get(DataAttribute.ProjectId),
         languageCodename: attributes.get(DataAttribute.LanguageCodename),
@@ -262,24 +252,16 @@ export class NodeSmartLinkProvider {
         elementCodename: attributes.get(DataAttribute.ElementCodename),
       };
 
-      const element = getHighlightedElementFromEventPath(event);
-      assert(element, 'Highlighted element is not found in the event path.');
-
+      const element = event.detail.targetNode;
       const metadata: IElementClickedMessageMetadata = {
         elementRect: element.getBoundingClientRect(),
       };
 
       this.events.emit(NodeSmartLinkProviderEventType.ElementClicked, data, metadata);
+    } else {
+      console.warn(
+        'Warning: Some required attributes are not found or the edit button for this type of element is not yet supported.'
+      );
     }
-  };
-
-  private onElementMouseEnter = (event: MouseEvent): void => {
-    const node = event.currentTarget as HTMLElement;
-    this.renderer.selectNode(node);
-  };
-
-  private onElementMouseLeave = (event: MouseEvent): void => {
-    const node = event.currentTarget as HTMLElement;
-    this.renderer.deselectNode(node);
   };
 }
