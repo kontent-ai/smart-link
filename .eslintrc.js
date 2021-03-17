@@ -13,5 +13,11 @@ module.exports = {
   ignorePatterns: ['karma.conf.js'],
   rules: {
     '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/explicit-module-boundary-types': [
+      'warn',
+      {
+        allowedNames: ['is'],
+      },
+    ],
   },
 };

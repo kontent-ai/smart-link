@@ -28,13 +28,6 @@ JS bundle and its minified version are distributed in `dist` folder.
 - `kontent-smart-link.umd.min.js`
 - `kontent-smart-link.umd.js`
 
-### CSS
-
-The SDK has one CSS file that contains styles needed for the SDK to work properly.
-This CSS file is located next to the UMD bundle in the `dist` folder.
-
-- `kontent-smart-link.styles.css`
-
 #### CDN
 
 ##### kontent-smart-link.umd.min.js
@@ -43,15 +36,6 @@ This CSS file is located next to the UMD bundle in the `dist` folder.
 
 ```
 https://cdn.jsdelivr.net/npm/@kentico/kontent-smart-link@latest/dist/kontent-smart-link.umd.min.js
-```
-
-##### kontent-smart-link.styles.css
-
-
-![Gzip browser bundle](https://img.badgesize.io/https://unpkg.com/@kentico/kontent-smart-link@latest/dist/kontent-smart-link.styles.css?compression=gzip)
-
-```
-https://cdn.jsdelivr.net/npm/@kentico/kontent-smart-link@latest/dist/kontent-smart-link.styles.css
 ```
 
 ## Usage
@@ -78,7 +62,7 @@ You can pass the configuration object as a first argument of the `initialize`, `
 |---------|-------|-----------|
 |projectId|null|Can be used instead of the data-kontent-project-id attribute to set project ID globally.|
 |languageCodename|null|Can be used instead of the data-kontent-language-codename attribute to set language codename globally.|
-|queryParam|'kontent-smart-link-enabled'|Name of the query parameter that must be present in the URL to turn the smart link injection on. It is not necessary for query parameter to have a truthy value (just the presence of this query parameter is checked).|
+|queryParam|'kontent-smart-link-enabled'|Name of the query parameter that must be present in the URL to turn the smart link injection on. It is not necessary for query parameter to have a truthy value (just the presence of this query parameter is checked). If set to falsy value ('', null), the smart link injection will always be enabled.|
 
 ### Data attributes
 
@@ -127,6 +111,22 @@ This is needed for the SDK to work properly inside Web Spotlight.
 |kontent-smart-link:status|<code>{ enabled: boolean }</code>|Client|You can send this event to turn on/off the SDK.|
 |kontent-smart-link:element:clicked|<code>{ projectId: string, languageCodename: string, itemId: string, elementCodename: string }</code>|SDK|This message is sent by the SDK when element with `data-kontent-element-codename` attribute is clicked.|
 
+### Customization
+
+The following custom CSS properties can be used to customize the visuals of the SDK output.
+
+|Custom property|Description|Default|
+|---|---|---|
+|--ksl-highlight-border-color-selected|Selected (hovered) highlight border color.|rgba(219, 60, 0, 1)|
+|--ksl-highlight-border-color|Highlight border color.|rgba(219,60,0,0.5)|
+|--ksl-highlight-border-radius|Highlight border radius.|5px|
+|--ksl-highlight-border-style|Highlight border style.|dashed|
+|--ksl-highlight-border-width|Highlight border width.|2px|
+|--ksl-tooltip-background-color|Tooltip background color.|#141619|
+|--ksl-tooltip-color|Tooltip text color.|#fff|
+
+[//]: # (TODO: add more customization options)
+
 ### Examples
 
 #### HTML & UMD & CDN
@@ -134,12 +134,9 @@ This is needed for the SDK to work properly inside Web Spotlight.
 <html>
     <head>
         <title>Kontent Smart Link - HTML example</title>
-        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@kentico/kontent-smart-link@latest/dist/kontent-smart-link.styles.css"/>
-        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@kentico/kontent-smart-link@latest/dist/kontent-smart-link.umd.min.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@kentico/kontent-smart-link@2.0.0/dist/kontent-smart-link.umd.min.js"></script>
         <script type="text/javascript">
-            KontentSmartLink.initializeOnLoad({
-                queryParam: 'preview',
-            });
+            KontentSmartLink.initializeOnLoad({queryParam: 'preview'});
         </script>
     </head>
     <body data-kontent-project-id="1d50a0f7-9033-48f3-a96e-7771c73f9683" data-kontent-language-codename="default">
@@ -154,7 +151,6 @@ This is needed for the SDK to work properly inside Web Spotlight.
 #### ES6
 ```js
 import KontentSmartLink from '@kentico/kontent-smart-link';
-import '@kentico/kontent-smart-link/dist/kontent-smart-link.styles.css';
 
 const kontentSmartLink = KontentSmartLink.initializeOnLoad({
     projectId: '1d50a0f7-9033-48f3-a96e-7771c73f9683',
@@ -171,7 +167,6 @@ using the `_app.jsx` file. Do not forget to `destroy()` SDK for it to work prope
 ```js
 // _app.jsx
 import KontentSmartLink from '@kentico/kontent-smart-link';
-import '@kentico/kontent-smart-link/dist/kontent-smart-link.styles.css';
 
 const MyApp = ({
   Component,
@@ -197,7 +192,6 @@ You can either initialize the SDK on every page or use a layout to initialize th
 ```js
 // src/components/layout.jsx
 import KontentSmartLink from '@kentico/kontent-smart-link';
-import '@kentico/kontent-smart-link/dist/kontent-smart-link.styles.css';
 
 export default function Layout({ children }) {
     useEffect(() => {

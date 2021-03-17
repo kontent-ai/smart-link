@@ -10,65 +10,75 @@ import {
 import { NodeSmartLinkProvider, NodeSmartLinkProviderEventType } from './lib/NodeSmartLinkProvider';
 import { createStorage } from './utils/storage';
 import { validateElementClickMessageData } from './utils/validation';
-import { isQueryParamPresent } from './utils/query';
+import { QueryParamPresenceWatcher } from './lib/QueryParamPresenceWatcher';
+import { defineAllRequiredWebComponents } from './web-components/components';
 
-interface IPluginState {
-  readonly queryTimerId: number;
-}
-
-interface IPluginIFrameSettings {
+interface IKontentSmartLinkIframeSettings {
   readonly enabled: boolean;
 }
 
-export interface IPluginConfiguration {
+export interface IKontentSmartLinkConfiguration {
   readonly languageCodename: string | null;
   readonly projectId: string | null;
-  readonly queryParam: string;
+  readonly queryParam?: string;
 }
 
-const initialState: IPluginState = {
-  queryTimerId: 0,
-};
-
-const defaultConfiguration: IPluginConfiguration = {
+const defaultConfiguration: IKontentSmartLinkConfiguration = {
   languageCodename: null,
   projectId: null,
   queryParam: 'kontent-smart-link-enabled',
 };
 
 class Plugin {
-  private state: IPluginState;
-  private configuration: IPluginConfiguration;
-  private iFrameCommunicator?: IFrameCommunicator;
+  private configuration: IKontentSmartLinkConfiguration;
+  private iFrameCommunicator: IFrameCommunicator | null = null;
   private readonly nodeSmartLinkProvider: NodeSmartLinkProvider;
+  private readonly queryParamPresenceWatcher: QueryParamPresenceWatcher;
 
-  constructor(configuration?: Partial<IPluginConfiguration>) {
+  constructor(configuration?: Partial<IKontentSmartLinkConfiguration>) {
     this.nodeSmartLinkProvider = new NodeSmartLinkProvider();
+    this.queryParamPresenceWatcher = new QueryParamPresenceWatcher();
 
-    this.state = initialState;
     this.configuration = { ...defaultConfiguration, ...configuration };
+
+    this.initialize();
+  }
+
+  public initialize = async (): Promise<void> => {
+    await this.registerCustomElements();
 
     if (isInsideIFrame()) {
       this.initializeIFrameCommunication();
+    } else if (this.configuration.queryParam) {
+      this.queryParamPresenceWatcher.watch(this.configuration.queryParam, this.toggleNodeSmartLinkProvider);
     } else {
-      this.watchQueryParams();
+      this.nodeSmartLinkProvider.enable();
     }
 
     this.listenToHighlighterEvents();
-  }
+  };
 
   public destroy = (): void => {
-    this.unwatchQueryParams();
+    this.queryParamPresenceWatcher.unwatchAll();
     this.nodeSmartLinkProvider.destroy();
     this.iFrameCommunicator?.destroy();
   };
 
-  public updateConfiguration = (configuration: Partial<IPluginConfiguration>): void => {
+  public updateConfiguration = (configuration: Partial<IKontentSmartLinkConfiguration>): void => {
+    if (typeof configuration.queryParam !== 'undefined') {
+      if (!configuration.queryParam) {
+        this.nodeSmartLinkProvider.enable();
+      } else if (configuration.queryParam !== this.configuration.queryParam) {
+        this.queryParamPresenceWatcher.unwatchAll();
+        this.queryParamPresenceWatcher.watch(configuration.queryParam, this.toggleNodeSmartLinkProvider);
+      }
+    }
+
     this.configuration = { ...this.configuration, ...configuration };
   };
 
-  private updateState = (state: Partial<IPluginState>): void => {
-    this.state = { ...this.state, ...state };
+  private registerCustomElements = async (): Promise<void[]> => {
+    return defineAllRequiredWebComponents();
   };
 
   private initializeIFrameCommunication = (): void => {
@@ -78,7 +88,7 @@ class Plugin {
 
     this.iFrameCommunicator = new IFrameCommunicator();
 
-    const storage = createStorage<IPluginIFrameSettings>('kontent-smart-link:iframe-settings');
+    const storage = createStorage<IKontentSmartLinkIframeSettings>('kontent-smart-link:iframe-settings');
     const stored = storage.get();
     const enabled = stored !== null ? stored?.enabled : true;
 
@@ -101,31 +111,6 @@ class Plugin {
       languageCodename: this.configuration.languageCodename,
       enabled: enabled,
     });
-  };
-
-  private watchQueryParams = (): void => {
-    if (isInsideIFrame()) {
-      throw new Error('No need to watch query params inside the iframe.');
-    }
-
-    if (this.state.queryTimerId) {
-      clearTimeout(this.state.queryTimerId);
-    }
-
-    const isPluginEnabled = isQueryParamPresent(this.configuration.queryParam);
-    const hasChanged = this.nodeSmartLinkProvider.enabled !== isPluginEnabled;
-
-    if (hasChanged) {
-      this.toggleNodeSmartLinkProvider(isPluginEnabled);
-    }
-
-    this.updateState({
-      queryTimerId: window.setTimeout(this.watchQueryParams, 1000),
-    });
-  };
-
-  private unwatchQueryParams = (): void => {
-    clearTimeout(this.state.queryTimerId);
   };
 
   private listenToHighlighterEvents = (): void => {
@@ -162,29 +147,28 @@ class Plugin {
   };
 }
 
-class PluginWrapper {
-  private static instance: PluginWrapper;
-
+class KontentSmartLink {
+  private static instance: KontentSmartLink;
   private plugin: Plugin | null = null;
 
-  public static initializeOnLoad(configuration?: Partial<IPluginConfiguration>): Promise<PluginWrapper> {
-    return new Promise<PluginWrapper>((resolve) => {
+  public static initializeOnLoad(configuration?: Partial<IKontentSmartLinkConfiguration>): Promise<KontentSmartLink> {
+    return new Promise<KontentSmartLink>((resolve) => {
       window.addEventListener('load', () => {
-        resolve(PluginWrapper.initialize(configuration));
+        resolve(KontentSmartLink.initialize(configuration));
       });
     });
   }
 
-  public static initialize(configuration?: Partial<IPluginConfiguration>): PluginWrapper {
-    if (!PluginWrapper.instance) {
-      PluginWrapper.instance = new PluginWrapper();
+  public static initialize(configuration?: Partial<IKontentSmartLinkConfiguration>): KontentSmartLink {
+    if (!KontentSmartLink.instance) {
+      KontentSmartLink.instance = new KontentSmartLink();
     }
 
-    if (!PluginWrapper.instance.plugin) {
-      PluginWrapper.instance.plugin = new Plugin(configuration);
+    if (!KontentSmartLink.instance.plugin) {
+      KontentSmartLink.instance.plugin = new Plugin(configuration);
     }
 
-    return PluginWrapper.instance;
+    return KontentSmartLink.instance;
   }
 
   public destroy = (): void => {
@@ -192,7 +176,7 @@ class PluginWrapper {
     this.plugin = null;
   };
 
-  public setConfiguration = (configuration: Partial<IPluginConfiguration>): void => {
+  public setConfiguration = (configuration: Partial<IKontentSmartLinkConfiguration>): void => {
     if (!this.plugin) {
       throw new Error('KontentSmartLink is not initialized or has already been destroyed.');
     } else {
@@ -201,4 +185,4 @@ class PluginWrapper {
   };
 }
 
-export default PluginWrapper;
+export default KontentSmartLink;

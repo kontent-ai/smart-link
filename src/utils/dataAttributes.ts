@@ -17,25 +17,54 @@ const DataAttributeHierarchy = [
 const DataAttributeParsingOrder = DataAttributeHierarchy.slice().reverse();
 const OptionalDataAttributes = [DataAttribute.ComponentId];
 
-function getHigherDataAttributes(attributeName: string): ReadonlyArray<string> {
-  const attributeIndex = DataAttributeHierarchy.indexOf(attributeName);
-  return DataAttributeHierarchy.slice(0, attributeIndex);
-}
-
-export function dataToDatasetAttributeName(dataAttributeName: string): string {
-  return dataAttributeName.replace(/^data-/, '').replace(/-./g, (x: string) => x.toUpperCase()[1]);
-}
-
+/**
+ * Parse data-attributes from event path.
+ *
+ * @param {Event} event
+ * @returns {ReadonlyMap<string, string>}
+ */
 export function getDataAttributesFromEventPath(event: Event): ReadonlyMap<string, string> {
   const path = event.composedPath();
+  const elements = path.filter((eventTarget: EventTarget) => eventTarget instanceof HTMLElement) as HTMLElement[];
+  return getDataAttributesFromElementsList(elements);
+}
+
+/**
+ * Parse data-attributes from element ancestors.
+ *
+ * @param {HTMLElement} element
+ * @returns {ReadonlyMap<string, string>}
+ */
+export function getDataAttributesFromElementAncestors(element: HTMLElement): ReadonlyMap<string, string> {
+  const elements = [element, ...getElementAncestors(element)];
+  return getDataAttributesFromElementsList(elements);
+}
+
+/**
+ * Get all element ancestors.
+ * @param element
+ */
+function getElementAncestors(element: HTMLElement): ReadonlyArray<HTMLElement> {
+  const ancestors = [];
+
+  let parent = element.parentElement;
+  while (parent !== null) {
+    ancestors.push(parent);
+    parent = parent.parentElement;
+  }
+
+  return ancestors;
+}
+
+function getDataAttributesFromElementsList(elements: HTMLElement[]): ReadonlyMap<string, string> {
   const parsed: Map<string, string> = new Map();
 
-  for (const node of path) {
-    if (!(node instanceof HTMLElement)) continue;
+  for (const element of elements) {
+    if (!(element instanceof HTMLElement)) continue;
 
     for (const attributeName of DataAttributeParsingOrder) {
       const datasetAttributeName = dataToDatasetAttributeName(attributeName);
-      const datasetAttributeValue = node.dataset[datasetAttributeName];
+      const datasetAttributeValue = element.dataset[datasetAttributeName];
       const isAttributeOptional = OptionalDataAttributes.includes(attributeName);
 
       if (!datasetAttributeValue || parsed.has(attributeName)) continue;
@@ -81,11 +110,24 @@ export function getDataAttributesFromEventPath(event: Event): ReadonlyMap<string
   return parsed;
 }
 
-export function getHighlightedElementFromEventPath(event: Event): HTMLElement | null {
-  const elementCodenameAttributeName = dataToDatasetAttributeName(DataAttribute.ElementCodename);
-  const highlightedElement = event.composedPath().find((element: EventTarget) => {
-    return element instanceof HTMLElement && element.dataset[elementCodenameAttributeName];
-  });
+/**
+ * Get data attributes that are higher in the hierarchy.
+ *
+ * @param {string} attributeName
+ * @returns {ReadonlyArray<string>}
+ */
+function getHigherDataAttributes(attributeName: string): ReadonlyArray<string> {
+  const attributeIndex = DataAttributeHierarchy.indexOf(attributeName);
+  return DataAttributeHierarchy.slice(0, attributeIndex);
+}
 
-  return (highlightedElement as HTMLElement) ?? null;
+/**
+ * Turn data-attribute name into dataset attribute name.
+ * For example: 'data-kontent-item-id' -> 'kontentItemId'.
+ *
+ * @param {string} dataAttributeName
+ * @returns {string}
+ */
+function dataToDatasetAttributeName(dataAttributeName: string): string {
+  return dataAttributeName.replace(/^data-/, '').replace(/-./g, (x: string) => x.toUpperCase()[1]);
 }
