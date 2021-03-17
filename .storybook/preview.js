@@ -1,4 +1,3 @@
-import '../dist/kontent-smart-link.styles.css';
 import { withSdk } from './decorators/withSdk';
 import { withQuery } from '@storybook/addon-queryparams';
 import { withContainerForLoki } from './decorators/withContainerForLoki';

@@ -30,7 +30,7 @@ module.exports = function(config) {
           'dom.iterable',
         ],
         sourceMap: true,
-        target: 'es5',
+        target: 'es2015',
       },
       exclude: [
         'node_modules',

@@ -1,8 +1,4 @@
-import {
-  DataAttribute,
-  getDataAttributesFromEventPath,
-  getHighlightedElementFromEventPath,
-} from '../../src/utils/dataAttributes';
+import { DataAttribute, getDataAttributesFromEventPath } from '../../src/utils/dataAttributes';
 import { createHtmlFixture } from '../test-helpers/createHtmlFixture';
 import { createTestEventManager } from '../test-helpers/createTestEventManager';
 
@@ -120,55 +116,6 @@ describe('dataAttributes.ts', () => {
       ]);
 
       testClickEventParsedAttributes(target, expected, done);
-    });
-  });
-
-  describe('getHighlightedElementFromEventPath', () => {
-    function testClickEventHighlightedElement(clickTarget: HTMLElement, expected: HTMLElement | null, done: DoneFn) {
-      windowTestEventManager.addEventListenerForCurrentTest(
-        'click',
-        (event) => {
-          const element = getHighlightedElementFromEventPath(event);
-          expect(element).toEqual(expected);
-          done();
-        },
-        true
-      );
-
-      clickTarget.click();
-    }
-
-    it('should return the first node with data-kontent-element-codename attribute when it is present in the event path', (done) => {
-      // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
-      fixture.setHtml(`
-        <div data-kontent-project-id="a" data-kontent-language-codename="a" data-kontent-element-codename="a">
-           <div data-kontent-project-id="b" data-kontent-language-codename="b" data-kontent-item-id="b" data-kontent-element-codename="b">
-                <div id="click-target"></div>
-           </div>
-        </div>
-      `);
-      // </editor-fold>
-
-      const clickTarget = fixture.querySelector('#click-target') as HTMLElement;
-      const expected = fixture.querySelector('*[data-kontent-element-codename="b"]') as HTMLElement;
-
-      testClickEventHighlightedElement(clickTarget, expected, done);
-    });
-
-    it('should return null when there is no node with data-kontent-element-codename attribute in the event path', (done) => {
-      // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
-      fixture.setHtml(`
-        <div data-kontent-project-id="a" data-kontent-language-codename="a">
-           <div data-kontent-project-id="b" data-kontent-language-codename="b" data-kontent-item-id="b">
-                <div id="click-target"></div>
-           </div>
-        </div>
-      `);
-      // </editor-fold>
-
-      const clickTarget = fixture.querySelector('#click-target') as HTMLElement;
-
-      testClickEventHighlightedElement(clickTarget, null, done);
     });
   });
 });
