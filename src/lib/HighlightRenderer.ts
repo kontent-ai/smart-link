@@ -1,32 +1,31 @@
 import { getParentForHighlight, getTotalScrollOffset } from '../utils/node';
+import { KSLContainerElement } from '../web-components/KSLContainerElement';
+import { KSLHighlightElement } from '../web-components/KSLHighlightElement';
 
-export const HighlighterContainerTag = 'KONTENT-SMART-LINK-OVERLAY';
-export const HighlighterElementTag = 'KONTENT-SMART-LINK-ELEMENT';
+export const RendererContainerTag = KSLContainerElement.is;
+export const RendererElementTag = KSLHighlightElement.is;
 
 export interface IRenderer {
   readonly clear: () => void;
-  readonly deselectNode: (node: HTMLElement) => void;
   readonly destroy: () => void;
-  readonly render: (visibleNodes: Set<HTMLElement>) => void;
-  readonly selectNode: (node: HTMLElement) => void;
+  readonly render: (visibleNodes: Set<HTMLElement>, observedNodes: Set<HTMLElement>) => void;
 }
 
 export class HighlightRenderer implements IRenderer {
-  private readonly defaultContainer: HTMLElement;
-  private containerByParent: Map<HTMLElement, HTMLElement>;
-  private highlightByNode: Map<HTMLElement, HTMLElement>;
-
-  private static createDefaultContainer(): HTMLElement {
-    const container = document.createElement(HighlighterContainerTag);
-    container.classList.add('kontent-smart-link-default-overlay');
-    window.document.body.appendChild(container);
-    return container;
-  }
+  private readonly defaultContainer: KSLContainerElement;
+  private containerByParent: Map<HTMLElement, KSLContainerElement>;
+  private highlightByNode: Map<HTMLElement, KSLHighlightElement>;
 
   constructor() {
-    this.containerByParent = new Map<HTMLElement, HTMLElement>();
-    this.highlightByNode = new Map<HTMLElement, HTMLElement>();
-    this.defaultContainer = HighlightRenderer.createDefaultContainer();
+    this.containerByParent = new Map<HTMLElement, KSLContainerElement>();
+    this.highlightByNode = new Map<HTMLElement, KSLHighlightElement>();
+    this.defaultContainer = HighlightRenderer.createAndMountDefaultContainer();
+  }
+
+  private static createAndMountDefaultContainer(): KSLContainerElement {
+    const container = document.createElement(RendererContainerTag);
+    window.document.body.appendChild(container);
+    return container;
   }
 
   public destroy = (): void => {
@@ -34,29 +33,13 @@ export class HighlightRenderer implements IRenderer {
     this.defaultContainer.remove();
   };
 
-  public selectNode = (node: HTMLElement): void => {
-    const highlight = this.highlightByNode.get(node);
-    if (highlight) {
-      node.classList.add('kontent-smart-link__node--selected');
-      highlight.classList.add('selected');
-    }
-  };
-
-  public deselectNode = (node: HTMLElement): void => {
-    const highlight = this.highlightByNode.get(node);
-    if (highlight) {
-      node.classList.remove('kontent-smart-link__node--selected');
-      highlight.classList.remove('selected');
-    }
-  };
-
-  public render = (nodes: Set<HTMLElement>): void => {
-    if (nodes.size === 0) {
+  public render = (visibleNodes: Set<HTMLElement>, observedNodes: Set<HTMLElement>): void => {
+    if (observedNodes.size === 0) {
       this.clear();
     } else {
-      const newHighlightByNode = new Map<HTMLElement, HTMLElement>();
+      const newHighlightByNode = new Map<HTMLElement, KSLHighlightElement>();
 
-      for (const node of nodes) {
+      for (const node of visibleNodes) {
         // Get size of the node and its position relative to viewport.
         const nodeRect = node.getBoundingClientRect();
 
@@ -66,7 +49,7 @@ export class HighlightRenderer implements IRenderer {
 
         if (!isFlat) {
           const [parentElement, parentMetadata] = getParentForHighlight(node);
-          const highlight = this.highlightByNode.get(node) ?? this.createHighlight(parentElement);
+          const highlight = this.highlightByNode.get(node) ?? this.createHighlight(node, parentElement);
 
           if (parentElement && parentMetadata) {
             const parentRect = parentElement.getBoundingClientRect();
@@ -87,12 +70,12 @@ export class HighlightRenderer implements IRenderer {
                 // When parent element is not positioned and its content is clipped
                 // we need to hide overflow of the container as well to prevent
                 // highlights from appearing for overflown content.
-                container.classList.add('kontent-smart-link-overlay--restricted');
+                container.setAttribute('clipped', 'true');
               }
             }
 
             // If the parent element is positioned and its content is clipped (hidden, scroll, auto, clipped),
-            // the parent element is an offset parent for the highlight and its scroll position can effect the position
+            // the parent element is an offset parent for the highlight and its scroll position can affect the position
             // of the highlight, so we need to reckon with that.
             const isPositionedAndClipped = parentMetadata.isPositioned && parentMetadata.isContentClipped;
             const scrollOffsetTop = isPositionedAndClipped ? parentElement.scrollTop : 0;
@@ -117,11 +100,15 @@ export class HighlightRenderer implements IRenderer {
         }
       }
 
-      // All highlights that are left in the old highlightByNode map are the remnants of the old render
-      // and should be removed because their node has already been removed/or moved out of the viewport.
+      // All highlights that are left in the old highlightByNode map are the remnants of the old render.
+      // We check if they are still observed and relevant for renderer and if not they can be removed.
       for (const [node, highlight] of this.highlightByNode.entries()) {
-        highlight.remove();
-        this.highlightByNode.delete(node);
+        if (!observedNodes.has(node)) {
+          highlight.remove();
+          this.highlightByNode.delete(node);
+        } else {
+          newHighlightByNode.set(node, highlight);
+        }
       }
 
       // All highlight containers that have no children can be removed because they are not used by any highlight.
@@ -147,28 +134,31 @@ export class HighlightRenderer implements IRenderer {
       this.containerByParent.delete(parent);
     }
 
-    this.highlightByNode = new Map<HTMLElement, HTMLElement>();
-    this.containerByParent = new Map<HTMLElement, HTMLElement>();
+    this.highlightByNode = new Map<HTMLElement, KSLHighlightElement>();
+    this.containerByParent = new Map<HTMLElement, KSLContainerElement>();
     this.defaultContainer.innerHTML = '';
   };
 
-  private createHighlight = (parent: HTMLElement | null): HTMLElement => {
-    const highlight = document.createElement(HighlighterElementTag);
+  private createHighlight = (node: HTMLElement, parent: HTMLElement | null): KSLHighlightElement => {
     const container = this.createContainerIfNotExist(parent);
+    const highlight = document.createElement(RendererElementTag);
+    highlight.attachTo(node);
     container.appendChild(highlight);
     return highlight;
   };
 
-  private createContainerIfNotExist = (parent: HTMLElement | null): HTMLElement => {
-    if (!parent) {
+  private createContainerIfNotExist = (parent: HTMLElement | null): KSLContainerElement => {
+    // if parent is not specified or highlight will be placed inside body
+    if (!parent || parent === document.body) {
       return this.defaultContainer;
     }
 
-    if (this.containerByParent.has(parent)) {
-      return this.containerByParent.get(parent) as HTMLElement;
+    let container = this.containerByParent.get(parent);
+    if (container) {
+      return container;
     }
 
-    const container = document.createElement(HighlighterContainerTag);
+    container = document.createElement(RendererContainerTag);
     parent.appendChild(container);
     this.containerByParent.set(parent, container);
     return container;

@@ -2,7 +2,6 @@ import { StoryFnHtmlReturnType } from '@storybook/html/dist/client/preview/types
 import { StoryContext } from '@storybook/addons';
 import { useEffect } from '@storybook/client-api';
 import KontentSmartLink from '../../es/index.js';
-import '../../dist/kontent-smart-link.styles.css';
 
 export function withSdk(storyFn: () => StoryFnHtmlReturnType, context: StoryContext) {
   const { sdkConfiguration } = context.parameters;
