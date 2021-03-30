@@ -1,47 +1,65 @@
-interface IParentMetadata {
-  readonly isPositioned: boolean;
-  readonly isContentClipped: boolean;
+export function groupElementsByRenderingRoot(
+  elements: ReadonlySet<HTMLElement>
+): Map<HTMLElement | null, ReadonlySet<HTMLElement>> {
+  const results = new Map();
+
+  for (const element of elements) {
+    const root = getRenderingRootForElement(element);
+    const prev = results.get(root) ?? new Set();
+    results.set(root, prev.add(element));
+  }
+
+  return results;
 }
 
 /**
  * Iterate through node ancestors and find an element which will be used as a parent for
- * the highlights container (highlights -> container -> parent). This element should either be
- * positioned (position is anything except static) or should have its content clipped. In case of
- * table element (td, th, table) it should be positioned or it will be ignored (even if its content is clipped).
+ * the ksl-container. This element should either be positioned (position is anything except static) or should
+ * have its content clipped. In case of table element (td, th, table) it should be positioned or it will be ignored
+ * (even if its content is clipped).
  *
- * @param {HTMLElement} node
- * @returns {[HTMLElement, IParentMetadata] | [null, null]}
+ * @param {HTMLElement} element
+ * @returns {HTMLElement | null}
  */
-export function getParentForHighlight(node: HTMLElement): [HTMLElement, IParentMetadata] | [null, null] {
-  const parent = node.parentNode;
+export function getRenderingRootForElement(element: HTMLElement): HTMLElement | null {
+  const parentElement = element.parentElement;
 
-  if (parent instanceof HTMLElement) {
-    const computedStyle = window.getComputedStyle(parent);
-
-    const position = computedStyle.getPropertyValue('position');
-    const overflow = computedStyle.getPropertyValue('overflow');
-
-    const metadata: IParentMetadata = {
-      // The positioned element is an element whose computed position is anything except static.
-      // Offset top and offset left values of child element are relative to the first positioned ancestor, so we can use
-      // it to correctly position the highlight.
-      isPositioned: position !== 'static',
-      // Content is clipped when overflow of the element is hidden (auto, scroll, clip, hidden). Highlights should be placed
-      // inside such elements so that they do not overflow their parent.
-      isContentClipped: overflow.split(' ').some((value) => ['auto', 'scroll', 'clip', 'hidden'].includes(value)),
-    };
+  if (parentElement instanceof HTMLElement) {
+    const metadata = getRenderingRootMetadata(parentElement);
 
     // Table HTML element (td, th, table) can be an offset parent of some node, but unless it is positioned it will not be
     // used as a offset parent for the absolute positioned child (highlight). That is why we should ignore those elements and
     // do not use them as parents unless they are positioned. Otherwise, the highlighting might broke for the tables.
-    const isNotTable = !['TD', 'TH', 'TABLE'].includes(parent.tagName);
+    const isNotTable = !['TD', 'TH', 'TABLE'].includes(parentElement.tagName);
 
     return metadata.isPositioned || (metadata.isContentClipped && isNotTable)
-      ? [parent, metadata]
-      : getParentForHighlight(parent);
+      ? parentElement
+      : getRenderingRootForElement(parentElement);
   }
 
-  return [null, null];
+  return null;
+}
+
+export interface IRenderingRootMetadata {
+  // The positioned element is an element whose computed position is anything except static.
+  // Offset top and offset left values of child element are relative to the first positioned ancestor, so we can use
+  // it to correctly position the highlight.
+  readonly isPositioned: boolean;
+  // Content is clipped when overflow of the element is hidden (auto, scroll, clip, hidden). Highlights should be placed
+  // inside such elements so that they do not overflow their parent.
+  readonly isContentClipped: boolean;
+}
+
+export function getRenderingRootMetadata(root: HTMLElement): IRenderingRootMetadata {
+  const computedStyles = window.getComputedStyle(root);
+
+  const position = computedStyles.getPropertyValue('position');
+  const overflow = computedStyles.getPropertyValue('overflow');
+
+  return {
+    isPositioned: position !== 'static',
+    isContentClipped: overflow.split(' ').some((value) => ['auto', 'scroll', 'clip', 'hidden'].includes(value)),
+  };
 }
 
 /**
@@ -79,4 +97,20 @@ export function getTotalScrollOffset(node: HTMLElement | null): [number, number]
   }
 
   return [scrollTop, scrollLeft];
+}
+
+/**
+ * Get all element ancestors.
+ * @param {HTMLElement} element
+ */
+export function getElementAncestors(element: HTMLElement): ReadonlyArray<HTMLElement> {
+  const ancestors = [];
+
+  let parent = element.parentElement;
+  while (parent !== null) {
+    ancestors.push(parent);
+    parent = parent.parentElement;
+  }
+
+  return ancestors;
 }
