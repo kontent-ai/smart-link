@@ -1,11 +1,10 @@
 import { ButtonType, KSLButtonElement } from './KSLButtonElement';
 import { IconName, KSLIconElement } from './KSLIconElement';
-import { ElementPosition } from './abstract/KSLPositionedElement';
-import { getHighlightTypeForNode, HighlightType } from '../utils/highlight';
 import { assert } from '../utils/assert';
 import { getDataAttributesFromElementAncestors, getDataAttributesFromEventPath } from '../utils/dataAttributes';
-import { KSLCustomElement } from './abstract/KSLCustomElement';
-import { createTemplateForCustomElement } from '../utils/customElements';
+import { createTemplateForCustomElement, getHighlightTypeForElement, HighlightType } from '../utils/customElements';
+import { ElementPositionOffset, KSLPositionedElement } from './abstract/KSLPositionedElement';
+import { KSLContainerElement } from './KSLContainerElement';
 
 interface IKSLHighlightElementEventData {
   readonly dataAttributes: ReadonlyMap<string, string>;
@@ -94,7 +93,7 @@ const templateHTML = `
       id="ksl-edit" 
       class="ksl-highlight__toolbar-button"
       type="${ButtonType.Quinary}"
-      tooltip-position="${ElementPosition.BottomEnd}"
+      tooltip-position="${ElementPositionOffset.BottomEnd}"
       tooltip-message="Edit">
       <ksl-icon icon-name="${IconName.Edit}" />
     </ksl-button>
@@ -102,7 +101,7 @@ const templateHTML = `
       id="ksl-remove" 
       class="ksl-highlight__toolbar-button"
       type="${ButtonType.DestructiveQuinary}" 
-      tooltip-position="${ElementPosition.BottomEnd}"
+      tooltip-position="${ElementPositionOffset.BottomEnd}"
       tooltip-message="Remove"
     >
       <ksl-icon icon-name="${IconName.Bin}" />
@@ -110,13 +109,17 @@ const templateHTML = `
   </div>
 `;
 
-export class KSLHighlightElement extends KSLCustomElement {
+export class KSLHighlightElement extends KSLPositionedElement {
   public static get is() {
     return 'ksl-highlight' as const;
   }
 
+  public static get observedAttributes(): string[] {
+    return ['deleted'];
+  }
+
   public get type(): HighlightType {
-    return getHighlightTypeForNode(this.targetNode);
+    return getHighlightTypeForElement(this.targetRef);
   }
 
   public get selected(): boolean {
@@ -124,11 +127,7 @@ export class KSLHighlightElement extends KSLCustomElement {
   }
 
   public set selected(value: boolean) {
-    if (value) {
-      this.setAttribute('selected', '');
-    } else {
-      this.removeAttribute('selected');
-    }
+    this.updateAttribute('selected', value);
   }
 
   public get deleted(): boolean {
@@ -136,21 +135,12 @@ export class KSLHighlightElement extends KSLCustomElement {
   }
 
   public set deleted(value: boolean) {
-    if (value) {
-      this.setAttribute('deleted', '');
-      this.editButtonRef.disabled = true;
-      this.removeButtonRef.disabled = true;
-    } else {
-      this.removeAttribute('deleted');
-      this.editButtonRef.disabled = false;
-      this.removeButtonRef.disabled = false;
-    }
+    this.updateAttribute('deleted', value);
   }
 
   private readonly editButtonRef: KSLButtonElement;
   private readonly removeButtonRef: KSLButtonElement;
   private readonly removeButtonIconRef: KSLIconElement;
-  private targetNode: HTMLElement | null = null;
 
   constructor() {
     super();
@@ -166,36 +156,68 @@ export class KSLHighlightElement extends KSLCustomElement {
   }
 
   public connectedCallback(): void {
+    super.connectedCallback();
+
     this.editButtonRef.addEventListener('click', this.handleEditButtonClick);
     this.removeButtonRef.addEventListener('click', this.handleRemoveButtonClick);
   }
 
   public disconnectedCallback(): void {
+    super.connectedCallback();
+
     this.editButtonRef.addEventListener('click', this.handleEditButtonClick);
     this.removeButtonRef.addEventListener('click', this.handleRemoveButtonClick);
     this.unregisterTargetNodeListeners();
   }
 
+  public attributeChangedCallback(attributeName: string, _oldValue: string | null, newValue: string | null): void {
+    if (attributeName === 'deleted') {
+      this.editButtonRef.disabled = Boolean(newValue);
+      this.removeButtonRef.disabled = Boolean(newValue);
+    }
+  }
+
   public attachTo = (node: HTMLElement): void => {
     this.unregisterTargetNodeListeners();
 
-    this.targetNode = node;
+    super.attachTo(node);
 
     const highlightType = this.type;
     this.hidden = highlightType === HighlightType.None;
     this.removeButtonRef.hidden = ![HighlightType.ContentItem, HighlightType.ContentComponent].includes(highlightType);
     this.removeButtonIconRef.iconName = highlightType === HighlightType.ContentItem ? IconName.Times : IconName.Bin;
 
-    this.targetNode.addEventListener('mousemove', this.handleTargetNodeMouseEnter);
-    this.targetNode.addEventListener('mouseleave', this.handleTargetNodeMouseLeave);
-    this.targetNode.addEventListener('click', this.handleTargetNodeClick);
+    if (this.targetRef) {
+      this.targetRef.addEventListener('mousemove', this.handleTargetNodeMouseEnter);
+      this.targetRef.addEventListener('mouseleave', this.handleTargetNodeMouseLeave);
+      this.targetRef.addEventListener('click', this.handleTargetNodeClick);
+    }
+  };
+
+  public adjustPosition = (): void => {
+    if (!this.targetRef || !this.offsetParent) {
+      return;
+    }
+
+    if (!(this.offsetParent instanceof KSLContainerElement)) {
+      console.warn('KSLHighlightElement: should be located inside KSLContainerElement to be positioned properly.');
+    }
+
+    const offsetParentRect = this.offsetParent.getBoundingClientRect();
+    const targetRect = this.targetRef.getBoundingClientRect();
+
+    this.style.top = `${targetRect.top - offsetParentRect.top}px`;
+    this.style.left = `${targetRect.left - offsetParentRect.left}px`;
+
+    this.style.width = `${targetRect.width}px`;
+    this.style.height = `${targetRect.height}px`;
   };
 
   private unregisterTargetNodeListeners = (): void => {
-    if (this.targetNode) {
-      this.targetNode.removeEventListener('mousemove', this.handleTargetNodeMouseEnter);
-      this.targetNode.removeEventListener('mouseleave', this.handleTargetNodeMouseLeave);
-      this.targetNode.removeEventListener('click', this.handleTargetNodeClick);
+    if (this.targetRef) {
+      this.targetRef.removeEventListener('mousemove', this.handleTargetNodeMouseEnter);
+      this.targetRef.removeEventListener('mouseleave', this.handleTargetNodeMouseLeave);
+      this.targetRef.removeEventListener('click', this.handleTargetNodeClick);
     }
   };
 
@@ -208,16 +230,17 @@ export class KSLHighlightElement extends KSLCustomElement {
   };
 
   private handleEditButtonClick = (event: MouseEvent): void => {
+    assert(this.targetRef, 'Target node is not set for this highlight.');
+
     event.preventDefault();
     event.stopPropagation();
 
-    assert(this.targetNode, 'Target node is not set for this highlight.');
-    const dataAttributes = getDataAttributesFromElementAncestors(this.targetNode);
+    const dataAttributes = getDataAttributesFromElementAncestors(this.targetRef);
     this.dispatchEditEvent(dataAttributes);
   };
 
   private handleTargetNodeClick = (event: MouseEvent): void => {
-    assert(this.targetNode, 'Target node is not set for this highlight.');
+    assert(this.targetRef, 'Target node is not set for this highlight.');
 
     event.preventDefault();
     event.stopPropagation();
@@ -227,12 +250,12 @@ export class KSLHighlightElement extends KSLCustomElement {
   };
 
   private dispatchEditEvent = (dataAttributes: ReadonlyMap<string, string>): void => {
-    assert(this.targetNode, 'Target node is not set for this highlight element.');
+    assert(this.targetRef, 'Target node is not set for this highlight element.');
 
     const customEvent = new CustomEvent<IKSLHighlightElementEventData>('ksl:highlight:edit', {
       detail: {
         dataAttributes,
-        targetNode: this.targetNode,
+        targetNode: this.targetRef,
       },
     });
 

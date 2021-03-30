@@ -1,11 +1,11 @@
 import { createHtmlFixture } from '../test-helpers/createHtmlFixture';
-import { getParentForHighlight, getTotalScrollOffset } from '../../src/utils/node';
+import { getRenderingRootForElement, getRenderingRootMetadata, getTotalScrollOffset } from '../../src/utils/node';
 
 describe('node.ts', () => {
-  describe('getParentForHighlight', () => {
+  describe('getRenderingRootForElement', () => {
     const fixture = createHtmlFixture();
 
-    it('should return [null, null] when there is no suitable parent', () => {
+    it('should return `null` when there is no suitable parent', () => {
       // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
       fixture.setHtml(`
         <div id="a">
@@ -29,8 +29,8 @@ describe('node.ts', () => {
       // </editor-fold>
 
       const target = fixture.querySelector('#target') as HTMLElement;
-      const result = getParentForHighlight(target);
-      expect(result).toEqual([null, null]);
+      const root = getRenderingRootForElement(target);
+      expect(root).toEqual(null);
     });
 
     it('should return the positioned parent', () => {
@@ -51,12 +51,8 @@ describe('node.ts', () => {
       // </editor-fold>
 
       const target = fixture.querySelector('#target') as HTMLElement;
-      const [element, metadata] = getParentForHighlight(target);
-      expect(element?.id).toEqual('b');
-      expect(metadata).toEqual({
-        isPositioned: true,
-        isContentClipped: false,
-      });
+      const root = getRenderingRootForElement(target);
+      expect(root?.id).toEqual('b');
     });
 
     it('should return the parent with clipped content', () => {
@@ -77,12 +73,8 @@ describe('node.ts', () => {
       // </editor-fold>
 
       const target = fixture.querySelector('#target') as HTMLElement;
-      const [element, metadata] = getParentForHighlight(target);
-      expect(element?.id).toEqual('c');
-      expect(metadata).toEqual({
-        isPositioned: false,
-        isContentClipped: true,
-      });
+      const root = getRenderingRootForElement(target);
+      expect(root?.id).toEqual('c');
     });
 
     it('should return the closest parent which is positioned or has clipped content', () => {
@@ -106,11 +98,11 @@ describe('node.ts', () => {
       const targetA = fixture.querySelector('#targetA') as HTMLElement;
       const targetB = fixture.querySelector('#targetB') as HTMLElement;
 
-      const resultA = getParentForHighlight(targetA);
-      const resultB = getParentForHighlight(targetB);
+      const resultA = getRenderingRootForElement(targetA);
+      const resultB = getRenderingRootForElement(targetB);
 
-      expect(resultA?.[0]?.id).toEqual('c');
-      expect(resultB?.[0]?.id).toEqual('a');
+      expect(resultA?.id).toEqual('c');
+      expect(resultB?.id).toEqual('a');
     });
 
     it('should ignore table elements when they are not positioned', () => {
@@ -131,8 +123,8 @@ describe('node.ts', () => {
       // </editor-fold>
 
       const target = fixture.querySelector('#target') as HTMLElement;
-      const [element] = getParentForHighlight(target);
-      expect(element?.id).toEqual('a');
+      const root = getRenderingRootForElement(target);
+      expect(root?.id).toEqual('a');
     });
 
     it('should acknowledge table elements when they are positioned', () => {
@@ -153,8 +145,62 @@ describe('node.ts', () => {
       // </editor-fold>
 
       const target = fixture.querySelector('#target') as HTMLElement;
-      const [element] = getParentForHighlight(target);
-      expect(element?.id).toEqual('b');
+      const root = getRenderingRootForElement(target);
+      expect(root?.id).toEqual('b');
+    });
+  });
+
+  describe('getRenderingRootMetadata', () => {
+    const fixture = createHtmlFixture();
+
+    it('should be able to detect that root is positioned', () => {
+      // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
+      fixture.setHtml(`
+        <div id="a" style="position: relative">
+            <div id="c" style="position: relative">
+                <div id="b" style="position: absolute">
+                    <div id="d">
+                        <div id="e" style="position: static">
+                            <div id="target"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+      `);
+      // </editor-fold>
+
+      const target = fixture.querySelector('#b') as HTMLElement;
+      const metadata = getRenderingRootMetadata(target);
+      expect(metadata).toEqual({
+        isPositioned: true,
+        isContentClipped: false,
+      });
+    });
+
+    it('should be able to detect that root content is clipped', () => {
+      // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
+      fixture.setHtml(`
+        <div id="a" style="position: relative">
+            <div id="b" style="position: absolute">
+                <div id="c" style="overflow: scroll">
+                    <div id="d">
+                        <div id="e" style="position: static">
+                            <div id="target"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+      `);
+      // </editor-fold>
+
+      const target = fixture.querySelector('#c') as HTMLElement;
+      const metadata = getRenderingRootMetadata(target);
+      expect(metadata).toEqual({
+        isPositioned: false,
+        isContentClipped: true,
+      });
     });
   });
 
