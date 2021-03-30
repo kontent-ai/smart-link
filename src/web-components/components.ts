@@ -1,5 +1,5 @@
 import { KSLCustomElement } from './abstract/KSLCustomElement';
-import { KSLAddButtonElement } from './KSLAddButtonElement';
+import { KSLPlusButtonElement } from './KSLPlusButtonElement';
 import { KSLContainerElement } from './KSLContainerElement';
 import { KSLButtonElement } from './KSLButtonElement';
 import { KSLIconElement } from './KSLIconElement';
@@ -11,7 +11,7 @@ declare global {
   interface HTMLElementTagNameMap {
     [KSLIconElement.is]: KSLIconElement;
     [KSLButtonElement.is]: KSLButtonElement;
-    [KSLAddButtonElement.is]: KSLAddButtonElement;
+    [KSLPlusButtonElement.is]: KSLPlusButtonElement;
     [KSLHighlightElement.is]: KSLHighlightElement;
     [KSLContainerElement.is]: KSLContainerElement;
     [KSLTooltipElement.is]: KSLTooltipElement;
@@ -22,7 +22,7 @@ declare global {
 const webComponents: ReadonlyArray<typeof KSLCustomElement> = [
   KSLIconElement,
   KSLButtonElement,
-  KSLAddButtonElement,
+  KSLPlusButtonElement,
   KSLHighlightElement,
   KSLContainerElement,
   KSLTooltipElement,

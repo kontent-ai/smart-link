@@ -1,12 +1,14 @@
 import { withScrollOffsets } from '../../decorators/withScrollOffsets';
 import { OverflowProperty, PositionProperty } from '../../types';
 import { getEnumValues } from '../../helpers';
+import { ElementPositionOffset } from '../../../src/web-components/abstract/KSLPositionedElement';
 
 interface ITemplateArgs {
   readonly containerOverflow: OverflowProperty;
   readonly containerPosition: PositionProperty;
   readonly nestedOverflow: OverflowProperty;
   readonly nestedPosition: PositionProperty;
+  readonly buttonPosition: ElementPositionOffset;
 }
 
 const nestedOverflowTemplateArgTypes = {
@@ -34,9 +36,22 @@ const nestedOverflowTemplateArgTypes = {
       options: getEnumValues(PositionProperty),
     },
   },
+  buttonPosition: {
+    defaultValue: ElementPositionOffset.Bottom,
+    control: {
+      type: 'select',
+      options: getEnumValues(ElementPositionOffset),
+    },
+  },
 };
 
-const NestedOverflowTemplate = ({ containerOverflow, containerPosition, nestedOverflow, nestedPosition }: ITemplateArgs) => `
+const NestedOverflowTemplate = ({
+  containerOverflow,
+  containerPosition,
+  nestedOverflow,
+  nestedPosition,
+  buttonPosition,
+}: ITemplateArgs) => `
   <div
     id="container"
     class="bg-light p-3 border border-secondary"
@@ -51,7 +66,7 @@ const NestedOverflowTemplate = ({ containerOverflow, containerPosition, nestedOv
       data-kontent-component-id="c"
       style="position: ${nestedPosition}; overflow: ${nestedOverflow}; max-height: 400px;"
     >
-      <div data-kontent-element-codename="e">
+      <div data-kontent-element-codename="e" data-kontent-plus-button="true" data-kontent-plus-button-render-position="${buttonPosition}">
         This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
         This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
         This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
@@ -63,7 +78,7 @@ const NestedOverflowTemplate = ({ containerOverflow, containerPosition, nestedOv
         This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
         This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
       </div>
-      <div data-kontent-element-codename="e">
+      <div data-kontent-element-codename="e" data-kontent-plus-button="true" data-kontent-plus-button-render-position="${buttonPosition}">
         This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
         This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
         This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
@@ -77,7 +92,7 @@ const NestedOverflowTemplate = ({ containerOverflow, containerPosition, nestedOv
       </div>
     </div>
   
-    <div data-kontent-element-codename="e">
+    <div data-kontent-element-codename="e" data-kontent-plus-button="true" data-kontent-plus-button-render-position="${buttonPosition}">
       This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
       This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
       This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
