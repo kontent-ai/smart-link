@@ -127,20 +127,17 @@ export class KSLButtonElement extends KSLCustomElementWithTooltip {
     return 'ksl-button' as const;
   }
 
+  public static get observedAttributes(): string[] {
+    const base = KSLCustomElementWithTooltip.observedAttributes;
+    return [...base, 'loading'];
+  }
+
   public get loading(): boolean {
     return this.hasAttribute('loading');
   }
 
   public set loading(value: boolean) {
-    this.disabled = value;
-
-    if (value) {
-      this.setAttribute('loading', '');
-      this.tooltipDisabled = true;
-    } else {
-      this.removeAttribute('loading');
-      this.tooltipDisabled = false;
-    }
+    this.updateAttribute('loading', value);
   }
 
   public get disabled(): boolean {
@@ -172,6 +169,16 @@ export class KSLButtonElement extends KSLCustomElementWithTooltip {
   public disconnectedCallback(): void {
     super.disconnectedCallback();
     this.removeEventListener('click', this.handleClick, { capture: true });
+  }
+
+  public attributeChangedCallback(attributeName: string, _oldValue: string | null, newValue: string | null): void {
+    super.attributeChangedCallback(attributeName, _oldValue, newValue);
+
+    if (attributeName === 'loading') {
+      const value = Boolean(newValue);
+      this.disabled = value;
+      this.tooltipDisabled = value;
+    }
   }
 
   private handleClick = (event: MouseEvent): void => {
