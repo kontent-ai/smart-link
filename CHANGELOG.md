@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2021-03-30
+
 ### Changed
 
 - Changed default smart link styles.
@@ -58,7 +60,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public release of SDK
 
-[unreleased]: https://github.com/Kentico/kontent-smart-link/compare/v1.2.2...HEAD
+[unreleased]: https://github.com/Kentico/kontent-smart-link/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/Kentico/kontent-smart-link/compare/v1.2.2...v1.3.0
 [1.2.2]: https://github.com/Kentico/kontent-smart-link/compare/v1.2.1...v1.2.2
 [1.2.1]: https://github.com/Kentico/kontent-smart-link/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/Kentico/kontent-smart-link/compare/v1.1.1...v1.2.0
