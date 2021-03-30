@@ -1,10 +1,10 @@
 import { DataAttribute } from '../utils/dataAttributes';
 import { EventManager } from './EventManager';
-import { HighlightRenderer, IRenderer } from './HighlightRenderer';
-import { getDescendantsWithHighlights, shouldNodeHaveHighlight } from '../utils/highlight';
 import { webComponentTags } from '../web-components/components';
-import { KSLHighlightElementEvent } from '../web-components/KSLHighlightElement';
 import { IElementClickedMessageData, IElementClickedMessageMetadata } from './IFrameCommunicatorTypes';
+import { IRenderer, SmartLinkRenderer } from './SmartLinkRenderer';
+import { KSLHighlightElementEvent } from '../web-components/KSLHighlightElement';
+import { getAugmentableDescendants, isElementAugmentable } from '../utils/customElements';
 
 export enum NodeSmartLinkProviderEventType {
   ElementDummy = 'kontent-smart-link:element:dummy',
@@ -40,7 +40,7 @@ export class NodeSmartLinkProvider {
     this.intersectionObserver = new IntersectionObserver(this.onElementVisibilityChange);
 
     this.events = new EventManager<NodeSmartLinkProviderMessagesMap>();
-    this.renderer = new HighlightRenderer();
+    this.renderer = new SmartLinkRenderer();
   }
 
   private static shouldIgnoreNode(node: HTMLElement): boolean {
@@ -139,7 +139,7 @@ export class NodeSmartLinkProvider {
       subtree: true,
     });
 
-    getDescendantsWithHighlights(document).forEach((element: Element) => {
+    getAugmentableDescendants(document).forEach((element: Element) => {
       if (element instanceof HTMLElement) {
         this.observeElementVisibility(element);
       }
@@ -197,11 +197,11 @@ export class NodeSmartLinkProvider {
       for (const node of mutation.addedNodes) {
         if (!(node instanceof HTMLElement)) continue;
 
-        if (shouldNodeHaveHighlight(node)) {
+        if (isElementAugmentable(node)) {
           this.observeElementVisibility(node);
         }
 
-        for (const element of getDescendantsWithHighlights(node)) {
+        for (const element of getAugmentableDescendants(node)) {
           if (!(element instanceof HTMLElement)) continue;
 
           this.observeElementVisibility(element);
@@ -211,11 +211,11 @@ export class NodeSmartLinkProvider {
       for (const node of mutation.removedNodes) {
         if (!(node instanceof HTMLElement)) continue;
 
-        if (shouldNodeHaveHighlight(node)) {
+        if (isElementAugmentable(node)) {
           this.unobserveElementVisibility(node);
         }
 
-        for (const element of getDescendantsWithHighlights(node)) {
+        for (const element of getAugmentableDescendants(node)) {
           if (!(element instanceof HTMLElement)) continue;
 
           this.unobserveElementVisibility(element);
