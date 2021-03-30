@@ -1,9 +1,11 @@
 import { OverflowProperty, PositionProperty } from '../../types';
 import { getEnumValues } from '../../helpers';
+import { ElementPositionOffset } from '../../../src/web-components/abstract/KSLPositionedElement';
 
 interface IOverflowTemplateArgs {
   readonly overflow: OverflowProperty;
   readonly position: PositionProperty;
+  readonly buttonPosition: ElementPositionOffset;
 }
 
 export const overflowTemplateArgTypes = {
@@ -19,9 +21,16 @@ export const overflowTemplateArgTypes = {
       options: getEnumValues(PositionProperty),
     },
   },
+  buttonPosition: {
+    defaultValue: ElementPositionOffset.Bottom,
+    control: {
+      type: 'select',
+      options: getEnumValues(ElementPositionOffset),
+    },
+  },
 };
 
-export const OverflowTemplate = ({ overflow, position }: IOverflowTemplateArgs) => `
+export const OverflowTemplate = ({ overflow, position, buttonPosition }: IOverflowTemplateArgs) => `
   <div 
     id="container" 
     class="bg-light p-3 border border-secondary"
@@ -31,7 +40,7 @@ export const OverflowTemplate = ({ overflow, position }: IOverflowTemplateArgs) 
     data-kontent-item-id="i"
     data-kontent-component-id="c"
   >
-    <div data-kontent-element-codename="e" style="width: 800px;">
+    <div data-kontent-element-codename="e" style="width: 800px;"  data-kontent-plus-button="true" data-kontent-plus-button-render-position="${buttonPosition}">
       This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
       This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
       This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
@@ -43,7 +52,7 @@ export const OverflowTemplate = ({ overflow, position }: IOverflowTemplateArgs) 
       This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
       This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
     </div>
-    <div data-kontent-element-codename="e" style="width: 800px;">
+    <div data-kontent-element-codename="e" style="width: 800px;"  data-kontent-plus-button="true" data-kontent-plus-button-render-position="${buttonPosition}">
       This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
       This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
       This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.

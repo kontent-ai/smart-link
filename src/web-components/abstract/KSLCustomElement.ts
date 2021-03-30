@@ -62,10 +62,10 @@ export abstract class KSLCustomElement extends HTMLElement {
 
     // We are using an "open" mode here, so that it is easier for users to manipulate the shadow root
     // of our custom elements if they want to change or customize something.
-    const rootConfig: ShadowRootInit = { mode: 'open' };
+    const shadowRootConfig: ShadowRootInit = { mode: 'open' };
 
     const selfClass = Object.getPrototypeOf(this).constructor;
-    const shadowRoot = this.attachShadow(rootConfig);
+    const shadowRoot = this.attachShadow(shadowRootConfig);
     shadowRoot.appendChild(selfClass.template.content.cloneNode(true));
   }
 
@@ -107,4 +107,18 @@ export abstract class KSLCustomElement extends HTMLElement {
       'KSLCustomElement: "initializeTemplate" method should be implemented for every component.'
     );
   }
+
+  /**
+   * Update attribute value on the custom element.
+   *
+   * @param {string} attributeName
+   * @param {string | number | boolean | null} attributeValue
+   */
+  protected updateAttribute = (attributeName: string, attributeValue: string | number | boolean | null): void => {
+    if (attributeValue) {
+      this.setAttribute(attributeName, attributeValue.toString());
+    } else {
+      this.removeAttribute(attributeName);
+    }
+  };
 }

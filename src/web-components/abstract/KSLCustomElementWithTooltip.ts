@@ -1,19 +1,18 @@
 import { KSLCustomElement } from './KSLCustomElement';
-import { ElementPosition } from './KSLPositionedElement';
 import { KSLTooltipElement } from '../KSLTooltipElement';
+import { ElementPositionOffset } from './KSLPositionedElement';
 
 export abstract class KSLCustomElementWithTooltip extends KSLCustomElement {
+  public static get observedAttributes(): string[] {
+    return ['tooltip-disabled', 'tooltip-message'];
+  }
+
   public get tooltipDisabled(): boolean {
     return this.hasAttribute('tooltip-disabled');
   }
 
   public set tooltipDisabled(value: boolean) {
-    if (value) {
-      this.setAttribute('tooltip-disabled', '');
-      this.hideTooltip();
-    } else {
-      this.removeAttribute('tooltip-disabled');
-    }
+    this.updateAttribute('tooltip-disabled', value);
   }
 
   public get tooltipMessage(): string | null {
@@ -21,24 +20,15 @@ export abstract class KSLCustomElementWithTooltip extends KSLCustomElement {
   }
 
   public set tooltipMessage(value: string | null) {
-    if (value) {
-      this.setAttribute('tooltip-message', value);
-    } else {
-      this.removeAttribute('tooltip-message');
-      this.hideTooltip();
-    }
+    this.updateAttribute('tooltip-message', value);
   }
 
   public get tooltipPosition(): string {
-    return this.getAttribute('tooltip-position') || ElementPosition.Bottom;
+    return this.getAttribute('tooltip-position') || ElementPositionOffset.Bottom;
   }
 
   public set tooltipPosition(value: string) {
-    if (value) {
-      this.setAttribute('tooltip-position', value);
-    } else {
-      this.removeAttribute('tooltip-position');
-    }
+    this.updateAttribute('tooltip-position', value);
   }
 
   protected tooltipRef: KSLTooltipElement | null = null;
@@ -57,6 +47,18 @@ export abstract class KSLCustomElementWithTooltip extends KSLCustomElement {
     this.removeEventListener('mouseenter', this.showTooltip);
     this.removeEventListener('blur', this.hideTooltip);
     this.removeEventListener('mouseleave', this.hideTooltip);
+  }
+
+  public attributeChangedCallback(attributeName: string, _oldValue: string | null, newValue: string | null): void {
+    if (attributeName === 'tooltip-disabled') {
+      if (newValue) {
+        this.hideTooltip();
+      }
+    } else if (attributeName === 'tooltip-message') {
+      if (!newValue) {
+        this.hideTooltip();
+      }
+    }
   }
 
   private showTooltip = (): void => {

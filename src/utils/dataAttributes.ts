@@ -1,10 +1,28 @@
-export const DataAttribute = {
-  ElementCodename: 'data-kontent-element-codename',
-  ComponentId: 'data-kontent-component-id',
-  ItemId: 'data-kontent-item-id',
-  LanguageCodename: 'data-kontent-language-codename',
-  ProjectId: 'data-kontent-project-id',
-};
+import { getElementAncestors } from './node';
+
+/**
+ * Data-attributes are used to get some Kontent related data from DOM.
+ * Data from data-attributes is used to generate smart links or iframe messages to Kontent.
+ * However, this data can also be used in rendering (e.g. HTML elements with element codename attribute
+ * have highlights).
+ */
+export enum DataAttribute {
+  ElementCodename = 'data-kontent-element-codename',
+  ComponentId = 'data-kontent-component-id',
+  ItemId = 'data-kontent-item-id',
+  LanguageCodename = 'data-kontent-language-codename',
+  ProjectId = 'data-kontent-project-id',
+}
+
+/**
+ * Metadata-attributes are used to get some metadata about some of the SDK features.
+ * Metadata is used for SDK inner logic (such as rendering, event handling, etc.).
+ */
+export enum MetadataAttribute {
+  PlusButton = 'data-kontent-plus-button',
+  PlusButtonInsertPosition = 'data-kontent-plus-button-insert-position',
+  PlusButtonRenderPosition = 'data-kontent-plus-button-render-position',
+}
 
 const DataAttributeHierarchy = [
   DataAttribute.ProjectId,
@@ -40,22 +58,6 @@ export function getDataAttributesFromElementAncestors(element: HTMLElement): Rea
   return getDataAttributesFromElementsList(elements);
 }
 
-/**
- * Get all element ancestors.
- * @param element
- */
-function getElementAncestors(element: HTMLElement): ReadonlyArray<HTMLElement> {
-  const ancestors = [];
-
-  let parent = element.parentElement;
-  while (parent !== null) {
-    ancestors.push(parent);
-    parent = parent.parentElement;
-  }
-
-  return ancestors;
-}
-
 function getDataAttributesFromElementsList(elements: HTMLElement[]): ReadonlyMap<string, string> {
   const parsed: Map<string, string> = new Map();
 
@@ -71,7 +73,7 @@ function getDataAttributesFromElementsList(elements: HTMLElement[]): ReadonlyMap
 
       // Higher attributes are attributes that are placed higher in the hierarchy, for example,
       // for component id attribute those will be item id, language codename and project id.
-      const higherDataAttributes = getHigherDataAttributes(attributeName);
+      const higherDataAttributes = getHigherHierarchyDataAttributes(attributeName);
       const areSomeHigherAttributesSet = higherDataAttributes.some((attr) => parsed.has(attr));
 
       // If some higher attributes have already been parsed, it can mean two things:
@@ -116,7 +118,7 @@ function getDataAttributesFromElementsList(elements: HTMLElement[]): ReadonlyMap
  * @param {string} attributeName
  * @returns {ReadonlyArray<string>}
  */
-function getHigherDataAttributes(attributeName: string): ReadonlyArray<string> {
+function getHigherHierarchyDataAttributes(attributeName: DataAttribute): ReadonlyArray<string> {
   const attributeIndex = DataAttributeHierarchy.indexOf(attributeName);
   return DataAttributeHierarchy.slice(0, attributeIndex);
 }
