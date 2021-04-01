@@ -1,7 +1,7 @@
 type QueryParamChangeCallback = (isPresent: boolean) => void;
 
 export class QueryParamPresenceWatcher {
-  private static WatchIntervalMs = 1000;
+  private static WatchTimeoutMs = 1000;
 
   private previousValue: Map<string, boolean> = new Map();
   private timers: Map<string, number> = new Map();
@@ -34,7 +34,7 @@ export class QueryParamPresenceWatcher {
 
     const newTimerId = window.setTimeout(
       () => this.watch(queryParam, onChange),
-      QueryParamPresenceWatcher.WatchIntervalMs
+      QueryParamPresenceWatcher.WatchTimeoutMs
     );
 
     this.timers.set(queryParam, newTimerId);
