@@ -3,23 +3,33 @@ import { EventManager } from './EventManager';
 import {
   IElementClickedMessageData,
   IElementClickedMessageMetadata,
+  IElementDummyData,
+  IElementDummyDataResponse,
   IFrameMessageType,
   IPluginInitializedMessageData,
   IPluginStatusMessageData,
 } from './IFrameCommunicatorTypes';
+import { createUuid } from '../utils/createUuid';
+
+type Callback<TResponseData> = (data?: TResponseData) => void;
+type MessageSignature<TMessageData, TMessageMetaData = undefined, TMessageCallback = undefined> = (
+  data: TMessageData,
+  metadata: TMessageMetaData,
+  callback: TMessageCallback
+) => void;
 
 export type IFrameMessagesMap = {
-  readonly [IFrameMessageType.ElementDummy]: (
-    data: any,
-    metadata: IElementClickedMessageMetadata,
-    callback: () => void
-  ) => void;
-  readonly [IFrameMessageType.Initialized]: (data: IPluginInitializedMessageData) => void;
-  readonly [IFrameMessageType.ElementClicked]: (
-    data: IElementClickedMessageData,
-    metadata: IElementClickedMessageMetadata
-  ) => void;
-  readonly [IFrameMessageType.Status]: (data: IPluginStatusMessageData) => void;
+  readonly [IFrameMessageType.ElementDummy]: MessageSignature<
+    Partial<IElementDummyData>,
+    IElementClickedMessageMetadata,
+    Callback<IElementDummyDataResponse>
+  >;
+  readonly [IFrameMessageType.Initialized]: MessageSignature<IPluginInitializedMessageData>;
+  readonly [IFrameMessageType.ElementClicked]: MessageSignature<
+    IElementClickedMessageData,
+    IElementClickedMessageMetadata
+  >;
+  readonly [IFrameMessageType.Status]: MessageSignature<IPluginStatusMessageData>;
 };
 
 export interface IFrameMessage<E extends keyof IFrameMessagesMap> {
@@ -31,7 +41,7 @@ export interface IFrameMessage<E extends keyof IFrameMessagesMap> {
 
 export class IFrameCommunicator {
   private readonly events: EventManager<IFrameMessagesMap>;
-  private readonly callbacks: any = {};
+  private readonly callbacks: Map<string, Callback<any>> = new Map();
 
   constructor() {
     this.events = new EventManager<IFrameMessagesMap>();
@@ -69,11 +79,11 @@ export class IFrameCommunicator {
   public sendMessageWithResponse = <M extends keyof IFrameMessagesMap>(
     type: M,
     data: Parameters<IFrameMessagesMap[M]>[0],
-    callback: () => void,
+    callback: Parameters<IFrameMessagesMap[M]>[2],
     metadata?: Parameters<IFrameMessagesMap[M]>[1]
   ): void => {
-    const operationId = this.createUuid();
-    this.registerCallback(callback, operationId);
+    const operationId = createUuid();
+    this.registerCallback(operationId, callback);
     this.sendMessage(type, data, metadata, operationId);
   };
 
@@ -83,28 +93,25 @@ export class IFrameCommunicator {
     this.events.emit(message.type, message.data);
 
     if (message.operationId) {
-      this.executeCallback(message.operationId, {});
+      this.executeCallback(message.operationId, message.data);
     }
   };
 
-  public createUuid(): string {
-    const randomUint32 = window.crypto.getRandomValues(new Uint32Array(1))[0];
-    return randomUint32.toString(16);
-  }
-
-  private registerCallback(callback: () => void, operationId: string): void {
+  private registerCallback = <T>(operationId: string, callback?: Callback<T>): void => {
     if (!callback) {
       return;
     }
 
-    this.callbacks[operationId] = callback;
-  }
+    this.callbacks.set(operationId, callback);
+  };
 
-  private executeCallback(operationId: string, data: any): void {
-    const callback = this.callbacks[operationId];
+  private executeCallback = <T>(operationId: string, data: T): void => {
+    const callback = this.callbacks.get(operationId);
 
     if (callback) {
       callback(data);
+
+      this.callbacks.delete(operationId);
     }
-  }
+  };
 }
