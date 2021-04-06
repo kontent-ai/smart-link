@@ -20,6 +20,16 @@ export interface IPluginStatusMessageData {
   readonly enabled: boolean;
 }
 
+export interface IElementDummyData {
+  readonly projectId: string;
+  readonly languageCodename: string;
+  readonly dummy: string;
+}
+
+export interface IElementDummyDataResponse {
+  readonly data: string;
+}
+
 export enum IFrameMessageType {
   ElementDummy = 'kontent-smart-link:element:dummy',
   ElementClicked = 'kontent-smart-link:element:clicked',
