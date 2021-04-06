@@ -7,6 +7,7 @@ import { IFrameCommunicator } from './lib/IFrameCommunicator';
 import {
   IElementClickedMessageData,
   IElementClickedMessageMetadata,
+  IElementDummyData,
   IFrameMessageType,
   IPluginStatusMessageData,
 } from './lib/IFrameCommunicatorTypes';
@@ -139,10 +140,10 @@ class Plugin {
   };
 
   private onDummyAction = (
-    elementClickData: Partial<any>,
+    elementClickData: Partial<IElementDummyData>,
     elementClickMetadata: IElementClickedMessageMetadata
   ): void => {
-    const data: Partial<any> = {
+    const data: Partial<IElementDummyData> = {
       ...elementClickData,
       projectId: elementClickData.projectId || this.configuration.projectId || undefined,
       languageCodename: elementClickData.languageCodename || this.configuration.languageCodename || undefined,
