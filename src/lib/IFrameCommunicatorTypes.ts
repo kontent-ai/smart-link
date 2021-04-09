@@ -13,7 +13,7 @@ export interface IElementClickedMessageData {
   readonly languageCodename: string;
   readonly itemId: string;
   readonly elementCodename: string;
-  readonly contentComponentId: string;
+  readonly contentComponentId?: string;
 }
 
 export interface IPluginStatusMessageData {
@@ -43,5 +43,5 @@ export enum IFrameResponseType {
 
 export interface IFrameResponseMessage {
   readonly type?: IFrameResponseType;
-  readonly operationId: string;
+  readonly requestId: string;
 }
