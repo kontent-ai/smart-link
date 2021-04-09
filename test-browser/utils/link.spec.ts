@@ -1,5 +1,5 @@
 import { buildComponentElementLink, buildElementLink, buildKontentLink } from '../../src';
-import { IElementClickedMessageData } from '../../src/lib/IFrameCommunicator';
+import { IElementClickedMessageData } from '../../src/lib/IFrameCommunicatorTypes';
 
 describe('link.ts', () => {
   describe('buildElementLink', () => {

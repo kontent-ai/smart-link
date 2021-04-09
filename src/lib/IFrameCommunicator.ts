@@ -36,7 +36,7 @@ export interface IFrameMessage<E extends keyof IFrameMessagesMap> {
   readonly type: E;
   readonly data: Parameters<IFrameMessagesMap[E]>[0];
   readonly metadata?: Parameters<IFrameMessagesMap[E]>[1];
-  readonly operationId?: string;
+  readonly requestId?: string;
 }
 
 export class IFrameCommunicator {
@@ -65,14 +65,14 @@ export class IFrameCommunicator {
     type: M,
     data: Parameters<IFrameMessagesMap[M]>[0],
     metadata?: Parameters<IFrameMessagesMap[M]>[1],
-    operationId?: string
+    requestId?: string
   ): void => {
     if (!isInsideIFrame()) {
       console.error("Warning: can't send an iframe message, because the application is not hosted in an iframe");
       return;
     }
 
-    const message: IFrameMessage<M> = { type, data, metadata, operationId };
+    const message: IFrameMessage<M> = { type, data, metadata, requestId };
     window.parent.postMessage(message, '*');
   };
 
@@ -82,9 +82,9 @@ export class IFrameCommunicator {
     callback: Parameters<IFrameMessagesMap[M]>[2],
     metadata?: Parameters<IFrameMessagesMap[M]>[1]
   ): void => {
-    const operationId = createUuid();
-    this.registerCallback(operationId, callback);
-    this.sendMessage(type, data, metadata, operationId);
+    const requestId = createUuid();
+    this.registerCallback(requestId, callback);
+    this.sendMessage(type, data, metadata, requestId);
   };
 
   private onMessage = (event: MessageEvent): void => {
@@ -92,26 +92,26 @@ export class IFrameCommunicator {
     const message = event.data as IFrameMessage<any>;
     this.events.emit(message.type, message.data);
 
-    if (message.operationId) {
-      this.executeCallback(message.operationId, message.data);
+    if (message.requestId) {
+      this.executeCallback(message.requestId, message.data);
     }
   };
 
-  private registerCallback = <T>(operationId: string, callback?: Callback<T>): void => {
+  private registerCallback = <T>(requestId: string, callback?: Callback<T>): void => {
     if (!callback) {
       return;
     }
 
-    this.callbacks.set(operationId, callback);
+    this.callbacks.set(requestId, callback);
   };
 
-  private executeCallback = <T>(operationId: string, data: T): void => {
-    const callback = this.callbacks.get(operationId);
+  private executeCallback = <T>(requestId: string, data: T): void => {
+    const callback = this.callbacks.get(requestId);
 
     if (callback) {
       callback(data);
 
-      this.callbacks.delete(operationId);
+      this.callbacks.delete(requestId);
     }
   };
 }
