@@ -1,6 +1,5 @@
 import { ElementPositionOffset, KSLPositionedElement } from './KSLPositionedElement';
-import { createTemplateForCustomElement } from '../../utils/customElements';
-import { getTotalScrollOffset } from '../../utils/node';
+import { createTemplateForCustomElement, getTotalScrollOffset } from '../../utils/node';
 
 const templateHTML = `
   <style>
