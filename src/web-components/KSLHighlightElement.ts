@@ -61,6 +61,10 @@ const templateHTML = `
       pointer-events: all;
     }
     
+    :host(:focus) {
+      outline: none;
+    }
+    
     .ksl-highlight__toolbar {
       position: absolute;
       top: 0;
