@@ -22,6 +22,10 @@ const templateHTML = `
     :host([visible]) {
       opacity: 1;
     }
+    
+    :host(:focus) {
+      outline: none;
+    }
   
     .ksl-pop-up__content {
       display: flex;

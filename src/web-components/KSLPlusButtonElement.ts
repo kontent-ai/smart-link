@@ -52,7 +52,11 @@ const templateHTML = `
       touch-action: initial;
     }
     
-    ksl-button {
+    :host(:focus) {
+      outline: none;
+    }
+    
+    ${KSLButtonElement.is} {
       display: block;
     }
   </style>
@@ -122,6 +126,40 @@ export class KSLPlusButtonElement extends KSLPositionedElement {
     this.style.top = `${targetRect.top - offsetParentRect.top + verticalOffset}px`;
     this.style.left = `${targetRect.left - offsetParentRect.left + horizontalOffset}px`;
   };
+
+  protected calculateTopOffset(thisRect: DOMRect, targetRect: DOMRect): number {
+    const offset = super.calculateTopOffset(thisRect, targetRect);
+
+    switch (this.position) {
+      case ElementPositionOffset.TopStart:
+      case ElementPositionOffset.Top:
+      case ElementPositionOffset.TopEnd:
+        return offset / 2;
+      case ElementPositionOffset.BottomStart:
+      case ElementPositionOffset.Bottom:
+      case ElementPositionOffset.BottomEnd:
+        return offset - thisRect.height / 2;
+      default:
+        return offset;
+    }
+  }
+
+  protected calculateLeftOffset(thisRect: DOMRect, targetRect: DOMRect): number {
+    const offset = super.calculateLeftOffset(thisRect, targetRect);
+
+    switch (this.position) {
+      case ElementPositionOffset.LeftStart:
+      case ElementPositionOffset.Left:
+      case ElementPositionOffset.LeftEnd:
+        return offset / 2;
+      case ElementPositionOffset.RightStart:
+      case ElementPositionOffset.Right:
+      case ElementPositionOffset.RightEnd:
+        return targetRect.width - thisRect.width / 2;
+      default:
+        return offset;
+    }
+  }
 
   private handleClick = (event: MouseEvent): void => {
     if (this.popoverRef) {
