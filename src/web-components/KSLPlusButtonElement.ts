@@ -1,11 +1,11 @@
 import { ButtonType, KSLButtonElement } from './KSLButtonElement';
 import { IconName } from './KSLIconElement';
 import { assert } from '../utils/assert';
-import { createTemplateForCustomElement } from '../utils/customElements';
 import { KSLPopoverElement } from './KSLPopoverElement';
 import { ElementPositionOffset, KSLPositionedElement } from './abstract/KSLPositionedElement';
 import { MetadataAttribute } from '../utils/dataAttributes';
 import { KSLContainerElement } from './KSLContainerElement';
+import { createTemplateForCustomElement } from '../utils/node';
 
 const popoverHTML = `
   <style>

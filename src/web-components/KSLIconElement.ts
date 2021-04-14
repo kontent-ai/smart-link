@@ -1,6 +1,6 @@
 import { KSLCustomElement } from './abstract/KSLCustomElement';
 import { assert } from '../utils/assert';
-import { createTemplateForCustomElement } from '../utils/customElements';
+import { createTemplateForCustomElement } from '../utils/node';
 
 export enum IconName {
   Bin = 'icon-bin',
