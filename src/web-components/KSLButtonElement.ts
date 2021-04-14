@@ -20,6 +20,10 @@ const templateHTML = `
       display: none;
     }
     
+    :host(:focus) {
+      outline: none;
+    }
+    
     .ksl-button {
       display: flex;
       flex-direction: column;
@@ -31,6 +35,10 @@ const templateHTML = `
     
     .ksl-button[disabled] {
       cursor: not-allowed;
+    }
+    
+    .ksl-button:focus {
+      outline: none;
     }
     
     .ksl-button__content,
