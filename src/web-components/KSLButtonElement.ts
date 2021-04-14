@@ -1,7 +1,7 @@
 import { IconName } from './KSLIconElement';
 import { assert } from '../utils/assert';
-import { createTemplateForCustomElement } from '../utils/customElements';
 import { KSLCustomElementWithTooltip } from './abstract/KSLCustomElementWithTooltip';
+import { createTemplateForCustomElement } from '../utils/node';
 
 export enum ButtonType {
   Primary = 'primary',

@@ -83,9 +83,3 @@ export function getHighlightTypeForElement(element: HTMLElement | null): Highlig
 
   return HighlightType.None;
 }
-
-export function createTemplateForCustomElement(html: string): HTMLTemplateElement {
-  const template = document.createElement('template');
-  template.innerHTML = html;
-  return template;
-}
