@@ -1,5 +1,5 @@
-import { createTemplateForCustomElement } from '../utils/customElements';
 import { KSLPopUpElement } from './abstract/KSLPopUpElement';
+import { createTemplateForCustomElement } from '../utils/node';
 
 const templateHTML = `
   <style>

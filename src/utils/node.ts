@@ -114,3 +114,9 @@ export function getElementAncestors(element: HTMLElement): ReadonlyArray<HTMLEle
 
   return ancestors;
 }
+
+export function createTemplateForCustomElement(html: string): HTMLTemplateElement {
+  const template = document.createElement('template');
+  template.innerHTML = html;
+  return template;
+}
