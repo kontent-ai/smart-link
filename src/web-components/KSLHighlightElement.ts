@@ -2,9 +2,10 @@ import { ButtonType, KSLButtonElement } from './KSLButtonElement';
 import { IconName, KSLIconElement } from './KSLIconElement';
 import { assert } from '../utils/assert';
 import { getDataAttributesFromElementAncestors, getDataAttributesFromEventPath } from '../utils/dataAttributes';
-import { createTemplateForCustomElement, getHighlightTypeForElement, HighlightType } from '../utils/customElements';
+import { getHighlightTypeForElement, HighlightType } from '../utils/customElements';
 import { ElementPositionOffset, KSLPositionedElement } from './abstract/KSLPositionedElement';
 import { KSLContainerElement } from './KSLContainerElement';
+import { createTemplateForCustomElement } from '../utils/node';
 
 interface IKSLHighlightElementEventData {
   readonly dataAttributes: ReadonlyMap<string, string>;

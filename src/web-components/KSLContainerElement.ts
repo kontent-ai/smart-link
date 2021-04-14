@@ -1,8 +1,7 @@
-import { createTemplateForCustomElement } from '../utils/customElements';
 import { KSLCustomElement } from './abstract/KSLCustomElement';
 import { KSLPlusButtonElement } from './KSLPlusButtonElement';
 import { KSLHighlightElement } from './KSLHighlightElement';
-import { getRenderingRootMetadata, getTotalScrollOffset } from '../utils/node';
+import { createTemplateForCustomElement, getRenderingRootMetadata, getTotalScrollOffset } from '../utils/node';
 import { IPositionable } from './abstract/KSLPositionedElement';
 
 const templateHTML = `
