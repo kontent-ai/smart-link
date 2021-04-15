@@ -8,12 +8,49 @@ export interface IElementClickedMessageMetadata {
   readonly elementRect: DOMRect;
 }
 
-export interface IElementClickedMessageData {
+interface IClickedMessageData {
+  readonly projectId: string;
+  readonly languageCodename: string;
+}
+
+export interface IContentItemClickedMessageData extends IClickedMessageData {
+  readonly itemId: string;
+}
+
+export interface IContentComponentClickedMessageData extends IContentItemClickedMessageData {
+  readonly contentComponentId: string;
+}
+
+export interface IElementClickedMessageData extends IContentItemClickedMessageData {
+  readonly contentComponentId?: string;
+  readonly elementCodename: string;
+}
+
+export enum InsertPosition {
+  After = 'after',
+  Before = 'before',
+  End = 'end',
+  Start = 'start',
+}
+
+interface IRelativeInsertPosition {
+  readonly targetId: string;
+  readonly placement: InsertPosition.Before | InsertPosition.After;
+}
+
+interface IFixedInsertPosition {
+  readonly placement: InsertPosition.Start | InsertPosition.End;
+}
+
+export type PlusRequestInsertPosition = IRelativeInsertPosition | IFixedInsertPosition;
+
+export interface IPlusRequestMessageData {
   readonly projectId: string;
   readonly languageCodename: string;
   readonly itemId: string;
-  readonly elementCodename: string;
   readonly contentComponentId?: string;
+  readonly elementCodename: string;
+  readonly insertPosition: PlusRequestInsertPosition;
 }
 
 export interface IPluginStatusMessageData {

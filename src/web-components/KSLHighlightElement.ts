@@ -1,14 +1,14 @@
 import { ButtonType, KSLButtonElement } from './KSLButtonElement';
 import { IconName, KSLIconElement } from './KSLIconElement';
 import { assert } from '../utils/assert';
-import { getDataAttributesFromElementAncestors, getDataAttributesFromEventPath } from '../utils/dataAttributes';
 import { getHighlightTypeForElement, HighlightType } from '../utils/customElements';
 import { ElementPositionOffset, KSLPositionedElement } from './abstract/KSLPositionedElement';
 import { KSLContainerElement } from './KSLContainerElement';
 import { createTemplateForCustomElement } from '../utils/node';
+import { DeepPartial, EditButtonClickedData, parseEditButtonDataAttributes } from '../utils/dataAttributes';
 
 interface IKSLHighlightElementEventData {
-  readonly dataAttributes: ReadonlyMap<string, string>;
+  readonly data: DeepPartial<EditButtonClickedData>;
   readonly targetNode: HTMLElement;
 }
 
@@ -195,7 +195,7 @@ export class KSLHighlightElement extends KSLPositionedElement {
     if (this.targetRef) {
       this.targetRef.addEventListener('mousemove', this.handleTargetNodeMouseEnter);
       this.targetRef.addEventListener('mouseleave', this.handleTargetNodeMouseLeave);
-      this.targetRef.addEventListener('click', this.handleTargetNodeClick);
+      this.targetRef.addEventListener('click', this.handleEditButtonClick);
     }
   };
 
@@ -222,7 +222,7 @@ export class KSLHighlightElement extends KSLPositionedElement {
     if (this.targetRef) {
       this.targetRef.removeEventListener('mousemove', this.handleTargetNodeMouseEnter);
       this.targetRef.removeEventListener('mouseleave', this.handleTargetNodeMouseLeave);
-      this.targetRef.removeEventListener('click', this.handleTargetNodeClick);
+      this.targetRef.removeEventListener('click', this.handleEditButtonClick);
     }
   };
 
@@ -240,26 +240,16 @@ export class KSLHighlightElement extends KSLPositionedElement {
     event.preventDefault();
     event.stopPropagation();
 
-    const dataAttributes = getDataAttributesFromElementAncestors(this.targetRef);
+    const dataAttributes = parseEditButtonDataAttributes(this.targetRef);
     this.dispatchEditEvent(dataAttributes);
   };
 
-  private handleTargetNodeClick = (event: MouseEvent): void => {
-    assert(this.targetRef, 'Target node is not set for this highlight.');
-
-    event.preventDefault();
-    event.stopPropagation();
-
-    const dataAttributes = getDataAttributesFromEventPath(event);
-    this.dispatchEditEvent(dataAttributes);
-  };
-
-  private dispatchEditEvent = (dataAttributes: ReadonlyMap<string, string>): void => {
+  private dispatchEditEvent = (data: DeepPartial<EditButtonClickedData>): void => {
     assert(this.targetRef, 'Target node is not set for this highlight element.');
 
     const customEvent = new CustomEvent<IKSLHighlightElementEventData>('ksl:highlight:edit', {
       detail: {
-        dataAttributes,
+        data,
         targetNode: this.targetRef,
       },
     });
