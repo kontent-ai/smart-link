@@ -1,4 +1,17 @@
 import { getElementAncestors } from './node';
+import {
+  IContentComponentClickedMessageData,
+  IContentItemClickedMessageData,
+  IElementClickedMessageData,
+  InsertPosition,
+  IPlusRequestMessageData,
+  PlusRequestInsertPosition,
+} from '../lib/IFrameCommunicatorTypes';
+import { getHighlightTypeForElement, HighlightType } from './customElements';
+
+export type DeepPartial<T> = {
+  [P in keyof T]?: DeepPartial<T[P]>;
+};
 
 /**
  * Data-attributes are used to get some Kontent related data from DOM.
@@ -7,6 +20,7 @@ import { getElementAncestors } from './node';
  * have highlights).
  */
 export enum DataAttribute {
+  PlusButtonInsertPosition = 'data-kontent-plus-button-insert-position',
   ElementCodename = 'data-kontent-element-codename',
   ComponentId = 'data-kontent-component-id',
   ItemId = 'data-kontent-item-id',
@@ -20,116 +34,201 @@ export enum DataAttribute {
  */
 export enum MetadataAttribute {
   PlusButton = 'data-kontent-plus-button',
-  PlusButtonInsertPosition = 'data-kontent-plus-button-insert-position',
   PlusButtonRenderPosition = 'data-kontent-plus-button-render-position',
 }
 
-const DataAttributeHierarchy = [
-  DataAttribute.ProjectId,
-  DataAttribute.LanguageCodename,
-  DataAttribute.ItemId,
-  DataAttribute.ComponentId,
-  DataAttribute.ElementCodename,
+interface IDataAttributesParserToken {
+  readonly key: string; // will be used to store parsed values (key -> value)
+  readonly dataAttributes: DataAttribute[]; // attributes that should be checked for the current token
+  readonly optional?: boolean; // could this token be ignored
+}
+
+type DataAttributesParserPattern = Array<IDataAttributesParserToken>;
+
+const baseParserPattern: DataAttributesParserPattern = [
+  { key: DataAttribute.LanguageCodename, dataAttributes: [DataAttribute.LanguageCodename] },
+  { key: DataAttribute.ProjectId, dataAttributes: [DataAttribute.ProjectId] },
 ];
 
-const DataAttributeParsingOrder = DataAttributeHierarchy.slice().reverse();
-const OptionalDataAttributes = [DataAttribute.ComponentId];
+const itemEditButtonParserPattern: DataAttributesParserPattern = [
+  { key: DataAttribute.ItemId, dataAttributes: [DataAttribute.ItemId] },
+  ...baseParserPattern,
+];
 
-/**
- * Parse data-attributes from event path.
- *
- * @param {Event} event
- * @returns {ReadonlyMap<string, string>}
- */
-export function getDataAttributesFromEventPath(event: Event): ReadonlyMap<string, string> {
-  const path = event.composedPath();
-  const elements = path.filter((eventTarget: EventTarget) => eventTarget instanceof HTMLElement) as HTMLElement[];
-  return getDataAttributesFromElementsList(elements);
+const componentEditButtonParserPattern: DataAttributesParserPattern = [
+  { key: DataAttribute.ComponentId, dataAttributes: [DataAttribute.ComponentId] },
+  ...itemEditButtonParserPattern,
+];
+
+const elementEditButtonParserPattern: DataAttributesParserPattern = [
+  { key: DataAttribute.ElementCodename, dataAttributes: [DataAttribute.ElementCodename] },
+  { key: DataAttribute.ComponentId, dataAttributes: [DataAttribute.ComponentId], optional: true },
+  ...itemEditButtonParserPattern,
+];
+
+export type EditButtonClickedData =
+  | IContentItemClickedMessageData
+  | IContentComponentClickedMessageData
+  | IElementClickedMessageData;
+
+export function parseEditButtonDataAttributes(target: HTMLElement): DeepPartial<EditButtonClickedData> {
+  const type = getHighlightTypeForElement(target);
+  const pattern = getEditButtonDataAttributesPattern(type);
+  const parsed = parseDataAttributes(pattern, target);
+
+  return {
+    projectId: parsed.get(DataAttribute.ProjectId),
+    languageCodename: parsed.get(DataAttribute.LanguageCodename),
+    itemId: parsed.get(DataAttribute.ItemId),
+    ...(parsed.has(DataAttribute.ComponentId) && { contentComponentId: parsed.get(DataAttribute.ComponentId) }),
+    ...(parsed.has(DataAttribute.ElementCodename) && { elementCodename: parsed.get(DataAttribute.ElementCodename) }),
+  };
+}
+
+function getEditButtonDataAttributesPattern(type: HighlightType): DataAttributesParserPattern {
+  switch (type) {
+    case HighlightType.Element:
+      return elementEditButtonParserPattern;
+    case HighlightType.ContentComponent:
+      return componentEditButtonParserPattern;
+    case HighlightType.ContentItem:
+      return itemEditButtonParserPattern;
+    default:
+      return baseParserPattern;
+  }
+}
+
+const basePlusButtonParserPattern: DataAttributesParserPattern = [
+  { key: 'elementCodename', dataAttributes: [DataAttribute.ElementCodename] },
+  { key: 'componentId', dataAttributes: [DataAttribute.ComponentId], optional: true },
+  { key: 'itemId', dataAttributes: [DataAttribute.ItemId] },
+  { key: 'languageCodename', dataAttributes: [DataAttribute.LanguageCodename] },
+  { key: 'projectId', dataAttributes: [DataAttribute.ProjectId] },
+];
+
+const relativePlusButtonParserPattern: DataAttributesParserPattern = [
+  { key: 'placement', dataAttributes: [DataAttribute.PlusButtonInsertPosition], optional: true },
+  { key: 'targetId', dataAttributes: [DataAttribute.ComponentId, DataAttribute.ItemId] },
+  ...basePlusButtonParserPattern,
+];
+
+const fixedPlusButtonParserPattern: DataAttributesParserPattern = [
+  { key: 'placement', dataAttributes: [DataAttribute.PlusButtonInsertPosition], optional: true },
+  ...basePlusButtonParserPattern,
+];
+
+export function parsePlusButtonDataAttributes(target: HTMLElement): DeepPartial<IPlusRequestMessageData> {
+  const position = target.getAttribute(DataAttribute.PlusButtonInsertPosition);
+  const pattern = getPlusButtonDataAttributesPattern(position);
+  const parsed = parseDataAttributes(pattern, target);
+
+  return {
+    projectId: parsed.get('projectId'),
+    languageCodename: parsed.get('languageCodename'),
+    itemId: parsed.get('itemId'),
+    ...(parsed.get('componentId') && { componentId: parsed.get('componentId') }),
+    elementCodename: parsed.get('elementCodename'),
+    insertPosition: getPlusButtonInsertPosition(parsed),
+  };
+}
+
+function getPlusButtonDataAttributesPattern(position: string | null): DataAttributesParserPattern {
+  switch (position) {
+    case InsertPosition.End:
+    case InsertPosition.Start:
+      return fixedPlusButtonParserPattern;
+    case InsertPosition.After:
+    case InsertPosition.Before:
+    default:
+      return relativePlusButtonParserPattern;
+  }
+}
+
+function getPlusButtonInsertPosition(parsed: ReadonlyMap<string, string>): Partial<PlusRequestInsertPosition> {
+  const placement = (parsed.get('placement') as InsertPosition) ?? InsertPosition.After;
+  const targetId = parsed.get('targetId');
+
+  switch (placement) {
+    case InsertPosition.End:
+    case InsertPosition.Start:
+      return { placement };
+    case InsertPosition.Before:
+    case InsertPosition.After:
+      return { placement, targetId };
+    default:
+      return { targetId, placement: InsertPosition.After };
+  }
 }
 
 /**
- * Parse data-attributes from element ancestors.
+ * Parse data-attributes starting from target to its ancestors using the parsing pattern.
  *
- * @param {HTMLElement} element
+ * @param {DataAttributesParserPattern} pattern
+ * @param {HTMLElement} startFrom
  * @returns {ReadonlyMap<string, string>}
  */
-export function getDataAttributesFromElementAncestors(element: HTMLElement): ReadonlyMap<string, string> {
-  const elements = [element, ...getElementAncestors(element)];
-  return getDataAttributesFromElementsList(elements);
-}
+function parseDataAttributes(
+  pattern: DataAttributesParserPattern,
+  startFrom: HTMLElement
+): ReadonlyMap<string, string> {
+  const parsed = new Map();
 
-function getDataAttributesFromElementsList(elements: HTMLElement[]): ReadonlyMap<string, string> {
-  const parsed: Map<string, string> = new Map();
+  const elements = [startFrom, ...getElementAncestors(startFrom)];
 
   for (const element of elements) {
-    if (!(element instanceof HTMLElement)) continue;
+    const takenDataAttributes = new Set();
 
-    for (const attributeName of DataAttributeParsingOrder) {
-      const datasetAttributeName = dataToDatasetAttributeName(attributeName);
-      const datasetAttributeValue = element.dataset[datasetAttributeName];
-      const isAttributeOptional = OptionalDataAttributes.includes(attributeName);
+    for (const token of pattern) {
+      const { key, dataAttributes, optional } = token;
 
-      if (!datasetAttributeValue || parsed.has(attributeName)) continue;
+      const [dataAttribute, value] = findDataAttribute(element, dataAttributes);
 
-      // Higher attributes are attributes that are placed higher in the hierarchy, for example,
-      // for component id attribute those will be item id, language codename and project id.
-      const higherDataAttributes = getHigherHierarchyDataAttributes(attributeName);
-      const areSomeHigherAttributesSet = higherDataAttributes.some((attr) => parsed.has(attr));
+      if (!value && !parsed.has(key) && !optional) {
+        // Required data-attribute is missing. There is no point in continuing parsing data-attributes
+        // on current element, we should move to the next ancestor.
+        break;
+      }
 
-      // If some higher attributes have already been parsed, it can mean two things:
-      // a) Current data attribute is optional and is not related to the current scope.
-      //    In that case it will be ignored.
-      //      Example:
-      //        <body data-kontent-project-id data-kontent-language-codename>
-      //          <div data-kontent-item-id data-kontent-component-id data-kontent-element-codename>
-      //            <!-- when parser comes to this element itemId and elementCodename are already parsed
-      //                 data-kontent-component-id is not related to them, so it should be ignored -->
-      //            <div data-kontent-item-id data-kontent-element-codename></div>
-      //          </div>
-      //        </body>
+      if (parsed.has(key) || !value || takenDataAttributes.has(dataAttribute)) {
+        // This key has already been parsed in some of the previous steps.
+        // Attribute has no value.
+        // A previous token has already used this data-attribute.
+        continue;
+      }
+
+      const currentTokenIndex = pattern.indexOf(token);
+      const tokensWithHigherPriority = pattern.slice(currentTokenIndex, pattern.length);
+      const areSomeTokensWithHigherPriorityParsed = tokensWithHigherPriority.some((token) => parsed.has(token.key));
+
+      // If some higher token has already been parsed, it can mean two things:
+      // a) Current data-attribute is optional and is not related to the current scope. In that case, it can be ignored.
       // b) Parsed data is related to some lower scope (or invalid) and should be cleared.
-      //      Example:
-      //        <body data-kontent-project-id data-kontent-language-codename>
-      //          <div data-kontent-item-id data-kontent-element-codename>
-      //            <div data-kontent-item-id>
-      //               <!-- if you click on this element, item id will be parsed, but it is not related to the
-      //                  data-kontent-element-codename above it, and this value must be cleared -->
-      //            </div>
-      //          </div>
-      //        </body>
-      if (areSomeHigherAttributesSet) {
-        if (isAttributeOptional) continue;
+      if (areSomeTokensWithHigherPriorityParsed) {
+        if (optional) continue;
 
-        for (const attr of higherDataAttributes) {
-          parsed.delete(attr);
+        for (const token of tokensWithHigherPriority) {
+          parsed.delete(token.key);
         }
       }
 
-      parsed.set(attributeName, datasetAttributeValue);
+      parsed.set(token.key, value);
+      takenDataAttributes.add(dataAttribute);
     }
   }
 
   return parsed;
 }
 
-/**
- * Get data attributes that are higher in the hierarchy.
- *
- * @param {string} attributeName
- * @returns {ReadonlyArray<string>}
- */
-function getHigherHierarchyDataAttributes(attributeName: DataAttribute): ReadonlyArray<string> {
-  const attributeIndex = DataAttributeHierarchy.indexOf(attributeName);
-  return DataAttributeHierarchy.slice(0, attributeIndex);
-}
+function findDataAttribute(
+  element: HTMLElement,
+  dataAttributes: DataAttribute[]
+): [DataAttribute, string] | [null, null] {
+  for (const attribute of dataAttributes) {
+    const value = element.getAttribute(attribute);
+    if (value) {
+      return [attribute, value];
+    }
+  }
 
-/**
- * Turn data-attribute name into dataset attribute name.
- * For example: 'data-kontent-item-id' -> 'kontentItemId'.
- *
- * @param {string} dataAttributeName
- * @returns {string}
- */
-function dataToDatasetAttributeName(dataAttributeName: string): string {
-  return dataAttributeName.replace(/^data-/, '').replace(/-./g, (x: string) => x.toUpperCase()[1]);
+  return [null, null];
 }

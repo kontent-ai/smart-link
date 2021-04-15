@@ -3,9 +3,9 @@ import { IconName } from './KSLIconElement';
 import { assert } from '../utils/assert';
 import { KSLPopoverElement } from './KSLPopoverElement';
 import { ElementPositionOffset, KSLPositionedElement } from './abstract/KSLPositionedElement';
-import { MetadataAttribute } from '../utils/dataAttributes';
 import { KSLContainerElement } from './KSLContainerElement';
 import { createTemplateForCustomElement } from '../utils/node';
+import { MetadataAttribute, parsePlusButtonDataAttributes } from '../utils/dataAttributes';
 
 const popoverHTML = `
   <style>
@@ -166,10 +166,15 @@ export class KSLPlusButtonElement extends KSLPositionedElement {
       return;
     }
 
+    assert(this.targetRef, 'Target node is not set for this plus button.');
+
     event.preventDefault();
     event.stopPropagation();
 
     this.buttonRef.loading = true;
+
+    const dataAttributes = parsePlusButtonDataAttributes(this.targetRef);
+    console.log({ dataAttributes });
 
     setTimeout(() => {
       this.showPopover();
