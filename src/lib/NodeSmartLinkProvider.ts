@@ -1,4 +1,3 @@
-import { DataAttribute } from '../utils/dataAttributes';
 import { EventManager } from './EventManager';
 import { webComponentTags } from '../web-components/components';
 import { IElementClickedMessageData, IElementClickedMessageMetadata } from './IFrameCommunicatorTypes';
@@ -246,23 +245,18 @@ export class NodeSmartLinkProvider {
   };
 
   private onEditElement = (event: KSLHighlightElementEvent): void => {
-    const attributes = event.detail.dataAttributes;
+    const { data, targetNode } = event.detail;
 
-    if (attributes.has(DataAttribute.ElementCodename)) {
-      const data: Partial<IElementClickedMessageData> = {
-        projectId: attributes.get(DataAttribute.ProjectId),
-        languageCodename: attributes.get(DataAttribute.LanguageCodename),
-        itemId: attributes.get(DataAttribute.ItemId),
-        contentComponentId: attributes.get(DataAttribute.ComponentId),
-        elementCodename: attributes.get(DataAttribute.ElementCodename),
-      };
-
-      const element = event.detail.targetNode;
+    if ('elementCodename' in data && data.elementCodename) {
       const metadata: IElementClickedMessageMetadata = {
-        elementRect: element.getBoundingClientRect(),
+        elementRect: targetNode.getBoundingClientRect(),
       };
 
       this.events.emit(NodeSmartLinkProviderEventType.ElementClicked, data, metadata);
+    } else if ('contentComponentId' in data && data.contentComponentId) {
+      console.warn('Warning: Edit button for content components is not yet supported.');
+    } else if ('itemId' in data && data.itemId) {
+      console.warn('Warning: Edit button for content items is not yet supported.');
     } else {
       console.warn(
         'Warning: Some required attributes are not found or the edit button for this type of element is not yet supported.'
