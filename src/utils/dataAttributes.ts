@@ -202,7 +202,7 @@ function parseDataAttributes(
 
       console.log('Value: ', value);
       console.log('Already parsed: ', parsed.has(key));
-      console.log('Data-attribute taken by previous token: ', takenDataAttributes.has(dataAttribute));
+      console.log('Already taken by previous token: ', takenDataAttributes.has(dataAttribute));
 
       if (!value && !parsed.has(key) && !optional) {
         console.log('[Result]: Required data-attribute is missing.');
