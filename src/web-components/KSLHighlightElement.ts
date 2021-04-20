@@ -6,6 +6,7 @@ import { ElementPositionOffset, KSLPositionedElement } from './abstract/KSLPosit
 import { KSLContainerElement } from './KSLContainerElement';
 import { createTemplateForCustomElement } from '../utils/node';
 import { DeepPartial, EditButtonClickedData, parseEditButtonDataAttributes } from '../utils/dataAttributes';
+import { Logger } from '../lib/Logger';
 
 interface IKSLHighlightElementEventData {
   readonly data: DeepPartial<EditButtonClickedData>;
@@ -205,7 +206,7 @@ export class KSLHighlightElement extends KSLPositionedElement {
     }
 
     if (!(this.offsetParent instanceof KSLContainerElement)) {
-      console.warn('KSLHighlightElement: should be located inside KSLContainerElement to be positioned properly.');
+      Logger.warn('KSLHighlightElement: should be located inside KSLContainerElement to be positioned properly.');
     }
 
     const offsetParentRect = this.offsetParent.getBoundingClientRect();
@@ -269,6 +270,6 @@ export class KSLHighlightElement extends KSLPositionedElement {
       this.removeButtonRef.tooltipMessage = 'This feature is not supported.';
     }, 3000);
 
-    console.warn('This button is not supported yet.');
+    Logger.warn('This button is not supported yet.');
   };
 }

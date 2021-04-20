@@ -1,13 +1,14 @@
 import { assert } from '../../src/utils/assert';
+import { Logger } from '../../src/lib/Logger';
 
 describe('assert.ts', () => {
   it('should throw error if condition is falsy', () => {
-    spyOn(console, 'error');
+    spyOn(Logger, 'error');
 
     expect(() => {
       assert(false, 'error-message');
     }).toThrowError();
 
-    expect(console.error).toHaveBeenCalled();
+    expect(Logger.error).toHaveBeenCalled();
   });
 });
