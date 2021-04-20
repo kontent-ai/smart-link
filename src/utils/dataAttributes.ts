@@ -173,25 +173,53 @@ function parseDataAttributes(
 ): ReadonlyMap<string, string> {
   const parsed = new Map();
 
+  console.group('Parse data-attributes for ', startFrom);
+
   const elements = [startFrom, ...getElementAncestors(startFrom)];
+
+  console.log('Elements:', elements);
+  console.log('Pattern: ', pattern);
 
   for (const element of elements) {
     const takenDataAttributes = new Set();
 
+    console.group('Checking ', element);
+
     for (const token of pattern) {
       const { key, dataAttributes, optional } = token;
 
+      console.groupCollapsed(`Looking for '${key}' [${dataAttributes}]`);
       const [dataAttribute, value] = findDataAttribute(element, dataAttributes);
 
+      console.log('Value: ', value);
+      console.log('Already parsed: ', parsed.has(key));
+      console.log('Data-attribute taken by previous token: ', takenDataAttributes.has(dataAttribute));
+
       if (!value && !parsed.has(key) && !optional) {
+        console.log('[Result]: Required data-attribute is missing.');
+        console.groupEnd();
         // Required data-attribute is missing. There is no point in continuing parsing data-attributes
         // on current element, we should move to the next ancestor.
         break;
       }
 
-      if (parsed.has(key) || !value || takenDataAttributes.has(dataAttribute)) {
+      if (parsed.has(key)) {
+        console.log('[Result]: This data-attribute has already been parsed in some of the previous steps.');
+        console.groupEnd();
         // This key has already been parsed in some of the previous steps.
+        continue;
+      }
+
+      if (!value) {
+        console.log('[Result]: This data attribute has no value.');
+        console.groupEnd();
         // Attribute has no value.
+        continue;
+      }
+
+      if (takenDataAttributes.has(dataAttribute)) {
+        console.log('[Result]: A previous token has already used this data-attribute.');
+        console.groupEnd();
         // A previous token has already used this data-attribute.
         continue;
       }
@@ -204,7 +232,11 @@ function parseDataAttributes(
       // a) Current data-attribute is optional and is not related to the current scope. In that case, it can be ignored.
       // b) Parsed data is related to some lower scope (or invalid) and should be cleared.
       if (areSomeTokensWithHigherPriorityParsed) {
-        if (optional) continue;
+        if (optional) {
+          console.log('[Result]: Attribute is not related to the current scope.');
+          console.groupEnd();
+          continue;
+        }
 
         for (const token of tokensWithHigherPriority) {
           parsed.delete(token.key);
@@ -213,8 +245,17 @@ function parseDataAttributes(
 
       parsed.set(token.key, value);
       takenDataAttributes.add(dataAttribute);
+
+      console.log('[Result]: Attribute successfully parsed!');
+      console.groupEnd();
     }
+
+    console.log('Parsed so far: ', parsed);
+    console.groupEnd();
   }
+
+  console.groupEnd();
+  console.log('[Result]: ', parsed);
 
   return parsed;
 }
