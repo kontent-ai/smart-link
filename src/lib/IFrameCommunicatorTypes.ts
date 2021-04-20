@@ -1,4 +1,4 @@
-export interface IPluginInitializedMessageData {
+export interface ISDKInitializedMessageData {
   readonly projectId: string | null;
   readonly languageCodename: string | null;
   readonly enabled: boolean;
@@ -6,6 +6,10 @@ export interface IPluginInitializedMessageData {
 
 export interface IClickedMessageMetadata {
   readonly elementRect: DOMRect;
+}
+
+export interface ISDKStatusMessageData {
+  readonly enabled: boolean;
 }
 
 interface IClickedMessageData {
@@ -53,33 +57,56 @@ export interface IPlusRequestMessageData {
   readonly insertPosition: PlusRequestInsertPosition;
 }
 
-export interface IPluginStatusMessageData {
-  readonly enabled: boolean;
+export enum PlusButtonAction {
+  CreateComponent = 'CreateComponent',
+  CreateLinkedItem = 'CreateLinkedItem',
+  InsertLinkedItem = 'InsertLinkedItem',
 }
 
-export interface IElementDummyData {
-  readonly projectId: string;
-  readonly languageCodename: string;
-  readonly dummy: string;
+export interface IPlusActionMessageData extends IPlusRequestMessageData {
+  readonly action: PlusButtonAction;
 }
 
-export interface IElementDummyDataResponse {
-  readonly data: string;
+export enum PlusButtonElementType {
+  LinkedItems = 'LinkedItems',
+  RichText = 'RichText',
+  Unknown = 'Unknown',
+}
+
+export enum PlusButtonPermission {
+  CreateNew = 'CreateNew',
+  Edit = 'Edit',
+  ViewParent = 'ViewParent',
+}
+
+export enum PlusButtonPermissionOption {
+  ItemNotTranslated = 'ItemNotTranslated',
+  Ok = 'Ok',
+  PermissionMissing = 'PermissionMissing',
+  Unknown = 'Unknown',
+}
+
+export interface IPlusButtonPermissionsServerModel {
+  readonly elementType: PlusButtonElementType;
+  readonly isParentPublished: boolean;
+  readonly permissions: ReadonlyMap<PlusButtonPermission, PlusButtonPermissionOption>;
 }
 
 export enum IFrameMessageType {
-  ElementDummy = 'kontent-smart-link:element:dummy',
   ElementClicked = 'kontent-smart-link:element:clicked',
   ContentItemClicked = 'kontent-smart-link:content-item:clicked',
   Initialized = 'kontent-smart-link:initialized',
   Status = 'kontent-smart-link:status',
+  PlusRequest = 'kontent-smart-link:plus:request',
+  PlusAction = 'kontent-smart-link:plus:action',
 }
 
 export enum IFrameResponseType {
-  ElementDummyResponse = 'element-dummy-response',
+  PlusRequestResponse = 'kontent-smart-link:plus:response',
+  PlusActionResponse = 'kontent-smart-link:plus:action-response',
 }
 
 export interface IFrameResponseMessage {
-  readonly type?: IFrameResponseType;
+  readonly type: IFrameResponseType;
   readonly requestId: string;
 }

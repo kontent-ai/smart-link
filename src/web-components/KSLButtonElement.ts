@@ -16,6 +16,10 @@ const templateHTML = `
       box-sizing: border-box;
     }
     
+    :host {
+      display: block;
+    }
+    
     :host([hidden]) {
       display: none;
     }

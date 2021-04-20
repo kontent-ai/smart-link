@@ -30,6 +30,14 @@ JS bundle and its minified version are distributed in `dist` folder.
 
 #### CDN
 
+#### kontent-smart-link.umd.js
+
+![Gzip browser bundle](https://img.badgesize.io/https://unpkg.com/@kentico/kontent-smart-link@latest/dist/kontent-smart-link.umd.js?compression=gzip)
+
+```
+https://cdn.jsdelivr.net/npm/@kentico/kontent-smart-link@latest/dist/kontent-smart-link.umd.js
+```
+
 ##### kontent-smart-link.umd.min.js
 
 ![Gzip browser bundle](https://img.badgesize.io/https://unpkg.com/@kentico/kontent-smart-link@latest/dist/kontent-smart-link.umd.min.js?compression=gzip)
@@ -40,7 +48,8 @@ https://cdn.jsdelivr.net/npm/@kentico/kontent-smart-link@latest/dist/kontent-sma
 
 ## Usage
 
-The Kontent Smart Link SDK uses [HTML data attributes](https://www.w3schools.com/tags/att_data-.asp) to find elements on your page that represent some content item from the Kentico Kontent and automatically inject [smart links](https://docs.kontent.ai/tutorials/develop-apps/build-strong-foundation/set-up-editing-from-preview#a-using-smart-links).
+Kontent Smart Link SDK uses [HTML data attributes](https://www.w3schools.com/tags/att_data-.asp) to find elements that represent some content items/content components/elements from Kentico Kontent.
+Then it automatically injects [smart links](https://docs.kontent.ai/tutorials/develop-apps/build-strong-foundation/set-up-editing-from-preview#a-using-smart-links) for all of those elements.
 Injecting smart links to Kontent means that all elements that are marked with special data attributes will be highlighted and made interactive (handle clicks/redirect to Kontent/navigates from the preview in Web Spotlight/etc.).
 
 In order to initialize the Kontent Smart Link SDK on your website, you have to call its `initialize` or `initializeOnLoad` method. Both of the previously mentioned methods return an instance of the initialized SDK (`initializeOnLoad` returns a Promise resolving to instance) that has two methods:
@@ -51,8 +60,8 @@ The main difference between the two methods is that the `initializeOnLoad` metho
 That is why it wraps an instance of the SDK into a Promise. Therefore, if you want to initialize the Kontent Smart Link SDK inside the `head` tag when the page may not be loaded yet, you should probably use `initializeOnLoad` method.
 
 The SDK uses a query parameter to enable/disable smart link injection. That is why, when the SDK is initialized, it starts listening to query parameters in the URL.
-The name of the query parameter defaults to `kontent-smart-link-enabled`, but can be changed using the configuration argument of the `initialize` or `initializeOnLoad` methods or using the `setConfiguration` method.
-Only the presence of the query parameter is checked and its value is ignored, so all of the following options are valid: `?kontent-smart-link-enabled=true`, `?kontent-smart-link-enabled`, `?kontent-smart-link-enabled=1`, etc.
+The name of the query parameter defaults to `ksl-enabled`, but can be changed using the configuration argument of the `initialize` or `initializeOnLoad` methods or using the `setConfiguration` method.
+Only the presence of the query parameter is checked and its value is ignored, so all of the following options are valid: `?ksl-enabled=true`, `?ksl-enabled`, `?ksl-enabled=1`, etc.
 
 ### Configuration
 
@@ -60,9 +69,9 @@ You can pass the configuration object as a first argument of the `initialize`, `
 
 |Attribute|Default|Description|
 |---------|-------|-----------|
-|projectId|null|Can be used instead of the data-kontent-project-id attribute to set project ID globally.|
-|languageCodename|null|Can be used instead of the data-kontent-language-codename attribute to set language codename globally.|
-|queryParam|'kontent-smart-link-enabled'|Name of the query parameter that must be present in the URL to turn the smart link injection on. It is not necessary for query parameter to have a truthy value (just the presence of this query parameter is checked). If set to falsy value ('', null), the smart link injection will always be enabled.|
+|debug|false|When it's set to `true`, enables all debug logs. Can be useful to get more information about how the SDK works inside.
+|defaultDataAttributes|```{ projectId: undefined, languageCodename: undefined }```|Default values for data attributes, which are only used when those data attributes are not found in DOM during data attributes parsing process.|
+|queryParam|'kontent-smart-link-enabled'|Name of the query parameter that must be present in the URL to turn the smart link injection on. It is not necessary for query parameter to have a truthy value (just the presence of this query parameter is checked). If set to falsy value ('', null), the smart link injection will always be enabled. Query parameter is only used outside Web Spotlight.|
 
 ### Data attributes
 
@@ -89,6 +98,8 @@ all child nodes that represent elements of the Kontent item and put `data-konten
 elements that have `data-kontent-element-codename` attribute, highlight them and make those elements
 interactive (handle clicks/redirect to Kontent/navigates from the preview in Web Spotlight/etc.). 
 
+[//]: # (TODO: add information about data attributes hierarchy)
+
 #### Content components
 
 [Content component](https://docs.kontent.ai/tutorials/write-and-collaborate/structure-your-content/structure-your-content#a-create-single-use-content) is a single-use content, 
@@ -110,6 +121,8 @@ This is needed for the SDK to work properly inside Web Spotlight.
 |kontent-smart-link:initialized|<code>{ projectId: string &#124; null, languageCodename: string &#124; null, enabled: boolean }</code>|SDK|This event is fired by the SDK when it is initialized.|
 |kontent-smart-link:status|<code>{ enabled: boolean }</code>|Client|You can send this event to turn on/off the SDK.|
 |kontent-smart-link:element:clicked|<code>{ projectId: string, languageCodename: string, itemId: string, elementCodename: string }</code>|SDK|This message is sent by the SDK when element with `data-kontent-element-codename` attribute is clicked.|
+
+[//]: # (TODO: add new iframe messages)
 
 ### Customization
 

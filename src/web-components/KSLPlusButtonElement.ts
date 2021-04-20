@@ -5,7 +5,54 @@ import { KSLPopoverElement } from './KSLPopoverElement';
 import { ElementPositionOffset, KSLPositionedElement } from './abstract/KSLPositionedElement';
 import { KSLContainerElement } from './KSLContainerElement';
 import { createTemplateForCustomElement } from '../utils/node';
-import { MetadataAttribute, parsePlusButtonDataAttributes } from '../utils/dataAttributes';
+import { DeepPartial, MetadataAttribute, parsePlusButtonDataAttributes } from '../utils/dataAttributes';
+import {
+  IPlusActionMessageData,
+  IPlusButtonPermissionsServerModel,
+  IPlusRequestMessageData,
+  PlusButtonAction,
+  PlusButtonElementType,
+} from '../lib/IFrameCommunicatorTypes';
+import { AsyncCustomEvent } from '../utils/events';
+import { hasPlusButtonPermissions } from '../utils/validation';
+import { Logger } from '../lib/Logger';
+
+enum PopoverButtonId {
+  CreateComponent = 'create-component',
+  CreateLinkedItem = 'create-linked-item',
+  InsertLinkedItem = 'insert-linked-item',
+}
+
+interface IKSLPlusButtonElementEventData<TMessageData> {
+  readonly data: DeepPartial<TMessageData>;
+  readonly targetNode: HTMLElement;
+}
+
+interface IKSLPlusButtonElementRequestEventReason {
+  readonly message: string;
+}
+
+type KSLPlusButtonElementRequestEventData = IKSLPlusButtonElementEventData<IPlusRequestMessageData>;
+type KSLPlusButtonElementActionEventData = IKSLPlusButtonElementEventData<IPlusActionMessageData>;
+
+export type KSLPlusButtonElementActionEvent = CustomEvent<KSLPlusButtonElementActionEventData>;
+export type KSLPlusButtonElementRequestAsyncEvent = AsyncCustomEvent<
+  KSLPlusButtonElementRequestEventData,
+  IPlusButtonPermissionsServerModel,
+  IKSLPlusButtonElementRequestEventReason
+>;
+
+declare global {
+  interface WindowEventMap {
+    'ksl:plus-button:action': KSLPlusButtonElementActionEvent;
+    'ksl:plus-button:request': KSLPlusButtonElementRequestAsyncEvent;
+  }
+
+  interface HTMLElementEventMap {
+    'ksl:plus-button:action': KSLPlusButtonElementActionEvent;
+    'ksl:plus-button:request': KSLPlusButtonElementRequestAsyncEvent;
+  }
+}
 
 const popoverHTML = `
   <style>
@@ -14,7 +61,7 @@ const popoverHTML = `
     }
   </style>
   <ksl-button
-    id="existing-linked-item"
+    id="${PopoverButtonId.InsertLinkedItem}"
     class="ksl-add-button__popover-button"
     type="${ButtonType.Quinary}"
     tooltip-message="Add existing linked item"
@@ -23,7 +70,7 @@ const popoverHTML = `
     <ksl-icon icon-name="${IconName.Puzzle}"/>
   </ksl-button>
   <ksl-button
-    id="new-linked-item"
+    id="${PopoverButtonId.CreateLinkedItem}"
     class="ksl-add-button__popover-button"
     type="${ButtonType.Quinary}"
     tooltip-message="Add new linked item"
@@ -32,7 +79,7 @@ const popoverHTML = `
     <ksl-icon icon-name="${IconName.PlusPuzzle}"/>
   </ksl-button>
   <ksl-button
-    id="component"
+    id="${PopoverButtonId.CreateComponent}"
     class="ksl-add-button__popover-button"
     type="${ButtonType.Quinary}"
     tooltip-message="Add component"
@@ -54,10 +101,6 @@ const templateHTML = `
     
     :host(:focus) {
       outline: none;
-    }
-    
-    ${KSLButtonElement.is} {
-      display: block;
     }
   </style>
   <ksl-button
@@ -161,7 +204,7 @@ export class KSLPlusButtonElement extends KSLPositionedElement {
     }
   }
 
-  private handleClick = (event: MouseEvent): void => {
+  private handleClick = async (event: MouseEvent): Promise<void> => {
     if (this.popoverRef) {
       return;
     }
@@ -173,17 +216,45 @@ export class KSLPlusButtonElement extends KSLPositionedElement {
 
     this.buttonRef.loading = true;
 
-    const dataAttributes = parsePlusButtonDataAttributes(this.targetRef);
-    console.log({ dataAttributes });
+    const data = parsePlusButtonDataAttributes(this.targetRef);
 
-    setTimeout(() => {
-      this.showPopover();
+    try {
+      const eventData = { data, targetNode: this.targetRef };
+
+      const response: IPlusButtonPermissionsServerModel = await this.dispatchAsyncEvent(
+        'ksl:plus-button:request',
+        eventData
+      );
+
+      const { elementType, permissions } = response;
+
+      if (!permissions || !hasPlusButtonPermissions(permissions)) {
+        this.buttonRef.loading = false;
+        this.buttonRef.disabled = false;
+        this.buttonRef.tooltipMessage = 'You have no rights to do this.';
+      } else {
+        this.buttonRef.loading = false;
+        this.buttonRef.disabled = false;
+        this.buttonRef.tooltipMessage = 'Add component/item';
+
+        this.showPopover(elementType);
+      }
+    } catch (reason) {
+      Logger.error(reason);
+
       this.buttonRef.loading = false;
-    }, 1000);
+      this.buttonRef.disabled = true;
+
+      if (reason && typeof reason.message === 'string') {
+        this.buttonRef.tooltipMessage = reason.message;
+      } else {
+        this.buttonRef.tooltipMessage = 'Something went wrong.';
+      }
+    }
   };
 
   private handleClickOutside = (event: MouseEvent): void => {
-    if (!this.popoverRef || !(event.target instanceof HTMLElement)) {
+    if (!this.popoverRef || !(event.target instanceof Element)) {
       return;
     }
 
@@ -193,7 +264,7 @@ export class KSLPlusButtonElement extends KSLPositionedElement {
     }
   };
 
-  private showPopover = (): void => {
+  private showPopover = (elementType: PlusButtonElementType): void => {
     assert(this.shadowRoot, 'Shadow root must be available in "open" mode.');
 
     if (this.popoverRef) {
@@ -211,9 +282,10 @@ export class KSLPlusButtonElement extends KSLPositionedElement {
     this.popoverRef.position = ElementPositionOffset.Top;
     this.popoverRef.attachTo(this);
 
-    this.addPopoverEventListeners();
+    this.addPopoverEventListeners(elementType);
 
     this.popoverRef.visible = true;
+    this.popoverRef.adjustPosition();
   };
 
   private hidePopover = (): void => {
@@ -228,25 +300,39 @@ export class KSLPlusButtonElement extends KSLPositionedElement {
     }
   };
 
-  private addPopoverEventListeners = (): void => {
+  private addPopoverEventListeners = (elementType: PlusButtonElementType): void => {
     if (!this.popoverRef) {
       return;
     }
 
-    const componentButtonRef = this.popoverRef.querySelector('#component') as KSLButtonElement;
-    const linkedItemButtonRef = this.popoverRef.querySelector('#existing-linked-item') as KSLButtonElement;
-    const newLinkedItemButtonRef = this.popoverRef.querySelector('#new-linked-item') as KSLButtonElement;
+    const createComponentButtonRef = this.popoverRef.querySelector(
+      `#${PopoverButtonId.CreateComponent}`
+    ) as KSLButtonElement;
+    const createLinkedItemButtonRef = this.popoverRef.querySelector(
+      `#${PopoverButtonId.CreateLinkedItem}`
+    ) as KSLButtonElement;
+    const insertLinkedItemButtonRef = this.popoverRef.querySelector(
+      `#${PopoverButtonId.InsertLinkedItem}`
+    ) as KSLButtonElement;
 
-    if (componentButtonRef) {
-      componentButtonRef.addEventListener('click', this.handleAddComponent);
+    if (createComponentButtonRef) {
+      if (elementType === PlusButtonElementType.RichText) {
+        createComponentButtonRef.addEventListener('click', this.handleCreateComponentClick);
+      } else {
+        createComponentButtonRef.hidden = true;
+      }
     }
 
-    if (linkedItemButtonRef) {
-      linkedItemButtonRef.addEventListener('click', this.handleAddExistingLinkedItem);
+    if (createLinkedItemButtonRef) {
+      if (elementType === PlusButtonElementType.LinkedItems) {
+        createLinkedItemButtonRef.addEventListener('click', this.handleCreateLinkedItemClick);
+      } else {
+        createLinkedItemButtonRef.hidden = true;
+      }
     }
 
-    if (newLinkedItemButtonRef) {
-      newLinkedItemButtonRef.addEventListener('click', this.handleAddNewLinkedItem);
+    if (insertLinkedItemButtonRef) {
+      insertLinkedItemButtonRef.addEventListener('click', this.handleInsertLinkedItemClick);
     }
   };
 
@@ -255,38 +341,56 @@ export class KSLPlusButtonElement extends KSLPositionedElement {
       return;
     }
 
-    const componentButtonRef = this.popoverRef.querySelector('#component') as KSLButtonElement;
-    const existingLinkedItemButtonRef = this.popoverRef.querySelector('#existing-linked-item') as KSLButtonElement;
-    const newLinkedItemButtonRef = this.popoverRef.querySelector('#new-linked-item') as KSLButtonElement;
+    const createComponentButtonRef = this.popoverRef.querySelector(
+      `#${PopoverButtonId.CreateComponent}`
+    ) as KSLButtonElement;
+    const createLinkedItemButtonRef = this.popoverRef.querySelector(
+      `#${PopoverButtonId.CreateLinkedItem}`
+    ) as KSLButtonElement;
+    const insertLinkedItemButtonRef = this.popoverRef.querySelector(
+      `#${PopoverButtonId.InsertLinkedItem}`
+    ) as KSLButtonElement;
 
-    if (componentButtonRef) {
-      componentButtonRef.removeEventListener('click', this.handleAddComponent);
+    if (createComponentButtonRef) {
+      createComponentButtonRef.removeEventListener('click', this.handleCreateComponentClick);
     }
 
-    if (existingLinkedItemButtonRef) {
-      existingLinkedItemButtonRef.removeEventListener('click', this.handleAddExistingLinkedItem);
+    if (createLinkedItemButtonRef) {
+      createLinkedItemButtonRef.removeEventListener('click', this.handleCreateLinkedItemClick);
     }
 
-    if (newLinkedItemButtonRef) {
-      newLinkedItemButtonRef.removeEventListener('click', this.handleAddNewLinkedItem);
+    if (insertLinkedItemButtonRef) {
+      insertLinkedItemButtonRef.removeEventListener('click', this.handleInsertLinkedItemClick);
     }
   };
 
-  private handleAddComponent = (): void => {
-    this.hidePopover();
-    this.buttonRef.disabled = true;
-    this.buttonRef.tooltipMessage = 'You have no rights to do this.';
+  private handleCreateComponentClick = (event: MouseEvent): void => {
+    this.handlePlusActionClick(event, PlusButtonAction.CreateComponent);
   };
 
-  private handleAddExistingLinkedItem = (): void => {
-    this.hidePopover();
-    this.buttonRef.disabled = true;
-    this.buttonRef.tooltipMessage = 'You have no rights to do this.';
+  private handleCreateLinkedItemClick = (event: MouseEvent): void => {
+    this.handlePlusActionClick(event, PlusButtonAction.CreateLinkedItem);
   };
 
-  private handleAddNewLinkedItem = (): void => {
+  private handleInsertLinkedItemClick = (event: MouseEvent): void => {
+    this.handlePlusActionClick(event, PlusButtonAction.InsertLinkedItem);
+  };
+
+  private handlePlusActionClick = (event: MouseEvent, action: PlusButtonAction): void => {
+    assert(this.targetRef, 'Target node is not set for this plus button.');
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const data = parsePlusButtonDataAttributes(this.targetRef);
+    const customEvent = new CustomEvent<KSLPlusButtonElementActionEventData>('ksl:plus-button:action', {
+      detail: {
+        data: { ...data, action },
+        targetNode: this.targetRef,
+      },
+    });
+
     this.hidePopover();
-    this.buttonRef.disabled = true;
-    this.buttonRef.tooltipMessage = 'You have no rights to do this.';
+    this.dispatchEvent(customEvent);
   };
 }

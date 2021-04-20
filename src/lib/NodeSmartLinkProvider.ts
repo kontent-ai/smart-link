@@ -1,77 +1,60 @@
-import { EventManager } from './EventManager';
-import { webComponentTags } from '../web-components/components';
+import { isElementWebComponent } from '../web-components/components';
 import {
-  IContentItemClickedMessageData,
-  IElementClickedMessageData,
   IClickedMessageMetadata,
+  IElementClickedMessageData,
+  IFrameMessageType,
+  IPlusActionMessageData,
+  IPlusButtonPermissionsServerModel,
+  IPlusRequestMessageData,
+  PlusButtonElementType,
 } from './IFrameCommunicatorTypes';
 import { IRenderer, SmartLinkRenderer } from './SmartLinkRenderer';
 import { KSLHighlightElementEvent } from '../web-components/KSLHighlightElement';
 import { getAugmentableDescendants, isElementAugmentable } from '../utils/customElements';
-
-export enum NodeSmartLinkProviderEventType {
-  ElementDummy = 'kontent-smart-link:element:dummy',
-  ElementClicked = 'kontent-smart-link:element:clicked',
-  ContentItemClicked = 'kontent-smart-link:content-item:clicked',
-}
-
-export type NodeSmartLinkProviderMessagesMap = {
-  readonly [NodeSmartLinkProviderEventType.ElementDummy]: (
-    data: Partial<any>,
-    metadata: IClickedMessageMetadata
-  ) => void;
-  readonly [NodeSmartLinkProviderEventType.ElementClicked]: (
-    data: Partial<IElementClickedMessageData>,
-    metadata: IClickedMessageMetadata
-  ) => void;
-  readonly [NodeSmartLinkProviderEventType.ContentItemClicked]: (
-    data: Partial<IContentItemClickedMessageData>,
-    metadata: IClickedMessageMetadata
-  ) => void;
-};
+import {
+  KSLPlusButtonElementActionEvent,
+  KSLPlusButtonElementRequestAsyncEvent,
+} from '../web-components/KSLPlusButtonElement';
+import { IFrameCommunicator } from './IFrameCommunicator';
+import {
+  validateContentItemClickEditMessageData,
+  validateElementClickMessageData,
+  validatePlusActionMessageData,
+  validatePlusRequestMessageData,
+} from '../utils/validation';
+import { isInsideIFrame } from '../utils/iframe';
+import { DeepPartial } from '../utils/dataAttributes';
+import { IConfigurationManager } from './ConfigurationManager';
+import { buildKontentLink } from '../utils/link';
+import { Logger } from './Logger';
 
 export class NodeSmartLinkProvider {
-  public enabled = false;
-
-  private readonly events: EventManager<NodeSmartLinkProviderMessagesMap>;
   private readonly mutationObserver: MutationObserver;
   private readonly intersectionObserver: IntersectionObserver;
   private readonly renderer: IRenderer;
 
+  private enabled = false;
   private renderingTimeoutId = 0;
-
   private observedElements = new Set<HTMLElement>();
   private visibleElements = new Set<HTMLElement>();
 
-  constructor() {
+  constructor(
+    private readonly iframeCommunicator: IFrameCommunicator,
+    private readonly configurationManager: IConfigurationManager
+  ) {
     this.mutationObserver = new MutationObserver(this.onDomMutation);
     this.intersectionObserver = new IntersectionObserver(this.onElementVisibilityChange);
-
-    this.events = new EventManager<NodeSmartLinkProviderMessagesMap>();
     this.renderer = new SmartLinkRenderer();
   }
 
-  private static shouldIgnoreNode(node: HTMLElement): boolean {
-    return webComponentTags.includes(node.tagName.toLowerCase());
-  }
+  public toggle = (force?: boolean): void => {
+    const shouldEnable = typeof force !== 'undefined' ? force : !this.enabled;
 
-  public destroy = (): void => {
-    this.disable();
-    this.renderer.destroy();
-  };
-
-  public addEventListener = <E extends keyof NodeSmartLinkProviderMessagesMap>(
-    type: E,
-    listener: NodeSmartLinkProviderMessagesMap[E]
-  ): void => {
-    this.events.on(type, listener);
-  };
-
-  public removeEventListener = <E extends keyof NodeSmartLinkProviderMessagesMap>(
-    type: E,
-    listener: NodeSmartLinkProviderMessagesMap[E]
-  ): void => {
-    this.events.off(type, listener);
+    if (shouldEnable) {
+      this.enable();
+    } else {
+      this.disable();
+    }
   };
 
   public enable = (): void => {
@@ -95,7 +78,12 @@ export class NodeSmartLinkProvider {
     this.enabled = false;
   };
 
-  private highlightVisibleElements = (): void => {
+  public destroy = (): void => {
+    this.disable();
+    this.renderer.destroy();
+  };
+
+  private augmentVisibleElements = (): void => {
     requestAnimationFrame(() => {
       this.renderer.render(this.visibleElements, this.observedElements);
     });
@@ -108,7 +96,7 @@ export class NodeSmartLinkProvider {
    * for better user experience.
    */
   private startRenderingInterval = (): void => {
-    this.highlightVisibleElements();
+    this.augmentVisibleElements();
     this.renderingTimeoutId = window.setTimeout(this.startRenderingInterval, 1000);
   };
 
@@ -120,22 +108,26 @@ export class NodeSmartLinkProvider {
   };
 
   private listenToGlobalEvents = (): void => {
-    window.addEventListener('scroll', this.highlightVisibleElements, { capture: true });
-    window.addEventListener('resize', this.highlightVisibleElements, { passive: true });
+    window.addEventListener('scroll', this.augmentVisibleElements, { capture: true });
+    window.addEventListener('resize', this.augmentVisibleElements, { passive: true });
 
-    window.addEventListener('animationend', this.highlightVisibleElements, { passive: true, capture: true });
-    window.addEventListener('transitionend', this.highlightVisibleElements, { passive: true, capture: true });
+    window.addEventListener('animationend', this.augmentVisibleElements, { passive: true, capture: true });
+    window.addEventListener('transitionend', this.augmentVisibleElements, { passive: true, capture: true });
 
+    window.addEventListener('ksl:plus-button:request', this.onPlusInitialClick, { capture: true });
+    window.addEventListener('ksl:plus-button:action', this.onPlusActionClick, { capture: true });
     window.addEventListener('ksl:highlight:edit', this.onEditElement, { capture: true });
   };
 
   private unlistenToGlobalEvents = (): void => {
-    window.removeEventListener('scroll', this.highlightVisibleElements, { capture: true });
-    window.removeEventListener('resize', this.highlightVisibleElements);
+    window.removeEventListener('scroll', this.augmentVisibleElements, { capture: true });
+    window.removeEventListener('resize', this.augmentVisibleElements);
 
-    window.removeEventListener('animationend', this.highlightVisibleElements, { capture: true });
-    window.removeEventListener('transitionend', this.highlightVisibleElements, { capture: true });
+    window.removeEventListener('animationend', this.augmentVisibleElements, { capture: true });
+    window.removeEventListener('transitionend', this.augmentVisibleElements, { capture: true });
 
+    window.removeEventListener('ksl:plus-button:request', this.onPlusInitialClick, { capture: true });
+    window.removeEventListener('ksl:plus-button:action', this.onPlusActionClick, { capture: true });
     window.removeEventListener('ksl:highlight:edit', this.onEditElement, { capture: true });
   };
 
@@ -184,18 +176,17 @@ export class NodeSmartLinkProvider {
   private onDomMutation = (mutations: MutationRecord[]): void => {
     const relevantMutations = mutations.filter((mutation: MutationRecord) => {
       const isTypeRelevant = mutation.type === 'childList';
-      const isTargetRelevant =
-        mutation.target instanceof HTMLElement && !NodeSmartLinkProvider.shouldIgnoreNode(mutation.target);
+      const isTargetRelevant = mutation.target instanceof HTMLElement && !isElementWebComponent(mutation.target);
 
       if (!isTypeRelevant || !isTargetRelevant) {
         return false;
       }
 
       const hasRelevantAddedNodes = Array.from(mutation.addedNodes).some(
-        (node) => node instanceof HTMLElement && !NodeSmartLinkProvider.shouldIgnoreNode(node)
+        (node) => node instanceof HTMLElement && !isElementWebComponent(node)
       );
       const hasRelevantRemovedNodes = Array.from(mutation.removedNodes).some(
-        (node) => node instanceof HTMLElement && !NodeSmartLinkProvider.shouldIgnoreNode(node)
+        (node) => node instanceof HTMLElement && !isElementWebComponent(node)
       );
 
       return hasRelevantAddedNodes || hasRelevantRemovedNodes;
@@ -232,7 +223,7 @@ export class NodeSmartLinkProvider {
     }
 
     if (relevantMutations.length > 0) {
-      this.highlightVisibleElements();
+      this.augmentVisibleElements();
     }
   };
 
@@ -249,27 +240,103 @@ export class NodeSmartLinkProvider {
     }
 
     if (filteredEntries.length > 0) {
-      this.highlightVisibleElements();
+      this.augmentVisibleElements();
     }
   };
 
   private onEditElement = (event: KSLHighlightElementEvent): void => {
     const { data, targetNode } = event.detail;
 
-    const metadata: IClickedMessageMetadata = {
+    const messageData: Partial<IElementClickedMessageData> = {
+      ...data,
+      projectId: data.projectId ?? this.configurationManager.defaultProjectId,
+      languageCodename: data.languageCodename ?? this.configurationManager.defaultLanguageCodename,
+    };
+
+    const messageMetadata: IClickedMessageMetadata = {
       elementRect: targetNode.getBoundingClientRect(),
     };
 
-    if ('elementCodename' in data && data.elementCodename) {
-      this.events.emit(NodeSmartLinkProviderEventType.ElementClicked, data, metadata);
-    } else if ('contentComponentId' in data && data.contentComponentId) {
-      console.warn('Warning: Edit button for content components is not yet supported.');
-    } else if ('itemId' in data && data.itemId) {
-      this.events.emit(NodeSmartLinkProviderEventType.ContentItemClicked, data, metadata);
+    if ('elementCodename' in messageData && messageData.elementCodename) {
+      if (validateElementClickMessageData(messageData)) {
+        if (isInsideIFrame()) {
+          this.iframeCommunicator.sendMessage(IFrameMessageType.ElementClicked, messageData, messageMetadata);
+        } else {
+          const link = buildKontentLink(messageData);
+          window.open(link, '_blank');
+        }
+      }
+    } else if ('contentComponentId' in messageData && messageData.contentComponentId) {
+      Logger.warn('Warning: Edit button for content components is not yet supported.');
+    } else if ('itemId' in messageData && messageData.itemId) {
+      if (validateContentItemClickEditMessageData(messageData)) {
+        if (isInsideIFrame()) {
+          this.iframeCommunicator.sendMessage(IFrameMessageType.ContentItemClicked, messageData, messageMetadata);
+        } else {
+          Logger.warn('Plus buttons for content items are only functional inside Web Spotlight.');
+        }
+      }
     } else {
-      console.warn(
+      Logger.warn(
         'Warning: Some required attributes are not found or the edit button for this type of element is not yet supported.'
       );
+    }
+  };
+
+  private onPlusInitialClick = (event: KSLPlusButtonElementRequestAsyncEvent): void => {
+    const { eventData, onResolve, onReject } = event.detail;
+    const { data, targetNode } = eventData;
+
+    const messageData: DeepPartial<IPlusRequestMessageData> = {
+      ...data,
+      languageCodename: data.languageCodename ?? this.configurationManager.defaultLanguageCodename,
+      projectId: data.projectId ?? this.configurationManager.defaultProjectId,
+    };
+
+    if (validatePlusRequestMessageData(messageData)) {
+      if (isInsideIFrame()) {
+        const messageMetadata: IClickedMessageMetadata = {
+          elementRect: targetNode.getBoundingClientRect(),
+        };
+
+        this.iframeCommunicator.sendMessageWithResponse(
+          IFrameMessageType.PlusRequest,
+          messageData,
+          (response?: IPlusButtonPermissionsServerModel) => {
+            if (!response || response.elementType === PlusButtonElementType.Unknown) {
+              return onReject({ message: 'Something went wrong.' });
+            }
+
+            return onResolve(response);
+          },
+          messageMetadata
+        );
+      } else {
+        Logger.warn('Plus buttons are only functional inside Web Spotlight.');
+        onReject({ message: 'Plus buttons are only functional inside Web Spotlight.' });
+      }
+    }
+  };
+
+  private onPlusActionClick = (event: KSLPlusButtonElementActionEvent): void => {
+    const { data, targetNode } = event.detail;
+
+    const messageData: DeepPartial<IPlusActionMessageData> = {
+      ...data,
+      languageCodename: data.languageCodename ?? this.configurationManager.defaultLanguageCodename,
+      projectId: data.projectId ?? this.configurationManager.defaultProjectId,
+    };
+
+    if (validatePlusActionMessageData(messageData)) {
+      if (isInsideIFrame()) {
+        const messageMetadata: IClickedMessageMetadata = {
+          elementRect: targetNode.getBoundingClientRect(),
+        };
+
+        this.iframeCommunicator.sendMessage(IFrameMessageType.PlusAction, messageData, messageMetadata);
+      } else {
+        Logger.warn('Plus buttons are only functional inside Web Spotlight.');
+      }
     }
   };
 }
