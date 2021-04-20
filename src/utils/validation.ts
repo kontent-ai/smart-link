@@ -1,10 +1,19 @@
-import { IContentItemClickedMessageData, IElementClickedMessageData } from '../lib/IFrameCommunicatorTypes';
+import {
+  IContentItemClickedMessageData,
+  IElementClickedMessageData,
+  IPlusActionMessageData,
+  IPlusRequestMessageData,
+  PlusButtonPermission,
+  PlusButtonPermissionOption,
+} from '../lib/IFrameCommunicatorTypes';
+import { DeepPartial } from './dataAttributes';
+import { Logger } from '../lib/Logger';
 
-const displayErrorsInConsole = (errors: string[]): void => {
+function logErrors(errors: string[]): void {
   errors.forEach((error: string) => {
-    console.error(error);
+    Logger.error(error);
   });
-};
+}
 
 export function validateContentItemClickEditMessageData(
   data: Partial<IContentItemClickedMessageData>
@@ -12,18 +21,18 @@ export function validateContentItemClickEditMessageData(
   const errors: string[] = [];
 
   if (!data.projectId) {
-    errors.push('Warning: project ID is required to handle element click.');
+    errors.push('Project ID is required to handle element click.');
   }
 
   if (!data.languageCodename) {
-    errors.push('Warning: language codename is required to handle element click.');
+    errors.push('Language codename is required to handle element click.');
   }
 
   if (!data.itemId) {
-    errors.push('Warning: item ID is required to handle element click.');
+    errors.push('Item ID is required to handle element click.');
   }
 
-  displayErrorsInConsole(errors);
+  logErrors(errors);
 
   return errors.length === 0;
 }
@@ -32,19 +41,61 @@ export function validateElementClickMessageData(
   data: Partial<IElementClickedMessageData>
 ): data is IElementClickedMessageData {
   if (!data.elementCodename) {
-    console.error('Warning: element codename is required to handle element click.');
+    Logger.error('Warning: element codename is required to handle element click.');
     return false;
   }
 
   return validateContentItemClickEditMessageData(data);
 }
 
-export function validateDummyElementMessageData(data: any): any {
+export function validatePlusRequestMessageData(
+  data: DeepPartial<IPlusRequestMessageData>
+): data is IPlusRequestMessageData {
   const errors: string[] = [];
 
-  if (!data) {
-    errors.push('Data missing');
+  if (!data.projectId) {
+    errors.push('Project ID is required to handle plus button click.');
   }
 
+  if (!data.languageCodename) {
+    errors.push('Language codename is required to handle plus button click.');
+  }
+
+  if (!data.itemId) {
+    errors.push('Item ID is required to handle plus button click.');
+  }
+
+  if (!data.elementCodename) {
+    errors.push('Element codename is required to handle plus button click.');
+  }
+
+  if (!data.insertPosition) {
+    errors.push('Insert position (placement, targetId) is required to handle plus button click.');
+  }
+
+  logErrors(errors);
+
   return errors.length === 0;
+}
+
+export function validatePlusActionMessageData(
+  data: DeepPartial<IPlusActionMessageData>
+): data is IPlusActionMessageData {
+  if (!data.action) {
+    Logger.error('Action is required to handle plus button click.');
+    return false;
+  }
+
+  return validatePlusRequestMessageData(data);
+}
+
+export function hasPlusButtonPermissions(
+  permissions: ReadonlyMap<PlusButtonPermission, PlusButtonPermissionOption>
+): boolean {
+  for (const permission of permissions.values()) {
+    if ([PlusButtonPermissionOption.PermissionMissing].includes(permission)) {
+      return false;
+    }
+  }
+  return true;
 }

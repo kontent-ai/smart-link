@@ -1,3 +1,8 @@
+import { Logger } from '../lib/Logger';
+
+const LocalStorageNotAvailable =
+  'Local storage is not available or access to local storage is denied for the current document. It may affect the proper work of the SDK.';
+
 export interface IStorage<T> {
   readonly get: () => T | null;
   readonly set: (data: T) => void;
@@ -7,15 +12,28 @@ export interface IStorage<T> {
 export function createStorage<T extends Record<string, any>>(key: string): IStorage<T> {
   return {
     get(): T | null {
-      const value = window.localStorage.getItem(key);
-      return value ? JSON.parse(value) : null;
+      try {
+        const value = window.localStorage.getItem(key);
+        return value ? JSON.parse(value) : null;
+      } catch {
+        Logger.warn(LocalStorageNotAvailable);
+        return null;
+      }
     },
     set(data: T): void {
-      const json = JSON.stringify(data);
-      window.localStorage.setItem(key, json);
+      try {
+        const json = JSON.stringify(data);
+        window.localStorage.setItem(key, json);
+      } catch {
+        Logger.warn(LocalStorageNotAvailable);
+      }
     },
     remove(): void {
-      window.localStorage.removeItem(key);
+      try {
+        window.localStorage.removeItem(key);
+      } catch {
+        Logger.warn(LocalStorageNotAvailable);
+      }
     },
   };
 }

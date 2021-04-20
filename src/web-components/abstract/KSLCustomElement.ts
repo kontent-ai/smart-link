@@ -1,3 +1,6 @@
+import { AsyncCustomEventDetail } from '../../utils/events';
+import { InvalidEnvironmentError, NotImplementedError } from '../../utils/errors';
+
 // Custom elements API as well as all Web Component definitions can only be run in a browser environment,
 // because they require build-in browser APIs, which are not available on the backend (during SSR).
 // There are several libraries that allow server-side rendering of Web Components. It is usually done by
@@ -11,20 +14,6 @@ if (isNotInBrowser) {
   // eslint-disable-next-line
   // @ts-ignore: required to support SSR frameworks
   global['HTMLElement'] = null;
-}
-
-function NotImplementedError(message?: string): Error {
-  const error = new Error(message);
-  error.name = 'NotImplementedError';
-
-  return error;
-}
-
-function InvalidEnvironmentError(message?: string): Error {
-  const error = new Error(message);
-  error.name = 'InvalidEnvironmentError';
-
-  return error;
 }
 
 /**
@@ -114,11 +103,46 @@ export abstract class KSLCustomElement extends HTMLElement {
    * @param {string} attributeName
    * @param {string | number | boolean | null} attributeValue
    */
-  protected updateAttribute = (attributeName: string, attributeValue: string | number | boolean | null): void => {
+  protected updateAttribute(attributeName: string, attributeValue: string | number | boolean | null): void {
     if (attributeValue) {
       this.setAttribute(attributeName, attributeValue.toString());
     } else {
       this.removeAttribute(attributeName);
     }
-  };
+  }
+
+  /**
+   * Dispatch an asynchronous event from component. Dispatching this event returns Promise
+   * which resolves if event was successful and rejects if events is not successful.
+   *
+   * @param {string} eventType
+   * @param {TEventData} eventData
+   * @param {number | null} timeout
+   * @protected
+   */
+  protected dispatchAsyncEvent<TEventData, TResolveData, TRejectReason>(
+    eventType: string,
+    eventData: TEventData,
+    timeout: number | null = null
+  ): Promise<TResolveData> {
+    return new Promise((resolve, reject) => {
+      const timeoutId = timeout ? window.setTimeout(reject, timeout) : 0;
+
+      const customEvent = new CustomEvent<AsyncCustomEventDetail<TEventData, TResolveData, TRejectReason>>(eventType, {
+        detail: {
+          eventData: eventData,
+          onResolve: (data: TResolveData) => {
+            window.clearTimeout(timeoutId);
+            resolve(data);
+          },
+          onReject: (reason: TRejectReason) => {
+            window.clearTimeout(timeoutId);
+            reject(reason);
+          },
+        },
+      });
+
+      this.dispatchEvent(customEvent);
+    });
+  }
 }

@@ -4,15 +4,17 @@ import {
   IContentItemClickedMessageData,
   IElementClickedMessageData,
   IClickedMessageMetadata,
-  IElementDummyData,
-  IElementDummyDataResponse,
   IFrameMessageType,
-  IPluginInitializedMessageData,
-  IPluginStatusMessageData,
+  IPlusActionMessageData,
+  IPlusButtonPermissionsServerModel,
+  IPlusRequestMessageData,
+  ISDKInitializedMessageData,
+  ISDKStatusMessageData,
 } from './IFrameCommunicatorTypes';
 import { createUuid } from '../utils/createUuid';
+import { InvalidEnvironmentError } from '../utils/errors';
 
-type Callback<TResponseData> = (data?: TResponseData) => void;
+type Callback<TResponseData = undefined> = (data?: TResponseData) => void;
 type MessageSignature<TMessageData, TMessageMetaData = undefined, TMessageCallback = undefined> = (
   data: TMessageData,
   metadata: TMessageMetaData,
@@ -20,18 +22,19 @@ type MessageSignature<TMessageData, TMessageMetaData = undefined, TMessageCallba
 ) => void;
 
 export type IFrameMessagesMap = {
-  readonly [IFrameMessageType.ElementDummy]: MessageSignature<
-    Partial<IElementDummyData>,
-    IClickedMessageMetadata,
-    Callback<IElementDummyDataResponse>
-  >;
-  readonly [IFrameMessageType.Initialized]: MessageSignature<IPluginInitializedMessageData>;
+  readonly [IFrameMessageType.Initialized]: MessageSignature<ISDKInitializedMessageData>;
+  readonly [IFrameMessageType.Status]: MessageSignature<ISDKStatusMessageData>;
   readonly [IFrameMessageType.ElementClicked]: MessageSignature<IElementClickedMessageData, IClickedMessageMetadata>;
   readonly [IFrameMessageType.ContentItemClicked]: MessageSignature<
     IContentItemClickedMessageData,
     IClickedMessageMetadata
   >;
-  readonly [IFrameMessageType.Status]: MessageSignature<IPluginStatusMessageData>;
+  readonly [IFrameMessageType.PlusRequest]: MessageSignature<
+    IPlusRequestMessageData,
+    IClickedMessageMetadata,
+    Callback<IPlusButtonPermissionsServerModel>
+  >;
+  readonly [IFrameMessageType.PlusAction]: MessageSignature<IPlusActionMessageData, IClickedMessageMetadata>;
 };
 
 export interface IFrameMessage<E extends keyof IFrameMessagesMap> {
@@ -42,12 +45,16 @@ export interface IFrameMessage<E extends keyof IFrameMessagesMap> {
 }
 
 export class IFrameCommunicator {
-  private readonly events: EventManager<IFrameMessagesMap>;
+  private readonly events: EventManager<IFrameMessagesMap> = new EventManager<IFrameMessagesMap>();
   private readonly callbacks: Map<string, Callback<any>> = new Map();
 
-  constructor() {
-    this.events = new EventManager<IFrameMessagesMap>();
+  public initialize(): void {
     window.addEventListener('message', this.onMessage, true);
+  }
+
+  public destroy(): void {
+    this.events.removeAllListeners();
+    window.removeEventListener('message', this.onMessage, true);
   }
 
   public addMessageListener = <M extends keyof IFrameMessagesMap>(type: M, listener: IFrameMessagesMap[M]): void => {
@@ -56,26 +63,6 @@ export class IFrameCommunicator {
 
   public removeMessageListener = <M extends keyof IFrameMessagesMap>(type: M, listener: IFrameMessagesMap[M]): void => {
     this.events.off(type, listener);
-  };
-
-  public destroy(): void {
-    this.events.removeAllListeners();
-    window.removeEventListener('message', this.onMessage, true);
-  }
-
-  public sendMessage = <M extends keyof IFrameMessagesMap>(
-    type: M,
-    data: Parameters<IFrameMessagesMap[M]>[0],
-    metadata?: Parameters<IFrameMessagesMap[M]>[1],
-    requestId?: string
-  ): void => {
-    if (!isInsideIFrame()) {
-      console.error("Warning: can't send an iframe message, because the application is not hosted in an iframe");
-      return;
-    }
-
-    const message: IFrameMessage<M> = { type, data, metadata, requestId };
-    window.parent.postMessage(message, '*');
   };
 
   public sendMessageWithResponse = <M extends keyof IFrameMessagesMap>(
@@ -87,6 +74,20 @@ export class IFrameCommunicator {
     const requestId = createUuid();
     this.registerCallback(requestId, callback);
     this.sendMessage(type, data, metadata, requestId);
+  };
+
+  public sendMessage = <M extends keyof IFrameMessagesMap>(
+    type: M,
+    data: Parameters<IFrameMessagesMap[M]>[0],
+    metadata?: Parameters<IFrameMessagesMap[M]>[1],
+    requestId?: string
+  ): void => {
+    if (!isInsideIFrame()) {
+      throw InvalidEnvironmentError('IFrameCommunicator: iframe message can only be send while inside iframe.');
+    }
+
+    const message: IFrameMessage<M> = { type, data, metadata, requestId };
+    window.parent.postMessage(message, '*');
   };
 
   private onMessage = (event: MessageEvent): void => {
