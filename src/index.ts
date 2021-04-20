@@ -1,2 +1,2 @@
-export { default } from './plugin';
+export { default } from './sdk';
 export { buildKontentLink, buildElementLink, buildComponentElementLink } from './utils/link';
