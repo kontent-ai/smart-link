@@ -1,6 +1,10 @@
 import { EventManager } from './EventManager';
 import { webComponentTags } from '../web-components/components';
-import { IElementClickedMessageData, IElementClickedMessageMetadata } from './IFrameCommunicatorTypes';
+import {
+  IContentItemClickedMessageData,
+  IElementClickedMessageData,
+  IElementClickedMessageMetadata,
+} from './IFrameCommunicatorTypes';
 import { IRenderer, SmartLinkRenderer } from './SmartLinkRenderer';
 import { KSLHighlightElementEvent } from '../web-components/KSLHighlightElement';
 import { getAugmentableDescendants, isElementAugmentable } from '../utils/customElements';
@@ -8,6 +12,7 @@ import { getAugmentableDescendants, isElementAugmentable } from '../utils/custom
 export enum NodeSmartLinkProviderEventType {
   ElementDummy = 'kontent-smart-link:element:dummy',
   ElementClicked = 'kontent-smart-link:element:clicked',
+  ContentItemClicked = 'kontent-smart-link:content-item:clicked',
 }
 
 export type NodeSmartLinkProviderMessagesMap = {
@@ -17,6 +22,10 @@ export type NodeSmartLinkProviderMessagesMap = {
   ) => void;
   readonly [NodeSmartLinkProviderEventType.ElementClicked]: (
     data: Partial<IElementClickedMessageData>,
+    metadata: IElementClickedMessageMetadata
+  ) => void;
+  readonly [NodeSmartLinkProviderEventType.ContentItemClicked]: (
+    data: Partial<IContentItemClickedMessageData>,
     metadata: IElementClickedMessageMetadata
   ) => void;
 };
@@ -247,16 +256,16 @@ export class NodeSmartLinkProvider {
   private onEditElement = (event: KSLHighlightElementEvent): void => {
     const { data, targetNode } = event.detail;
 
-    if ('elementCodename' in data && data.elementCodename) {
-      const metadata: IElementClickedMessageMetadata = {
-        elementRect: targetNode.getBoundingClientRect(),
-      };
+    const metadata: IElementClickedMessageMetadata = {
+      elementRect: targetNode.getBoundingClientRect(),
+    };
 
+    if ('elementCodename' in data && data.elementCodename) {
       this.events.emit(NodeSmartLinkProviderEventType.ElementClicked, data, metadata);
     } else if ('contentComponentId' in data && data.contentComponentId) {
       console.warn('Warning: Edit button for content components is not yet supported.');
     } else if ('itemId' in data && data.itemId) {
-      console.warn('Warning: Edit button for content items is not yet supported.');
+      this.events.emit(NodeSmartLinkProviderEventType.ContentItemClicked, data, metadata);
     } else {
       console.warn(
         'Warning: Some required attributes are not found or the edit button for this type of element is not yet supported.'

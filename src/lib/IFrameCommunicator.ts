@@ -1,6 +1,7 @@
 import { isInsideIFrame } from '../utils/iframe';
 import { EventManager } from './EventManager';
 import {
+  IContentItemClickedMessageData,
   IElementClickedMessageData,
   IElementClickedMessageMetadata,
   IElementDummyData,
@@ -27,6 +28,10 @@ export type IFrameMessagesMap = {
   readonly [IFrameMessageType.Initialized]: MessageSignature<IPluginInitializedMessageData>;
   readonly [IFrameMessageType.ElementClicked]: MessageSignature<
     IElementClickedMessageData,
+    IElementClickedMessageMetadata
+  >;
+  readonly [IFrameMessageType.ContentItemClicked]: MessageSignature<
+    IContentItemClickedMessageData,
     IElementClickedMessageMetadata
   >;
   readonly [IFrameMessageType.Status]: MessageSignature<IPluginStatusMessageData>;
