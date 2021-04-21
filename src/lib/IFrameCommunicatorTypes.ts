@@ -70,6 +70,7 @@ export interface IElementDummyDataResponse {
 export enum IFrameMessageType {
   ElementDummy = 'kontent-smart-link:element:dummy',
   ElementClicked = 'kontent-smart-link:element:clicked',
+  ContentItemClicked = 'kontent-smart-link:content-item:clicked',
   Initialized = 'kontent-smart-link:initialized',
   Status = 'kontent-smart-link:status',
 }
