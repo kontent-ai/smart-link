@@ -2,9 +2,14 @@ import { isInsideIFrame } from './utils/iframe';
 import { buildKontentLink } from './utils/link';
 import { NodeSmartLinkProvider, NodeSmartLinkProviderEventType } from './lib/NodeSmartLinkProvider';
 import { createStorage } from './utils/storage';
-import { validateDummyElementMessageData, validateElementClickMessageData } from './utils/validation';
+import {
+  validateDummyElementMessageData,
+  validateEditMessageData,
+  validateElementClickMessageData,
+} from './utils/validation';
 import { IFrameCommunicator } from './lib/IFrameCommunicator';
 import {
+  IContentItemClickedMessageData,
   IElementClickedMessageData,
   IElementClickedMessageMetadata,
   IElementDummyData,
@@ -116,7 +121,30 @@ class Plugin {
 
   private listenToHighlighterEvents = (): void => {
     this.nodeSmartLinkProvider.addEventListener(NodeSmartLinkProviderEventType.ElementClicked, this.onEditElementClick);
+    this.nodeSmartLinkProvider.addEventListener(
+      NodeSmartLinkProviderEventType.ContentItemClicked,
+      this.onEditContentItemClick
+    );
     this.nodeSmartLinkProvider.addEventListener(NodeSmartLinkProviderEventType.ElementDummy, this.onDummyAction);
+  };
+
+  private onEditContentItemClick = (
+    elementClickData: Partial<IContentItemClickedMessageData>,
+    elementClickMetadata: IElementClickedMessageMetadata
+  ): void => {
+    const data: Partial<IContentItemClickedMessageData> = {
+      ...elementClickData,
+      projectId: elementClickData.projectId || this.configuration.projectId || undefined,
+      languageCodename: elementClickData.languageCodename || this.configuration.languageCodename || undefined,
+    };
+
+    if (validateEditMessageData(data)) {
+      if (isInsideIFrame() && this.iFrameCommunicator) {
+        this.iFrameCommunicator.sendMessage(IFrameMessageType.ContentItemClicked, data, elementClickMetadata);
+      } else {
+        console.warn('Warning: Edit button for content item is not supported out of Web Spotlight.');
+      }
+    }
   };
 
   private onEditElementClick = (
