@@ -4,7 +4,7 @@ export interface IPluginInitializedMessageData {
   readonly enabled: boolean;
 }
 
-export interface IElementClickedMessageMetadata {
+export interface IClickedMessageMetadata {
   readonly elementRect: DOMRect;
 }
 
