@@ -3,7 +3,7 @@ import { webComponentTags } from '../web-components/components';
 import {
   IContentItemClickedMessageData,
   IElementClickedMessageData,
-  IElementClickedMessageMetadata,
+  IClickedMessageMetadata,
 } from './IFrameCommunicatorTypes';
 import { IRenderer, SmartLinkRenderer } from './SmartLinkRenderer';
 import { KSLHighlightElementEvent } from '../web-components/KSLHighlightElement';
@@ -18,15 +18,15 @@ export enum NodeSmartLinkProviderEventType {
 export type NodeSmartLinkProviderMessagesMap = {
   readonly [NodeSmartLinkProviderEventType.ElementDummy]: (
     data: Partial<any>,
-    metadata: IElementClickedMessageMetadata
+    metadata: IClickedMessageMetadata
   ) => void;
   readonly [NodeSmartLinkProviderEventType.ElementClicked]: (
     data: Partial<IElementClickedMessageData>,
-    metadata: IElementClickedMessageMetadata
+    metadata: IClickedMessageMetadata
   ) => void;
   readonly [NodeSmartLinkProviderEventType.ContentItemClicked]: (
     data: Partial<IContentItemClickedMessageData>,
-    metadata: IElementClickedMessageMetadata
+    metadata: IClickedMessageMetadata
   ) => void;
 };
 
@@ -256,7 +256,7 @@ export class NodeSmartLinkProvider {
   private onEditElement = (event: KSLHighlightElementEvent): void => {
     const { data, targetNode } = event.detail;
 
-    const metadata: IElementClickedMessageMetadata = {
+    const metadata: IClickedMessageMetadata = {
       elementRect: targetNode.getBoundingClientRect(),
     };
 

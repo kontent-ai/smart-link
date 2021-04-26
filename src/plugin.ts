@@ -4,14 +4,14 @@ import { NodeSmartLinkProvider, NodeSmartLinkProviderEventType } from './lib/Nod
 import { createStorage } from './utils/storage';
 import {
   validateDummyElementMessageData,
-  validateEditMessageData,
+  validateContentItemClickEditMessageData,
   validateElementClickMessageData,
 } from './utils/validation';
 import { IFrameCommunicator } from './lib/IFrameCommunicator';
 import {
   IContentItemClickedMessageData,
   IElementClickedMessageData,
-  IElementClickedMessageMetadata,
+  IClickedMessageMetadata,
   IElementDummyData,
   IFrameMessageType,
   IPluginStatusMessageData,
@@ -129,18 +129,18 @@ class Plugin {
   };
 
   private onEditContentItemClick = (
-    elementClickData: Partial<IContentItemClickedMessageData>,
-    elementClickMetadata: IElementClickedMessageMetadata
+    contentItemClickData: Partial<IContentItemClickedMessageData>,
+    contentItemClickMetadata: IClickedMessageMetadata
   ): void => {
     const data: Partial<IContentItemClickedMessageData> = {
-      ...elementClickData,
-      projectId: elementClickData.projectId || this.configuration.projectId || undefined,
-      languageCodename: elementClickData.languageCodename || this.configuration.languageCodename || undefined,
+      ...contentItemClickData,
+      projectId: contentItemClickData.projectId || this.configuration.projectId || undefined,
+      languageCodename: contentItemClickData.languageCodename || this.configuration.languageCodename || undefined,
     };
 
-    if (validateEditMessageData(data)) {
+    if (validateContentItemClickEditMessageData(data)) {
       if (isInsideIFrame() && this.iFrameCommunicator) {
-        this.iFrameCommunicator.sendMessage(IFrameMessageType.ContentItemClicked, data, elementClickMetadata);
+        this.iFrameCommunicator.sendMessage(IFrameMessageType.ContentItemClicked, data, contentItemClickMetadata);
       } else {
         console.warn('Warning: Edit button for content item is not supported out of Web Spotlight.');
       }
@@ -149,7 +149,7 @@ class Plugin {
 
   private onEditElementClick = (
     elementClickData: Partial<IElementClickedMessageData>,
-    elementClickMetadata: IElementClickedMessageMetadata
+    elementClickMetadata: IClickedMessageMetadata
   ): void => {
     const data: Partial<IElementClickedMessageData> = {
       ...elementClickData,
@@ -169,7 +169,7 @@ class Plugin {
 
   private onDummyAction = (
     elementClickData: Partial<IElementDummyData>,
-    elementClickMetadata: IElementClickedMessageMetadata
+    elementClickMetadata: IClickedMessageMetadata
   ): void => {
     const data: Partial<IElementDummyData> = {
       ...elementClickData,
