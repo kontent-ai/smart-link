@@ -3,7 +3,7 @@ import { EventManager } from './EventManager';
 import {
   IContentItemClickedMessageData,
   IElementClickedMessageData,
-  IElementClickedMessageMetadata,
+  IClickedMessageMetadata,
   IElementDummyData,
   IElementDummyDataResponse,
   IFrameMessageType,
@@ -22,17 +22,14 @@ type MessageSignature<TMessageData, TMessageMetaData = undefined, TMessageCallba
 export type IFrameMessagesMap = {
   readonly [IFrameMessageType.ElementDummy]: MessageSignature<
     Partial<IElementDummyData>,
-    IElementClickedMessageMetadata,
+    IClickedMessageMetadata,
     Callback<IElementDummyDataResponse>
   >;
   readonly [IFrameMessageType.Initialized]: MessageSignature<IPluginInitializedMessageData>;
-  readonly [IFrameMessageType.ElementClicked]: MessageSignature<
-    IElementClickedMessageData,
-    IElementClickedMessageMetadata
-  >;
+  readonly [IFrameMessageType.ElementClicked]: MessageSignature<IElementClickedMessageData, IClickedMessageMetadata>;
   readonly [IFrameMessageType.ContentItemClicked]: MessageSignature<
     IContentItemClickedMessageData,
-    IElementClickedMessageMetadata
+    IClickedMessageMetadata
   >;
   readonly [IFrameMessageType.Status]: MessageSignature<IPluginStatusMessageData>;
 };
