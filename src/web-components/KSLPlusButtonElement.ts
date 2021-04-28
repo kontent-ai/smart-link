@@ -9,7 +9,7 @@ import { DeepPartial, MetadataAttribute, parsePlusButtonDataAttributes } from '.
 import {
   IPlusActionMessageData,
   IPlusButtonPermissionsServerModel,
-  IPlusRequestMessageData,
+  IPlusInitialMessageData,
   PlusButtonAction,
   PlusButtonElementType,
 } from '../lib/IFrameCommunicatorTypes';
@@ -28,29 +28,29 @@ interface IKSLPlusButtonElementEventData<TMessageData> {
   readonly targetNode: HTMLElement;
 }
 
-interface IKSLPlusButtonElementRequestEventReason {
+interface IKSLPlusButtonElementInitialEventReason {
   readonly message: string;
 }
 
-type KSLPlusButtonElementRequestEventData = IKSLPlusButtonElementEventData<IPlusRequestMessageData>;
+type KSLPlusButtonElementInitialEventData = IKSLPlusButtonElementEventData<IPlusInitialMessageData>;
 type KSLPlusButtonElementActionEventData = IKSLPlusButtonElementEventData<IPlusActionMessageData>;
 
 export type KSLPlusButtonElementActionEvent = CustomEvent<KSLPlusButtonElementActionEventData>;
-export type KSLPlusButtonElementRequestAsyncEvent = AsyncCustomEvent<
-  KSLPlusButtonElementRequestEventData,
+export type KSLPlusButtonElementInitialAsyncEvent = AsyncCustomEvent<
+  KSLPlusButtonElementInitialEventData,
   IPlusButtonPermissionsServerModel,
-  IKSLPlusButtonElementRequestEventReason
+  IKSLPlusButtonElementInitialEventReason
 >;
 
 declare global {
   interface WindowEventMap {
     'ksl:plus-button:action': KSLPlusButtonElementActionEvent;
-    'ksl:plus-button:request': KSLPlusButtonElementRequestAsyncEvent;
+    'ksl:plus-button:initial': KSLPlusButtonElementInitialAsyncEvent;
   }
 
   interface HTMLElementEventMap {
     'ksl:plus-button:action': KSLPlusButtonElementActionEvent;
-    'ksl:plus-button:request': KSLPlusButtonElementRequestAsyncEvent;
+    'ksl:plus-button:initial': KSLPlusButtonElementInitialAsyncEvent;
   }
 }
 
@@ -222,7 +222,7 @@ export class KSLPlusButtonElement extends KSLPositionedElement {
       const eventData = { data, targetNode: this.targetRef };
 
       const response: IPlusButtonPermissionsServerModel = await this.dispatchAsyncEvent(
-        'ksl:plus-button:request',
+        'ksl:plus-button:initial',
         eventData
       );
 

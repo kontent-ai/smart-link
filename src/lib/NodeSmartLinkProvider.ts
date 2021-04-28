@@ -5,7 +5,7 @@ import {
   IFrameMessageType,
   IPlusActionMessageData,
   IPlusButtonPermissionsServerModel,
-  IPlusRequestMessageData,
+  IPlusInitialMessageData,
   PlusButtonElementType,
 } from './IFrameCommunicatorTypes';
 import { IRenderer, SmartLinkRenderer } from './SmartLinkRenderer';
@@ -13,14 +13,14 @@ import { KSLHighlightElementEvent } from '../web-components/KSLHighlightElement'
 import { getAugmentableDescendants, isElementAugmentable } from '../utils/customElements';
 import {
   KSLPlusButtonElementActionEvent,
-  KSLPlusButtonElementRequestAsyncEvent,
+  KSLPlusButtonElementInitialAsyncEvent,
 } from '../web-components/KSLPlusButtonElement';
 import { IFrameCommunicator } from './IFrameCommunicator';
 import {
   validateContentItemClickEditMessageData,
   validateElementClickMessageData,
   validatePlusActionMessageData,
-  validatePlusRequestMessageData,
+  validatePlusInitialMessageData,
 } from '../utils/validation';
 import { isInsideIFrame } from '../utils/iframe';
 import { DeepPartial } from '../utils/dataAttributes';
@@ -114,7 +114,7 @@ export class NodeSmartLinkProvider {
     window.addEventListener('animationend', this.augmentVisibleElements, { passive: true, capture: true });
     window.addEventListener('transitionend', this.augmentVisibleElements, { passive: true, capture: true });
 
-    window.addEventListener('ksl:plus-button:request', this.onPlusInitialClick, { capture: true });
+    window.addEventListener('ksl:plus-button:initial', this.onPlusInitialClick, { capture: true });
     window.addEventListener('ksl:plus-button:action', this.onPlusActionClick, { capture: true });
     window.addEventListener('ksl:highlight:edit', this.onEditElement, { capture: true });
   };
@@ -126,7 +126,7 @@ export class NodeSmartLinkProvider {
     window.removeEventListener('animationend', this.augmentVisibleElements, { capture: true });
     window.removeEventListener('transitionend', this.augmentVisibleElements, { capture: true });
 
-    window.removeEventListener('ksl:plus-button:request', this.onPlusInitialClick, { capture: true });
+    window.removeEventListener('ksl:plus-button:initial', this.onPlusInitialClick, { capture: true });
     window.removeEventListener('ksl:plus-button:action', this.onPlusActionClick, { capture: true });
     window.removeEventListener('ksl:highlight:edit', this.onEditElement, { capture: true });
   };
@@ -283,24 +283,24 @@ export class NodeSmartLinkProvider {
     }
   };
 
-  private onPlusInitialClick = (event: KSLPlusButtonElementRequestAsyncEvent): void => {
+  private onPlusInitialClick = (event: KSLPlusButtonElementInitialAsyncEvent): void => {
     const { eventData, onResolve, onReject } = event.detail;
     const { data, targetNode } = eventData;
 
-    const messageData: DeepPartial<IPlusRequestMessageData> = {
+    const messageData: DeepPartial<IPlusInitialMessageData> = {
       ...data,
       languageCodename: data.languageCodename ?? this.configurationManager.defaultLanguageCodename,
       projectId: data.projectId ?? this.configurationManager.defaultProjectId,
     };
 
-    if (validatePlusRequestMessageData(messageData)) {
+    if (validatePlusInitialMessageData(messageData)) {
       if (isInsideIFrame()) {
         const messageMetadata: IClickedMessageMetadata = {
           elementRect: targetNode.getBoundingClientRect(),
         };
 
         this.iframeCommunicator.sendMessageWithResponse(
-          IFrameMessageType.PlusRequest,
+          IFrameMessageType.PlusInitial,
           messageData,
           (response?: IPlusButtonPermissionsServerModel) => {
             if (!response || response.elementType === PlusButtonElementType.Unknown) {

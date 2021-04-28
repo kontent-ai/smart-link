@@ -2,9 +2,9 @@ import {
   IContentItemClickedMessageData,
   IElementClickedMessageData,
   IPlusActionMessageData,
-  IPlusRequestMessageData,
+  IPlusInitialMessageData,
   PlusButtonPermission,
-  PlusButtonPermissionOption,
+  PlusButtonPermissionCheckResult,
 } from '../lib/IFrameCommunicatorTypes';
 import { DeepPartial } from './dataAttributes';
 import { Logger } from '../lib/Logger';
@@ -48,9 +48,9 @@ export function validateElementClickMessageData(
   return validateContentItemClickEditMessageData(data);
 }
 
-export function validatePlusRequestMessageData(
-  data: DeepPartial<IPlusRequestMessageData>
-): data is IPlusRequestMessageData {
+export function validatePlusInitialMessageData(
+  data: DeepPartial<IPlusInitialMessageData>
+): data is IPlusInitialMessageData {
   const errors: string[] = [];
 
   if (!data.projectId) {
@@ -86,14 +86,14 @@ export function validatePlusActionMessageData(
     return false;
   }
 
-  return validatePlusRequestMessageData(data);
+  return validatePlusInitialMessageData(data);
 }
 
 export function hasPlusButtonPermissions(
-  permissions: ReadonlyMap<PlusButtonPermission, PlusButtonPermissionOption>
+  permissions: ReadonlyMap<PlusButtonPermission, PlusButtonPermissionCheckResult>
 ): boolean {
   for (const permission of permissions.values()) {
-    if ([PlusButtonPermissionOption.PermissionMissing].includes(permission)) {
+    if ([PlusButtonPermissionCheckResult.PermissionMissing].includes(permission)) {
       return false;
     }
   }
