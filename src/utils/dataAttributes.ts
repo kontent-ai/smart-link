@@ -3,9 +3,9 @@ import {
   IContentComponentClickedMessageData,
   IContentItemClickedMessageData,
   IElementClickedMessageData,
+  InsertPositionPlacement,
+  IPlusInitialMessageData,
   InsertPosition,
-  IPlusRequestMessageData,
-  PlusRequestInsertPosition,
 } from '../lib/IFrameCommunicatorTypes';
 import { getHighlightTypeForElement, HighlightType } from './customElements';
 import { Logger } from '../lib/Logger';
@@ -114,7 +114,7 @@ export function parseEditButtonDataAttributes(target: HTMLElement): DeepPartial<
   };
 }
 
-export function parsePlusButtonDataAttributes(target: HTMLElement): DeepPartial<IPlusRequestMessageData> {
+export function parsePlusButtonDataAttributes(target: HTMLElement): DeepPartial<IPlusInitialMessageData> {
   const position = target.getAttribute(DataAttribute.PlusButtonInsertPosition);
   const pattern = getPlusButtonDataAttributesPattern(position);
   const parsed = parseDataAttributes(pattern, target);
@@ -144,29 +144,29 @@ function getEditButtonDataAttributesPattern(type: HighlightType): DataAttributes
 
 function getPlusButtonDataAttributesPattern(position: string | null): DataAttributesParserPattern {
   switch (position) {
-    case InsertPosition.End:
-    case InsertPosition.Start:
+    case InsertPositionPlacement.End:
+    case InsertPositionPlacement.Start:
       return fixedPlusButtonParserPattern;
-    case InsertPosition.After:
-    case InsertPosition.Before:
+    case InsertPositionPlacement.After:
+    case InsertPositionPlacement.Before:
     default:
       return relativePlusButtonParserPattern;
   }
 }
 
-function getPlusButtonInsertPosition(parsed: ReadonlyMap<ParserTokenKey, string>): Partial<PlusRequestInsertPosition> {
-  const placement = (parsed.get(ParserTokenKey.Placement) as InsertPosition) ?? InsertPosition.After;
+function getPlusButtonInsertPosition(parsed: ReadonlyMap<ParserTokenKey, string>): Partial<InsertPosition> {
+  const placement = (parsed.get(ParserTokenKey.Placement) as InsertPositionPlacement) ?? InsertPositionPlacement.After;
   const targetId = parsed.get(ParserTokenKey.TargetId);
 
   switch (placement) {
-    case InsertPosition.End:
-    case InsertPosition.Start:
+    case InsertPositionPlacement.End:
+    case InsertPositionPlacement.Start:
       return { placement };
-    case InsertPosition.Before:
-    case InsertPosition.After:
+    case InsertPositionPlacement.Before:
+    case InsertPositionPlacement.After:
       return { placement, targetId };
     default:
-      return { targetId, placement: InsertPosition.After };
+      return { targetId, placement: InsertPositionPlacement.After };
   }
 }
 

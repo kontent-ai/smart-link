@@ -30,7 +30,7 @@ export interface IElementClickedMessageData extends IContentItemClickedMessageDa
   readonly elementCodename: string;
 }
 
-export enum InsertPosition {
+export enum InsertPositionPlacement {
   After = 'after',
   Before = 'before',
   End = 'end',
@@ -39,22 +39,22 @@ export enum InsertPosition {
 
 interface IRelativeInsertPosition {
   readonly targetId: string;
-  readonly placement: InsertPosition.Before | InsertPosition.After;
+  readonly placement: InsertPositionPlacement.Before | InsertPositionPlacement.After;
 }
 
 interface IFixedInsertPosition {
-  readonly placement: InsertPosition.Start | InsertPosition.End;
+  readonly placement: InsertPositionPlacement.Start | InsertPositionPlacement.End;
 }
 
-export type PlusRequestInsertPosition = IRelativeInsertPosition | IFixedInsertPosition;
+export type InsertPosition = IRelativeInsertPosition | IFixedInsertPosition;
 
-export interface IPlusRequestMessageData {
+export interface IPlusInitialMessageData {
   readonly projectId: string;
   readonly languageCodename: string;
   readonly itemId: string;
   readonly contentComponentId?: string;
   readonly elementCodename: string;
-  readonly insertPosition: PlusRequestInsertPosition;
+  readonly insertPosition: InsertPosition;
 }
 
 export enum PlusButtonAction {
@@ -63,7 +63,7 @@ export enum PlusButtonAction {
   InsertLinkedItem = 'InsertLinkedItem',
 }
 
-export interface IPlusActionMessageData extends IPlusRequestMessageData {
+export interface IPlusActionMessageData extends IPlusInitialMessageData {
   readonly action: PlusButtonAction;
 }
 
@@ -79,7 +79,7 @@ export enum PlusButtonPermission {
   ViewParent = 'ViewParent',
 }
 
-export enum PlusButtonPermissionOption {
+export enum PlusButtonPermissionCheckResult {
   ItemNotTranslated = 'ItemNotTranslated',
   Ok = 'Ok',
   PermissionMissing = 'PermissionMissing',
@@ -89,7 +89,7 @@ export enum PlusButtonPermissionOption {
 export interface IPlusButtonPermissionsServerModel {
   readonly elementType: PlusButtonElementType;
   readonly isParentPublished: boolean;
-  readonly permissions: ReadonlyMap<PlusButtonPermission, PlusButtonPermissionOption>;
+  readonly permissions: ReadonlyMap<PlusButtonPermission, PlusButtonPermissionCheckResult>;
 }
 
 export enum IFrameMessageType {
@@ -97,13 +97,12 @@ export enum IFrameMessageType {
   ContentItemClicked = 'kontent-smart-link:content-item:clicked',
   Initialized = 'kontent-smart-link:initialized',
   Status = 'kontent-smart-link:status',
-  PlusRequest = 'kontent-smart-link:plus:request',
+  PlusInitial = 'kontent-smart-link:plus:initial',
   PlusAction = 'kontent-smart-link:plus:action',
 }
 
 export enum IFrameResponseType {
-  PlusRequestResponse = 'kontent-smart-link:plus:response',
-  PlusActionResponse = 'kontent-smart-link:plus:action-response',
+  PlusInitialResponse = 'kontent-smart-link:plus:initial:response',
 }
 
 export interface IFrameResponseMessage {

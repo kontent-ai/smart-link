@@ -7,7 +7,7 @@ import {
   IFrameMessageType,
   IPlusActionMessageData,
   IPlusButtonPermissionsServerModel,
-  IPlusRequestMessageData,
+  IPlusInitialMessageData,
   ISDKInitializedMessageData,
   ISDKStatusMessageData,
 } from './IFrameCommunicatorTypes';
@@ -29,8 +29,8 @@ export type IFrameMessagesMap = {
     IContentItemClickedMessageData,
     IClickedMessageMetadata
   >;
-  readonly [IFrameMessageType.PlusRequest]: MessageSignature<
-    IPlusRequestMessageData,
+  readonly [IFrameMessageType.PlusInitial]: MessageSignature<
+    IPlusInitialMessageData,
     IClickedMessageMetadata,
     Callback<IPlusButtonPermissionsServerModel>
   >;
