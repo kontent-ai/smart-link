@@ -1,6 +1,6 @@
 import { createHtmlFixture } from '../test-helpers/createHtmlFixture';
 import { parseEditButtonDataAttributes, parsePlusButtonDataAttributes } from '../../src/utils/dataAttributes';
-import { InsertPosition } from '../../src/lib/IFrameCommunicatorTypes';
+import { InsertPositionPlacement } from '../../src/lib/IFrameCommunicatorTypes';
 
 describe('dataAttributes.ts', () => {
   const fixture = createHtmlFixture();
@@ -205,7 +205,7 @@ describe('dataAttributes.ts', () => {
         itemId: '99c3bcd8-f5ac-4c64-b57e-b0beb414863a',
         elementCodename: 'rte',
         insertPosition: {
-          placement: InsertPosition.End,
+          placement: InsertPositionPlacement.End,
         },
       };
 
@@ -245,7 +245,7 @@ describe('dataAttributes.ts', () => {
         itemId: '99c3bcd8-f5ac-4c64-b57e-b0beb414863a',
         elementCodename: 'rte',
         insertPosition: {
-          placement: InsertPosition.After,
+          placement: InsertPositionPlacement.After,
           targetId: 'b2d36acb-90af-4ce7-813a-bbcae4c2e496',
         },
       };
@@ -285,7 +285,7 @@ describe('dataAttributes.ts', () => {
         componentId: 'dcc91efe-7205-4ebf-b470-e934dbc31c38',
         elementCodename: 'sections',
         insertPosition: {
-          placement: InsertPosition.End,
+          placement: InsertPositionPlacement.End,
         },
       };
 
@@ -330,7 +330,7 @@ describe('dataAttributes.ts', () => {
         componentId: '0a197ac8-0c09-41be-bcaa-87ce9cbaf6d6',
         elementCodename: 'comments',
         insertPosition: {
-          placement: InsertPosition.Before,
+          placement: InsertPositionPlacement.Before,
           targetId: 'ab758fd9-4f84-4f94-962f-26752b459fe8',
         },
       };
