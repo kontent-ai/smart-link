@@ -1,4 +1,5 @@
 import { DataAttribute, MetadataAttribute } from './dataAttributes';
+import { isInsideIFrame } from './iframe';
 
 export enum HighlightType {
   None = '',
@@ -12,9 +13,8 @@ const ContentComponentSelector = `*[${DataAttribute.ComponentId}]:not([${DataAtt
 const ContentItemSelector = `*[${DataAttribute.ItemId}]:not([${DataAttribute.ComponentId}]):not([${DataAttribute.ElementCodename}])`;
 
 const ElementsWithPlusButtonSelector = `*[${MetadataAttribute.PlusButton}]`;
-const ElementsWithHighlightsSelector = `${ElementSelector}, ${ContentComponentSelector}, ${ContentItemSelector}`;
 
-const AugmentableElementsSelector = `${ElementsWithPlusButtonSelector}, ${ElementsWithHighlightsSelector}`;
+const ElementsAugmentableOnlyInIframe = `${ContentComponentSelector}, ${ContentItemSelector}, ${ElementsWithPlusButtonSelector}`;
 
 /**
  * Find all descendant HTML elements that could be augmented (have highlights or plus buttons near them).
@@ -23,7 +23,10 @@ const AugmentableElementsSelector = `${ElementsWithPlusButtonSelector}, ${Elemen
  * @returns {NodeListOf<HTMLElement>}
  */
 export function getAugmentableDescendants(node: HTMLElement | Document): NodeListOf<HTMLElement> {
-  return node.querySelectorAll(AugmentableElementsSelector);
+  const augmentableElementsSelector =
+    `${ElementSelector}` + (isInsideIFrame() ? `, ${ElementsAugmentableOnlyInIframe}` : '');
+
+  return node.querySelectorAll(augmentableElementsSelector);
 }
 
 /**
@@ -44,7 +47,16 @@ export function isElementAugmentable(element: HTMLElement | null): boolean {
  */
 export function shouldElementHaveHighlight(element: HTMLElement | null): boolean {
   const highlightType = getHighlightTypeForElement(element);
-  return highlightType !== HighlightType.None;
+
+  switch (highlightType) {
+    case HighlightType.None:
+      return false;
+    case HighlightType.Element:
+      return true;
+    default:
+      // only highlights on an element should be visible outside of an iframe
+      return isInsideIFrame();
+  }
 }
 
 /**
@@ -54,7 +66,8 @@ export function shouldElementHaveHighlight(element: HTMLElement | null): boolean
  * @returns {boolean}
  */
 export function shouldElementHavePlusButton(element: HTMLElement | null): boolean {
-  return Boolean(element && element.hasAttribute(MetadataAttribute.PlusButton));
+  // plus button should only be visible inside an iframe
+  return Boolean(isInsideIFrame() && element && element.hasAttribute(MetadataAttribute.PlusButton));
 }
 
 /**
