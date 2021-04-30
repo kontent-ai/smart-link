@@ -282,7 +282,7 @@ describe('dataAttributes.ts', () => {
         projectId: '6db25ade-c2d6-43d2-ad9f-91e6cf614065',
         languageCodename: 'cs',
         itemId: 'af1cea9a-aeed-429f-ac86-a0c78a939197',
-        componentId: 'dcc91efe-7205-4ebf-b470-e934dbc31c38',
+        contentComponentId: 'dcc91efe-7205-4ebf-b470-e934dbc31c38',
         elementCodename: 'sections',
         insertPosition: {
           placement: InsertPositionPlacement.End,
@@ -327,7 +327,7 @@ describe('dataAttributes.ts', () => {
         projectId: '8ec75bbd-c1b9-4d10-8ac8-a7f985109301',
         languageCodename: 'en-us',
         itemId: 'eb137c14-820a-48b6-9b91-19425aa76490',
-        componentId: '0a197ac8-0c09-41be-bcaa-87ce9cbaf6d6',
+        contentComponentId: '0a197ac8-0c09-41be-bcaa-87ce9cbaf6d6',
         elementCodename: 'comments',
         insertPosition: {
           placement: InsertPositionPlacement.Before,
