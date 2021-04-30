@@ -8,7 +8,8 @@ module.exports = {
       mobile: false,
     },
   },
-  'looks-same': {
-    tolerance: 2.5,
+  diffingEngine: 'pixelmatch',
+  pixelmatch: {
+    threshold: 0.1,
   },
 };

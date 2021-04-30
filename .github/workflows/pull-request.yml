@@ -1,0 +1,48 @@
+name: Lint, Build & Test
+
+on: [ pull_request ]
+
+jobs:
+  lint-build-test:
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        node-version: [ 14.x ]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Use latest stable Chrome
+        uses: browser-actions/setup-chrome@latest
+        with:
+          chrome-version: stable
+
+      # TODO: can be replaced with `npm ci --ignore-scripts` in the future when we remove node-sass from dependencies
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Unit tests
+        run: npm run test:unit:ci
+
+      - name: Visual regression tests
+        run: npm run test:visual:ci
+
+      - name: Save visual regression tests artifacts (on failure)
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: .loki
+          path: .loki/
+          retention-days: 5
