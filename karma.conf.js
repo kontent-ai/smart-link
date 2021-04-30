@@ -34,6 +34,7 @@ module.exports = function(config) {
       },
       exclude: [
         'node_modules',
+        'types'
       ],
       bundlerOptions: {
         transforms: [
