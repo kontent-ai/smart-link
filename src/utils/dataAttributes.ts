@@ -42,7 +42,7 @@ enum ParserTokenKey {
   ProjectId = 'projectId',
   LanguageCodename = 'languageCodename',
   ItemId = 'itemId',
-  ComponentId = 'componentId',
+  ComponentId = 'contentComponentId',
   ElementCodename = 'elementCodename',
   Placement = 'placement',
   TargetId = 'targetId',
@@ -123,7 +123,7 @@ export function parsePlusButtonDataAttributes(target: HTMLElement): DeepPartial<
     projectId: parsed.get(ParserTokenKey.ProjectId),
     languageCodename: parsed.get(ParserTokenKey.LanguageCodename),
     itemId: parsed.get(ParserTokenKey.ItemId),
-    ...(parsed.get(ParserTokenKey.ComponentId) && { componentId: parsed.get(ParserTokenKey.ComponentId) }),
+    ...(parsed.get(ParserTokenKey.ComponentId) && { contentComponentId: parsed.get(ParserTokenKey.ComponentId) }),
     elementCodename: parsed.get(ParserTokenKey.ElementCodename),
     insertPosition: getPlusButtonInsertPosition(parsed),
   };
