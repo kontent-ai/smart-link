@@ -1,4 +1,5 @@
 import {
+  IContentComponentClickedMessageData,
   IContentItemClickedMessageData,
   IElementClickedMessageData,
   IAddActionMessageData,
@@ -41,7 +42,18 @@ export function validateElementClickMessageData(
   data: Partial<IElementClickedMessageData>
 ): data is IElementClickedMessageData {
   if (!data.elementCodename) {
-    Logger.error('Warning: element codename is required to handle element click.');
+    Logger.error('Element codename is required to handle element click.');
+    return false;
+  }
+
+  return validateContentItemClickEditMessageData(data);
+}
+
+export function validateContentComponentClickMessageData(
+  data: Partial<IContentComponentClickedMessageData>
+): data is IContentComponentClickedMessageData {
+  if (!data.contentComponentId) {
+    Logger.error('Content component ID is required to handle element click.');
     return false;
   }
 
