@@ -95,6 +95,7 @@ export interface IAddButtonPermissionsServerModel {
 export enum IFrameMessageType {
   ElementClicked = 'kontent-smart-link:element:clicked',
   ContentItemClicked = 'kontent-smart-link:content-item:clicked',
+  ContentComponentClicked = 'kontent-smart-link:content-component:clicked',
   Initialized = 'kontent-smart-link:initialized',
   Status = 'kontent-smart-link:status',
   AddInitial = 'kontent-smart-link:add:initial',
