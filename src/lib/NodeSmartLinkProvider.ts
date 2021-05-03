@@ -11,6 +11,8 @@ import {
 import { IRenderer, SmartLinkRenderer } from './SmartLinkRenderer';
 import { KSLHighlightElementEvent } from '../web-components/KSLHighlightElement';
 import { getAugmentableDescendants, isElementAugmentable } from '../utils/customElements';
+import { validateContentComponentClickMessageData } from '../utils/validation';
+import { isInsideIFrame } from '../utils/iframe';
 import {
   KSLAddButtonElementActionEvent,
   KSLAddButtonElementInitialAsyncEvent,
@@ -22,7 +24,6 @@ import {
   validateAddActionMessageData,
   validateAddInitialMessageData,
 } from '../utils/validation';
-import { isInsideIFrame } from '../utils/iframe';
 import { DeepPartial } from '../utils/dataAttributes';
 import { IConfigurationManager } from './ConfigurationManager';
 import { buildKontentLink } from '../utils/link';
@@ -267,7 +268,13 @@ export class NodeSmartLinkProvider {
         }
       }
     } else if ('contentComponentId' in messageData && messageData.contentComponentId) {
-      Logger.warn('Warning: Edit button for content components is not yet supported.');
+      if (validateContentComponentClickMessageData(messageData)) {
+        if (isInsideIFrame()) {
+          this.iframeCommunicator.sendMessage(IFrameMessageType.ContentComponentClicked, messageData, messageMetadata);
+        } else {
+          Logger.warn('Edit buttons for content components are only functional inside Web Spotlight.');
+        }
+      }
     } else if ('itemId' in messageData && messageData.itemId) {
       if (validateContentItemClickEditMessageData(messageData)) {
         if (isInsideIFrame()) {
@@ -278,7 +285,7 @@ export class NodeSmartLinkProvider {
       }
     } else {
       Logger.warn(
-        'Warning: Some required attributes are not found or the edit button for this type of element is not yet supported.'
+        'Some required attributes are not found or the edit button for this type of element is not yet supported.'
       );
     }
   };

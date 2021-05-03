@@ -10,6 +10,7 @@ import {
   IAddButtonInitialMessageData,
   ISDKInitializedMessageData,
   ISDKStatusMessageData,
+  IContentComponentClickedMessageData,
 } from './IFrameCommunicatorTypes';
 import { createUuid } from '../utils/createUuid';
 import { InvalidEnvironmentError } from '../utils/errors';
@@ -27,6 +28,10 @@ export type IFrameMessagesMap = {
   readonly [IFrameMessageType.ElementClicked]: MessageSignature<IElementClickedMessageData, IClickedMessageMetadata>;
   readonly [IFrameMessageType.ContentItemClicked]: MessageSignature<
     IContentItemClickedMessageData,
+    IClickedMessageMetadata
+  >;
+  readonly [IFrameMessageType.ContentComponentClicked]: MessageSignature<
+    IContentComponentClickedMessageData,
     IClickedMessageMetadata
   >;
   readonly [IFrameMessageType.AddInitial]: MessageSignature<
