@@ -12,11 +12,11 @@ const ElementSelector = `*[${DataAttribute.ElementCodename}]`;
 const ContentComponentSelector = `*[${DataAttribute.ComponentId}]:not([${DataAttribute.ElementCodename}])`;
 const ContentItemSelector = `*[${DataAttribute.ItemId}]:not([${DataAttribute.ComponentId}]):not([${DataAttribute.ElementCodename}])`;
 
-const ElementsWithPlusButtonSelector = `*[${MetadataAttribute.PlusButton}]`;
-const AllAugmentableElementsSelector = `${ElementSelector}, ${ContentComponentSelector}, ${ContentItemSelector}, ${ElementsWithPlusButtonSelector}`;
+const ElementsWithAddButtonSelector = `*[${MetadataAttribute.AddButton}]`;
+const AllAugmentableElementsSelector = `${ElementSelector}, ${ContentComponentSelector}, ${ContentItemSelector}, ${ElementsWithAddButtonSelector}`;
 
 /**
- * Find all descendant HTML elements that could be augmented (have highlights or plus buttons near them).
+ * Find all descendant HTML elements that could be augmented (have highlights or add buttons near them).
  *
  * @param {HTMLElement | Document} node
  * @returns {NodeListOf<HTMLElement>}
@@ -29,13 +29,13 @@ export function getAugmentableDescendants(node: HTMLElement | Document): NodeLis
 }
 
 /**
- * Checks if HTML element could be augmented (have highlights or plus buttons near them).
+ * Checks if HTML element could be augmented (have highlights or add buttons near them).
  *
  * @param {HTMLElement | null} element
  * @returns {boolean}
  */
 export function isElementAugmentable(element: HTMLElement | null): boolean {
-  return shouldElementHaveHighlight(element) || shouldElementHavePlusButton(element);
+  return shouldElementHaveHighlight(element) || shouldElementHaveAddButton(element);
 }
 
 /**
@@ -60,14 +60,14 @@ export function shouldElementHaveHighlight(element: HTMLElement | null): boolean
 }
 
 /**
- * Check if node should have a plus button based on its data-attributes.
+ * Check if node should have a add button based on its data-attributes.
  *
  * @param {HTMLElement | null} element
  * @returns {boolean}
  */
-export function shouldElementHavePlusButton(element: HTMLElement | null): boolean {
-  // plus button should only be visible inside an iframe
-  return Boolean(isInsideIFrame() && element && element.hasAttribute(MetadataAttribute.PlusButton));
+export function shouldElementHaveAddButton(element: HTMLElement | null): boolean {
+  // add button should only be visible inside an iframe
+  return Boolean(isInsideIFrame() && element && element.hasAttribute(MetadataAttribute.AddButton));
 }
 
 /**

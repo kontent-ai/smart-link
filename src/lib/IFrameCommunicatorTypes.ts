@@ -48,7 +48,7 @@ interface IFixedInsertPosition {
 
 export type InsertPosition = IRelativeInsertPosition | IFixedInsertPosition;
 
-export interface IPlusInitialMessageData {
+export interface IAddButtonInitialMessageData {
   readonly projectId: string;
   readonly languageCodename: string;
   readonly itemId: string;
@@ -57,39 +57,39 @@ export interface IPlusInitialMessageData {
   readonly insertPosition: InsertPosition;
 }
 
-export enum PlusButtonAction {
+export enum AddButtonAction {
   CreateComponent = 'CreateComponent',
   CreateLinkedItem = 'CreateLinkedItem',
   InsertLinkedItem = 'InsertLinkedItem',
 }
 
-export interface IPlusActionMessageData extends IPlusInitialMessageData {
-  readonly action: PlusButtonAction;
+export interface IAddActionMessageData extends IAddButtonInitialMessageData {
+  readonly action: AddButtonAction;
 }
 
-export enum PlusButtonElementType {
+export enum AddButtonElementType {
   LinkedItems = 'LinkedItems',
   RichText = 'RichText',
   Unknown = 'Unknown',
 }
 
-export enum PlusButtonPermission {
+export enum AddButtonPermission {
   CreateNew = 'CreateNew',
   Edit = 'Edit',
   ViewParent = 'ViewParent',
 }
 
-export enum PlusButtonPermissionCheckResult {
+export enum AddButtonPermissionCheckResult {
   ItemNotTranslated = 'ItemNotTranslated',
   Ok = 'Ok',
   PermissionMissing = 'PermissionMissing',
   Unknown = 'Unknown',
 }
 
-export interface IPlusButtonPermissionsServerModel {
-  readonly elementType: PlusButtonElementType;
+export interface IAddButtonPermissionsServerModel {
+  readonly elementType: AddButtonElementType;
   readonly isParentPublished: boolean;
-  readonly permissions: ReadonlyMap<PlusButtonPermission, PlusButtonPermissionCheckResult>;
+  readonly permissions: ReadonlyMap<AddButtonPermission, AddButtonPermissionCheckResult>;
 }
 
 export enum IFrameMessageType {
@@ -97,12 +97,12 @@ export enum IFrameMessageType {
   ContentItemClicked = 'kontent-smart-link:content-item:clicked',
   Initialized = 'kontent-smart-link:initialized',
   Status = 'kontent-smart-link:status',
-  PlusInitial = 'kontent-smart-link:plus:initial',
-  PlusAction = 'kontent-smart-link:plus:action',
+  AddInitial = 'kontent-smart-link:add:initial',
+  AddAction = 'kontent-smart-link:add:action',
 }
 
 export enum IFrameResponseType {
-  PlusInitialResponse = 'kontent-smart-link:plus:initial:response',
+  AddInitialResponse = 'kontent-smart-link:add:initial:response',
 }
 
 export interface IFrameResponseMessage {

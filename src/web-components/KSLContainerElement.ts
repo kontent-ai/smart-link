@@ -1,5 +1,5 @@
 import { KSLCustomElement } from './abstract/KSLCustomElement';
-import { KSLPlusButtonElement } from './KSLPlusButtonElement';
+import { KSLAddButtonElement } from './KSLAddButtonElement';
 import { KSLHighlightElement } from './KSLHighlightElement';
 import { createTemplateForCustomElement, getRenderingRootMetadata, getTotalScrollOffset } from '../utils/node';
 import { IPositionable } from './abstract/KSLPositionedElement';
@@ -50,8 +50,8 @@ export class KSLContainerElement extends KSLCustomElement implements IPositionab
     return highlight;
   };
 
-  public createPlusButtonForElement = (element: HTMLElement): KSLPlusButtonElement => {
-    const button = document.createElement(KSLPlusButtonElement.is);
+  public createAddButtonForElement = (element: HTMLElement): KSLAddButtonElement => {
+    const button = document.createElement(KSLAddButtonElement.is);
     button.attachTo(element);
     this.appendChild(button);
     return button;

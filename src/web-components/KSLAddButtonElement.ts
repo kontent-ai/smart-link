@@ -5,16 +5,16 @@ import { KSLPopoverElement } from './KSLPopoverElement';
 import { ElementPositionOffset, KSLPositionedElement } from './abstract/KSLPositionedElement';
 import { KSLContainerElement } from './KSLContainerElement';
 import { createTemplateForCustomElement } from '../utils/node';
-import { DeepPartial, MetadataAttribute, parsePlusButtonDataAttributes } from '../utils/dataAttributes';
+import { DeepPartial, MetadataAttribute, parseAddButtonDataAttributes } from '../utils/dataAttributes';
 import {
-  IPlusActionMessageData,
-  IPlusButtonPermissionsServerModel,
-  IPlusInitialMessageData,
-  PlusButtonAction,
-  PlusButtonElementType,
+  IAddActionMessageData,
+  IAddButtonPermissionsServerModel,
+  IAddButtonInitialMessageData,
+  AddButtonAction,
+  AddButtonElementType,
 } from '../lib/IFrameCommunicatorTypes';
 import { AsyncCustomEvent } from '../utils/events';
-import { hasPlusButtonPermissions } from '../utils/validation';
+import { hasAddButtonPermissions } from '../utils/validation';
 import { Logger } from '../lib/Logger';
 
 enum PopoverButtonId {
@@ -23,34 +23,34 @@ enum PopoverButtonId {
   InsertLinkedItem = 'insert-linked-item',
 }
 
-interface IKSLPlusButtonElementEventData<TMessageData> {
+interface IKSLAddButtonElementEventData<TMessageData> {
   readonly data: DeepPartial<TMessageData>;
   readonly targetNode: HTMLElement;
 }
 
-interface IKSLPlusButtonElementInitialEventReason {
+interface IKSLAddButtonElementInitialEventReason {
   readonly message: string;
 }
 
-type KSLPlusButtonElementInitialEventData = IKSLPlusButtonElementEventData<IPlusInitialMessageData>;
-type KSLPlusButtonElementActionEventData = IKSLPlusButtonElementEventData<IPlusActionMessageData>;
+type KSLAddButtonElementInitialEventData = IKSLAddButtonElementEventData<IAddButtonInitialMessageData>;
+type KSLAddButtonElementActionEventData = IKSLAddButtonElementEventData<IAddActionMessageData>;
 
-export type KSLPlusButtonElementActionEvent = CustomEvent<KSLPlusButtonElementActionEventData>;
-export type KSLPlusButtonElementInitialAsyncEvent = AsyncCustomEvent<
-  KSLPlusButtonElementInitialEventData,
-  IPlusButtonPermissionsServerModel,
-  IKSLPlusButtonElementInitialEventReason
+export type KSLAddButtonElementActionEvent = CustomEvent<KSLAddButtonElementActionEventData>;
+export type KSLAddButtonElementInitialAsyncEvent = AsyncCustomEvent<
+  KSLAddButtonElementInitialEventData,
+  IAddButtonPermissionsServerModel,
+  IKSLAddButtonElementInitialEventReason
 >;
 
 declare global {
   interface WindowEventMap {
-    'ksl:plus-button:action': KSLPlusButtonElementActionEvent;
-    'ksl:plus-button:initial': KSLPlusButtonElementInitialAsyncEvent;
+    'ksl:add-button:action': KSLAddButtonElementActionEvent;
+    'ksl:add-button:initial': KSLAddButtonElementInitialAsyncEvent;
   }
 
   interface HTMLElementEventMap {
-    'ksl:plus-button:action': KSLPlusButtonElementActionEvent;
-    'ksl:plus-button:initial': KSLPlusButtonElementInitialAsyncEvent;
+    'ksl:add-button:action': KSLAddButtonElementActionEvent;
+    'ksl:add-button:initial': KSLAddButtonElementInitialAsyncEvent;
   }
 }
 
@@ -111,13 +111,13 @@ const templateHTML = `
   </ksl-button>
 `;
 
-export class KSLPlusButtonElement extends KSLPositionedElement {
+export class KSLAddButtonElement extends KSLPositionedElement {
   public static get is() {
-    return 'ksl-plus-button' as const;
+    return 'ksl-add-button' as const;
   }
 
   public get position(): string {
-    return this.targetRef?.getAttribute(MetadataAttribute.PlusButtonRenderPosition) ?? ElementPositionOffset.Bottom;
+    return this.targetRef?.getAttribute(MetadataAttribute.AddButtonRenderPosition) ?? ElementPositionOffset.Bottom;
   }
 
   private readonly buttonRef: KSLButtonElement;
@@ -156,7 +156,7 @@ export class KSLPlusButtonElement extends KSLPositionedElement {
     }
 
     if (!(this.offsetParent instanceof KSLContainerElement)) {
-      console.warn('KSLPlusButtonElement: should be located inside KSLContainerElement to be positioned properly.');
+      console.warn('KSLAddButtonElement: should be located inside KSLContainerElement to be positioned properly.');
     }
 
     const offsetParentRect = this.offsetParent.getBoundingClientRect();
@@ -209,26 +209,26 @@ export class KSLPlusButtonElement extends KSLPositionedElement {
       return;
     }
 
-    assert(this.targetRef, 'Target node is not set for this plus button.');
+    assert(this.targetRef, 'Target node is not set for this add button.');
 
     event.preventDefault();
     event.stopPropagation();
 
     this.buttonRef.loading = true;
 
-    const data = parsePlusButtonDataAttributes(this.targetRef);
+    const data = parseAddButtonDataAttributes(this.targetRef);
 
     try {
       const eventData = { data, targetNode: this.targetRef };
 
-      const response: IPlusButtonPermissionsServerModel = await this.dispatchAsyncEvent(
-        'ksl:plus-button:initial',
+      const response: IAddButtonPermissionsServerModel = await this.dispatchAsyncEvent(
+        'ksl:add-button:initial',
         eventData
       );
 
       const { elementType, permissions } = response;
 
-      if (!permissions || !hasPlusButtonPermissions(permissions)) {
+      if (!permissions || !hasAddButtonPermissions(permissions)) {
         this.buttonRef.loading = false;
         this.buttonRef.disabled = false;
         this.buttonRef.tooltipMessage = 'You have no rights to do this.';
@@ -264,7 +264,7 @@ export class KSLPlusButtonElement extends KSLPositionedElement {
     }
   };
 
-  private showPopover = (elementType: PlusButtonElementType): void => {
+  private showPopover = (elementType: AddButtonElementType): void => {
     assert(this.shadowRoot, 'Shadow root must be available in "open" mode.');
 
     if (this.popoverRef) {
@@ -300,7 +300,7 @@ export class KSLPlusButtonElement extends KSLPositionedElement {
     }
   };
 
-  private addPopoverEventListeners = (elementType: PlusButtonElementType): void => {
+  private addPopoverEventListeners = (elementType: AddButtonElementType): void => {
     if (!this.popoverRef) {
       return;
     }
@@ -316,7 +316,7 @@ export class KSLPlusButtonElement extends KSLPositionedElement {
     ) as KSLButtonElement;
 
     if (createComponentButtonRef) {
-      if (elementType === PlusButtonElementType.RichText) {
+      if (elementType === AddButtonElementType.RichText) {
         createComponentButtonRef.addEventListener('click', this.handleCreateComponentClick);
       } else {
         createComponentButtonRef.hidden = true;
@@ -324,7 +324,7 @@ export class KSLPlusButtonElement extends KSLPositionedElement {
     }
 
     if (createLinkedItemButtonRef) {
-      if (elementType === PlusButtonElementType.LinkedItems) {
+      if (elementType === AddButtonElementType.LinkedItems) {
         createLinkedItemButtonRef.addEventListener('click', this.handleCreateLinkedItemClick);
       } else {
         createLinkedItemButtonRef.hidden = true;
@@ -365,25 +365,25 @@ export class KSLPlusButtonElement extends KSLPositionedElement {
   };
 
   private handleCreateComponentClick = (event: MouseEvent): void => {
-    this.handlePlusActionClick(event, PlusButtonAction.CreateComponent);
+    this.handleAddActionClick(event, AddButtonAction.CreateComponent);
   };
 
   private handleCreateLinkedItemClick = (event: MouseEvent): void => {
-    this.handlePlusActionClick(event, PlusButtonAction.CreateLinkedItem);
+    this.handleAddActionClick(event, AddButtonAction.CreateLinkedItem);
   };
 
   private handleInsertLinkedItemClick = (event: MouseEvent): void => {
-    this.handlePlusActionClick(event, PlusButtonAction.InsertLinkedItem);
+    this.handleAddActionClick(event, AddButtonAction.InsertLinkedItem);
   };
 
-  private handlePlusActionClick = (event: MouseEvent, action: PlusButtonAction): void => {
-    assert(this.targetRef, 'Target node is not set for this plus button.');
+  private handleAddActionClick = (event: MouseEvent, action: AddButtonAction): void => {
+    assert(this.targetRef, 'Target node is not set for this add button.');
 
     event.preventDefault();
     event.stopPropagation();
 
-    const data = parsePlusButtonDataAttributes(this.targetRef);
-    const customEvent = new CustomEvent<KSLPlusButtonElementActionEventData>('ksl:plus-button:action', {
+    const data = parseAddButtonDataAttributes(this.targetRef);
+    const customEvent = new CustomEvent<KSLAddButtonElementActionEventData>('ksl:add-button:action', {
       detail: {
         data: { ...data, action },
         targetNode: this.targetRef,
