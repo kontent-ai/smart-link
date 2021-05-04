@@ -13,8 +13,7 @@ const ContentComponentSelector = `*[${DataAttribute.ComponentId}]:not([${DataAtt
 const ContentItemSelector = `*[${DataAttribute.ItemId}]:not([${DataAttribute.ComponentId}]):not([${DataAttribute.ElementCodename}])`;
 
 const ElementsWithPlusButtonSelector = `*[${MetadataAttribute.PlusButton}]`;
-
-const ElementsAugmentableOnlyInIframe = `${ContentComponentSelector}, ${ContentItemSelector}, ${ElementsWithPlusButtonSelector}`;
+const AllAugmentableElementsSelector = `${ElementSelector}, ${ContentComponentSelector}, ${ContentItemSelector}, ${ElementsWithPlusButtonSelector}`;
 
 /**
  * Find all descendant HTML elements that could be augmented (have highlights or plus buttons near them).
@@ -23,10 +22,10 @@ const ElementsAugmentableOnlyInIframe = `${ContentComponentSelector}, ${ContentI
  * @returns {NodeListOf<HTMLElement>}
  */
 export function getAugmentableDescendants(node: HTMLElement | Document): NodeListOf<HTMLElement> {
-  const augmentableElementsSelector =
-    `${ElementSelector}` + (isInsideIFrame() ? `, ${ElementsAugmentableOnlyInIframe}` : '');
-
-  return node.querySelectorAll(augmentableElementsSelector);
+  if (isInsideIFrame()) {
+    return node.querySelectorAll(AllAugmentableElementsSelector);
+  }
+  return node.querySelectorAll(ElementSelector);
 }
 
 /**
@@ -53,8 +52,9 @@ export function shouldElementHaveHighlight(element: HTMLElement | null): boolean
       return false;
     case HighlightType.Element:
       return true;
+    case HighlightType.ContentItem:
+    case HighlightType.ContentComponent:
     default:
-      // only highlights on an element should be visible outside of an iframe
       return isInsideIFrame();
   }
 }
