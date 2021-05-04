@@ -1,5 +1,5 @@
 import { createHtmlFixture } from '../test-helpers/createHtmlFixture';
-import { parseEditButtonDataAttributes, parsePlusButtonDataAttributes } from '../../src/utils/dataAttributes';
+import { parseEditButtonDataAttributes, parseAddButtonDataAttributes } from '../../src/utils/dataAttributes';
 import { InsertPositionPlacement } from '../../src/lib/IFrameCommunicatorTypes';
 
 describe('dataAttributes.ts', () => {
@@ -173,8 +173,8 @@ describe('dataAttributes.ts', () => {
     });
   });
 
-  describe('parsePlusButtonDataAttributes', () => {
-    it('should parse data attributes for fixed plus button', () => {
+  describe('parseAddButtonDataAttributes', () => {
+    it('should parse data attributes for fixed add button', () => {
       // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
       fixture.setHtml(`
         <div 
@@ -184,8 +184,8 @@ describe('dataAttributes.ts', () => {
           <div
               data-kontent-item-id="99c3bcd8-f5ac-4c64-b57e-b0beb414863a"
               data-kontent-element-codename="rte"
-              data-kontent-plus-button
-              data-kontent-plus-button-insert-position="end"
+              data-kontent-add-button
+              data-kontent-add-button-insert-position="end"
           >
             <div data-kontent-component-id="3ee4baf4-63ac-4a86-ad2d-8b84726e798f">
               <div data-kontent-element-codename="cfcca1a7-04e3-4120-9c22-009a8f636fc9"></div>
@@ -198,7 +198,7 @@ describe('dataAttributes.ts', () => {
       `);
       // </editor-fold>
 
-      const target = fixture.querySelector('[data-kontent-plus-button]') as HTMLElement;
+      const target = fixture.querySelector('[data-kontent-add-button]') as HTMLElement;
       const expected = {
         projectId: '8ec75bbd-c1b9-4d10-8ac8-a7f985109301',
         languageCodename: 'en-us',
@@ -209,10 +209,10 @@ describe('dataAttributes.ts', () => {
         },
       };
 
-      expect(parsePlusButtonDataAttributes(target)).toEqual(expected);
+      expect(parseAddButtonDataAttributes(target)).toEqual(expected);
     });
 
-    it('should parse data attributes for relative plus button', () => {
+    it('should parse data attributes for relative add button', () => {
       // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
       fixture.setHtml(`
         <div 
@@ -228,8 +228,8 @@ describe('dataAttributes.ts', () => {
             </div>
             <div 
               data-kontent-component-id="b2d36acb-90af-4ce7-813a-bbcae4c2e496" 
-              data-kontent-plus-button
-              data-kontent-plus-button-insert-position="after"
+              data-kontent-add-button
+              data-kontent-add-button-insert-position="after"
             >
               <div data-kontent-element-codename="content"></div>
             </div>
@@ -238,7 +238,7 @@ describe('dataAttributes.ts', () => {
       `);
       // </editor-fold>
 
-      const target = fixture.querySelector('[data-kontent-plus-button]') as HTMLElement;
+      const target = fixture.querySelector('[data-kontent-add-button]') as HTMLElement;
       const expected = {
         projectId: '8ec75bbd-c1b9-4d10-8ac8-a7f985109301',
         languageCodename: 'en-us',
@@ -250,7 +250,7 @@ describe('dataAttributes.ts', () => {
         },
       };
 
-      expect(parsePlusButtonDataAttributes(target)).toEqual(expected);
+      expect(parseAddButtonDataAttributes(target)).toEqual(expected);
     });
 
     it('should parse data attributes when all attributes are on the same node (only fixed)', () => {
@@ -263,8 +263,8 @@ describe('dataAttributes.ts', () => {
             data-kontent-item-id="af1cea9a-aeed-429f-ac86-a0c78a939197"
             data-kontent-component-id="dcc91efe-7205-4ebf-b470-e934dbc31c38"
             data-kontent-element-codename="sections"
-            data-kontent-plus-button
-            data-kontent-plus-button-insert-position="end"
+            data-kontent-add-button
+            data-kontent-add-button-insert-position="end"
         >
           <div data-kontent-component-id="9e7f9366-84a2-4ccf-b93a-95c08cf7fa23">
             <div data-kontent-element-codename="content"></div>
@@ -277,7 +277,7 @@ describe('dataAttributes.ts', () => {
     `);
       // </editor-fold>
 
-      const target = fixture.querySelector('[data-kontent-plus-button]') as HTMLElement;
+      const target = fixture.querySelector('[data-kontent-add-button]') as HTMLElement;
       const expected = {
         projectId: '6db25ade-c2d6-43d2-ad9f-91e6cf614065',
         languageCodename: 'cs',
@@ -289,7 +289,7 @@ describe('dataAttributes.ts', () => {
         },
       };
 
-      expect(parsePlusButtonDataAttributes(target)).toEqual(expected);
+      expect(parseAddButtonDataAttributes(target)).toEqual(expected);
     });
 
     it('should parse nested data attributes', () => {
@@ -303,16 +303,16 @@ describe('dataAttributes.ts', () => {
               data-kontent-item-id="8989bb18-1aee-4574-81a9-cc76234192d9"
               data-kontent-component-id="1be9cd6e-ab95-419a-a4c6-023e540fcf58"
               data-kontent-element-codename="content"
-              data-kontent-plus-button
-              data-kontent-plus-button-insert-position="end"
+              data-kontent-add-button
+              data-kontent-add-button-insert-position="end"
           >
             <div data-kontent-item-id="eb137c14-820a-48b6-9b91-19425aa76490">
               <div data-kontent-component-id="0a197ac8-0c09-41be-bcaa-87ce9cbaf6d6">
                 <div data-kontent-element-codename="comments">
                   <div 
                     data-kontent-item-id="ab758fd9-4f84-4f94-962f-26752b459fe8"
-                    data-kontent-plus-button
-                    data-kontent-plus-button-insert-position="before"
+                    data-kontent-add-button
+                    data-kontent-add-button-insert-position="before"
                   />
                 </div>
               </div>
@@ -322,7 +322,7 @@ describe('dataAttributes.ts', () => {
       `);
       // </editor-fold>
 
-      const target = fixture.querySelector('[data-kontent-plus-button-insert-position="before"]') as HTMLElement;
+      const target = fixture.querySelector('[data-kontent-add-button-insert-position="before"]') as HTMLElement;
       const expected = {
         projectId: '8ec75bbd-c1b9-4d10-8ac8-a7f985109301',
         languageCodename: 'en-us',
@@ -335,7 +335,7 @@ describe('dataAttributes.ts', () => {
         },
       };
 
-      expect(parsePlusButtonDataAttributes(target)).toEqual(expected);
+      expect(parseAddButtonDataAttributes(target)).toEqual(expected);
     });
   });
 });

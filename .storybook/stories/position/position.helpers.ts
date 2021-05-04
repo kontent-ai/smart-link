@@ -43,7 +43,7 @@ export const PositionTemplate = ({ containerPosition, nestedPosition, buttonPosi
         class="bg-light p-4"
         style="position: ${nestedPosition}; top: 40px; left: 40px; width: 300px; height: 300px;"
     >
-      <div data-kontent-element-codename="e" data-kontent-plus-button="true" data-kontent-plus-button-render-position="${buttonPosition}">
+      <div data-kontent-element-codename="e" data-kontent-add-button="true" data-kontent-add-button-render-position="${buttonPosition}">
         This text block has 'position: ${nestedPosition}' and it is located
         inside an element with '${containerPosition}' position.
       </div>

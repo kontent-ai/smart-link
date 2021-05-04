@@ -3,24 +3,24 @@ import {
   IClickedMessageMetadata,
   IElementClickedMessageData,
   IFrameMessageType,
-  IPlusActionMessageData,
-  IPlusButtonPermissionsServerModel,
-  IPlusInitialMessageData,
-  PlusButtonElementType,
+  IAddActionMessageData,
+  IAddButtonPermissionsServerModel,
+  IAddButtonInitialMessageData,
+  AddButtonElementType,
 } from './IFrameCommunicatorTypes';
 import { IRenderer, SmartLinkRenderer } from './SmartLinkRenderer';
 import { KSLHighlightElementEvent } from '../web-components/KSLHighlightElement';
 import { getAugmentableDescendants, isElementAugmentable } from '../utils/customElements';
 import {
-  KSLPlusButtonElementActionEvent,
-  KSLPlusButtonElementInitialAsyncEvent,
-} from '../web-components/KSLPlusButtonElement';
+  KSLAddButtonElementActionEvent,
+  KSLAddButtonElementInitialAsyncEvent,
+} from '../web-components/KSLAddButtonElement';
 import { IFrameCommunicator } from './IFrameCommunicator';
 import {
   validateContentItemClickEditMessageData,
   validateElementClickMessageData,
-  validatePlusActionMessageData,
-  validatePlusInitialMessageData,
+  validateAddActionMessageData,
+  validateAddInitialMessageData,
 } from '../utils/validation';
 import { isInsideIFrame } from '../utils/iframe';
 import { DeepPartial } from '../utils/dataAttributes';
@@ -114,8 +114,8 @@ export class NodeSmartLinkProvider {
     window.addEventListener('animationend', this.augmentVisibleElements, { passive: true, capture: true });
     window.addEventListener('transitionend', this.augmentVisibleElements, { passive: true, capture: true });
 
-    window.addEventListener('ksl:plus-button:initial', this.onPlusInitialClick, { capture: true });
-    window.addEventListener('ksl:plus-button:action', this.onPlusActionClick, { capture: true });
+    window.addEventListener('ksl:add-button:initial', this.onAddInitialClick, { capture: true });
+    window.addEventListener('ksl:add-button:action', this.onAddActionClick, { capture: true });
     window.addEventListener('ksl:highlight:edit', this.onEditElement, { capture: true });
   };
 
@@ -126,8 +126,8 @@ export class NodeSmartLinkProvider {
     window.removeEventListener('animationend', this.augmentVisibleElements, { capture: true });
     window.removeEventListener('transitionend', this.augmentVisibleElements, { capture: true });
 
-    window.removeEventListener('ksl:plus-button:initial', this.onPlusInitialClick, { capture: true });
-    window.removeEventListener('ksl:plus-button:action', this.onPlusActionClick, { capture: true });
+    window.removeEventListener('ksl:add-button:initial', this.onAddInitialClick, { capture: true });
+    window.removeEventListener('ksl:add-button:action', this.onAddActionClick, { capture: true });
     window.removeEventListener('ksl:highlight:edit', this.onEditElement, { capture: true });
   };
 
@@ -273,7 +273,7 @@ export class NodeSmartLinkProvider {
         if (isInsideIFrame()) {
           this.iframeCommunicator.sendMessage(IFrameMessageType.ContentItemClicked, messageData, messageMetadata);
         } else {
-          Logger.warn('Plus buttons for content items are only functional inside Web Spotlight.');
+          Logger.warn('Add buttons for content items are only functional inside Web Spotlight.');
         }
       }
     } else {
@@ -283,27 +283,27 @@ export class NodeSmartLinkProvider {
     }
   };
 
-  private onPlusInitialClick = (event: KSLPlusButtonElementInitialAsyncEvent): void => {
+  private onAddInitialClick = (event: KSLAddButtonElementInitialAsyncEvent): void => {
     const { eventData, onResolve, onReject } = event.detail;
     const { data, targetNode } = eventData;
 
-    const messageData: DeepPartial<IPlusInitialMessageData> = {
+    const messageData: DeepPartial<IAddButtonInitialMessageData> = {
       ...data,
       languageCodename: data.languageCodename ?? this.configurationManager.defaultLanguageCodename,
       projectId: data.projectId ?? this.configurationManager.defaultProjectId,
     };
 
-    if (validatePlusInitialMessageData(messageData)) {
+    if (validateAddInitialMessageData(messageData)) {
       if (isInsideIFrame()) {
         const messageMetadata: IClickedMessageMetadata = {
           elementRect: targetNode.getBoundingClientRect(),
         };
 
         this.iframeCommunicator.sendMessageWithResponse(
-          IFrameMessageType.PlusInitial,
+          IFrameMessageType.AddInitial,
           messageData,
-          (response?: IPlusButtonPermissionsServerModel) => {
-            if (!response || response.elementType === PlusButtonElementType.Unknown) {
+          (response?: IAddButtonPermissionsServerModel) => {
+            if (!response || response.elementType === AddButtonElementType.Unknown) {
               return onReject({ message: 'Something went wrong.' });
             }
 
@@ -312,30 +312,30 @@ export class NodeSmartLinkProvider {
           messageMetadata
         );
       } else {
-        Logger.warn('Plus buttons are only functional inside Web Spotlight.');
-        onReject({ message: 'Plus buttons are only functional inside Web Spotlight.' });
+        Logger.warn('Add buttons are only functional inside Web Spotlight.');
+        onReject({ message: 'Add buttons are only functional inside Web Spotlight.' });
       }
     }
   };
 
-  private onPlusActionClick = (event: KSLPlusButtonElementActionEvent): void => {
+  private onAddActionClick = (event: KSLAddButtonElementActionEvent): void => {
     const { data, targetNode } = event.detail;
 
-    const messageData: DeepPartial<IPlusActionMessageData> = {
+    const messageData: DeepPartial<IAddActionMessageData> = {
       ...data,
       languageCodename: data.languageCodename ?? this.configurationManager.defaultLanguageCodename,
       projectId: data.projectId ?? this.configurationManager.defaultProjectId,
     };
 
-    if (validatePlusActionMessageData(messageData)) {
+    if (validateAddActionMessageData(messageData)) {
       if (isInsideIFrame()) {
         const messageMetadata: IClickedMessageMetadata = {
           elementRect: targetNode.getBoundingClientRect(),
         };
 
-        this.iframeCommunicator.sendMessage(IFrameMessageType.PlusAction, messageData, messageMetadata);
+        this.iframeCommunicator.sendMessage(IFrameMessageType.AddAction, messageData, messageMetadata);
       } else {
-        Logger.warn('Plus buttons are only functional inside Web Spotlight.');
+        Logger.warn('Add buttons are only functional inside Web Spotlight.');
       }
     }
   };

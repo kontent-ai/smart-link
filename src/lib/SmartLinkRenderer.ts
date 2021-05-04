@@ -1,8 +1,8 @@
 import { groupElementsByRenderingRoot } from '../utils/node';
 import { KSLContainerElement } from '../web-components/KSLContainerElement';
 import { KSLHighlightElement } from '../web-components/KSLHighlightElement';
-import { KSLPlusButtonElement } from '../web-components/KSLPlusButtonElement';
-import { shouldElementHaveHighlight, shouldElementHavePlusButton } from '../utils/customElements';
+import { KSLAddButtonElement } from '../web-components/KSLAddButtonElement';
+import { shouldElementHaveHighlight, shouldElementHaveAddButton } from '../utils/customElements';
 
 export interface IRenderer {
   readonly destroy: () => void;
@@ -14,12 +14,12 @@ export class SmartLinkRenderer implements IRenderer {
   private readonly defaultContainer: KSLContainerElement;
   private containerByRenderingRoot: Map<HTMLElement, KSLContainerElement>;
   private highlightByElement: Map<HTMLElement, KSLHighlightElement>;
-  private plusButtonByElement: Map<HTMLElement, KSLPlusButtonElement>;
+  private addButtonByElement: Map<HTMLElement, KSLAddButtonElement>;
 
   constructor() {
     this.containerByRenderingRoot = new Map<HTMLElement, KSLContainerElement>();
     this.highlightByElement = new Map<HTMLElement, KSLHighlightElement>();
-    this.plusButtonByElement = new Map<HTMLElement, KSLPlusButtonElement>();
+    this.addButtonByElement = new Map<HTMLElement, KSLAddButtonElement>();
     this.defaultContainer = SmartLinkRenderer.createAndMountDefaultContainer();
   }
 
@@ -33,7 +33,7 @@ export class SmartLinkRenderer implements IRenderer {
     if (observedElements.size === 0) {
       this.clear();
     } else {
-      const newPlusButtonByElement = new Map<HTMLElement, KSLPlusButtonElement>();
+      const newAddButtonByElement = new Map<HTMLElement, KSLAddButtonElement>();
       const newHighlightByElement = new Map<HTMLElement, KSLHighlightElement>();
 
       // Group elements by their rendering roots to avoid unnecessary re-calculations (e.g. reposition container only once
@@ -59,14 +59,14 @@ export class SmartLinkRenderer implements IRenderer {
             this.highlightByElement.delete(element);
           }
 
-          if (shouldElementHavePlusButton(element)) {
-            const button = this.plusButtonByElement.get(element) ?? container.createPlusButtonForElement(element);
+          if (shouldElementHaveAddButton(element)) {
+            const button = this.addButtonByElement.get(element) ?? container.createAddButtonForElement(element);
             button.adjustPosition();
 
-            // We are creating a new plus button by element map to be able to compare it with an old one to find out
-            // which elements have been removed before renders and remove their plus buttons from the DOM.
-            newPlusButtonByElement.set(element, button);
-            this.plusButtonByElement.delete(element);
+            // We are creating a new add button by element map to be able to compare it with an old one to find out
+            // which elements have been removed before renders and remove their add buttons from the DOM.
+            newAddButtonByElement.set(element, button);
+            this.addButtonByElement.delete(element);
           }
         }
       }
@@ -82,18 +82,18 @@ export class SmartLinkRenderer implements IRenderer {
         }
       }
 
-      // All plus buttons that are left in the old plusButtonByElement map are the remnants of the old render.
+      // All add buttons that are left in the old addButtonByElement map are the remnants of the old render.
       // We check if they are still observed and relevant for the renderer and if not they can be removed.
-      for (const [element, plusButton] of this.plusButtonByElement.entries()) {
+      for (const [element, addButton] of this.addButtonByElement.entries()) {
         if (!observedElements.has(element)) {
-          plusButton.remove();
-          this.plusButtonByElement.delete(element);
+          addButton.remove();
+          this.addButtonByElement.delete(element);
         } else {
-          newPlusButtonByElement.set(element, plusButton);
+          newAddButtonByElement.set(element, addButton);
         }
       }
 
-      // All containers that have no children can be removed because they are not used by any highlight, or a plus button.
+      // All containers that have no children can be removed because they are not used by any highlight, or a add button.
       for (const [parent, container] of this.containerByRenderingRoot.entries()) {
         if (container.children.length === 0) {
           container.remove();
@@ -102,7 +102,7 @@ export class SmartLinkRenderer implements IRenderer {
       }
 
       this.highlightByElement = newHighlightByElement;
-      this.plusButtonByElement = newPlusButtonByElement;
+      this.addButtonByElement = newAddButtonByElement;
     }
   };
 
@@ -112,9 +112,9 @@ export class SmartLinkRenderer implements IRenderer {
   };
 
   public clear = (): void => {
-    for (const [element, plusButton] of this.plusButtonByElement.entries()) {
-      plusButton.remove();
-      this.plusButtonByElement.delete(element);
+    for (const [element, addButton] of this.addButtonByElement.entries()) {
+      addButton.remove();
+      this.addButtonByElement.delete(element);
     }
 
     for (const [element, highlight] of this.highlightByElement.entries()) {
@@ -129,7 +129,7 @@ export class SmartLinkRenderer implements IRenderer {
 
     this.highlightByElement = new Map<HTMLElement, KSLHighlightElement>();
     this.containerByRenderingRoot = new Map<HTMLElement, KSLContainerElement>();
-    this.plusButtonByElement = new Map<HTMLElement, KSLPlusButtonElement>();
+    this.addButtonByElement = new Map<HTMLElement, KSLAddButtonElement>();
     this.defaultContainer.innerHTML = '';
   };
 

@@ -4,7 +4,7 @@ import {
   IContentItemClickedMessageData,
   IElementClickedMessageData,
   InsertPositionPlacement,
-  IPlusInitialMessageData,
+  IAddButtonInitialMessageData,
   InsertPosition,
 } from '../lib/IFrameCommunicatorTypes';
 import { getHighlightTypeForElement, HighlightType } from './customElements';
@@ -21,7 +21,7 @@ export type DeepPartial<T> = {
  * have highlights).
  */
 export enum DataAttribute {
-  PlusButtonInsertPosition = 'data-kontent-plus-button-insert-position',
+  AddButtonInsertPosition = 'data-kontent-add-button-insert-position',
   ElementCodename = 'data-kontent-element-codename',
   ComponentId = 'data-kontent-component-id',
   ItemId = 'data-kontent-item-id',
@@ -34,8 +34,8 @@ export enum DataAttribute {
  * Metadata is used for SDK inner logic (such as rendering, event handling, etc.).
  */
 export enum MetadataAttribute {
-  PlusButton = 'data-kontent-plus-button',
-  PlusButtonRenderPosition = 'data-kontent-plus-button-render-position',
+  AddButton = 'data-kontent-add-button',
+  AddButtonRenderPosition = 'data-kontent-add-button-render-position',
 }
 
 enum ParserTokenKey {
@@ -77,22 +77,22 @@ const elementEditButtonParserPattern: DataAttributesParserPattern = [
   ...itemEditButtonParserPattern,
 ];
 
-const basePlusButtonParserPattern: DataAttributesParserPattern = [
+const baseAddButtonParserPattern: DataAttributesParserPattern = [
   { key: ParserTokenKey.ElementCodename, dataAttributes: [DataAttribute.ElementCodename] },
   { key: ParserTokenKey.ComponentId, dataAttributes: [DataAttribute.ComponentId], optional: true },
   { key: ParserTokenKey.ItemId, dataAttributes: [DataAttribute.ItemId] },
   ...baseParserPattern,
 ];
 
-const relativePlusButtonParserPattern: DataAttributesParserPattern = [
-  { key: ParserTokenKey.Placement, dataAttributes: [DataAttribute.PlusButtonInsertPosition], optional: true },
+const relativeAddButtonParserPattern: DataAttributesParserPattern = [
+  { key: ParserTokenKey.Placement, dataAttributes: [DataAttribute.AddButtonInsertPosition], optional: true },
   { key: ParserTokenKey.TargetId, dataAttributes: [DataAttribute.ComponentId, DataAttribute.ItemId] },
-  ...basePlusButtonParserPattern,
+  ...baseAddButtonParserPattern,
 ];
 
-const fixedPlusButtonParserPattern: DataAttributesParserPattern = [
-  { key: ParserTokenKey.Placement, dataAttributes: [DataAttribute.PlusButtonInsertPosition], optional: true },
-  ...basePlusButtonParserPattern,
+const fixedAddButtonParserPattern: DataAttributesParserPattern = [
+  { key: ParserTokenKey.Placement, dataAttributes: [DataAttribute.AddButtonInsertPosition], optional: true },
+  ...baseAddButtonParserPattern,
 ];
 
 export type EditButtonClickedData =
@@ -114,9 +114,9 @@ export function parseEditButtonDataAttributes(target: HTMLElement): DeepPartial<
   };
 }
 
-export function parsePlusButtonDataAttributes(target: HTMLElement): DeepPartial<IPlusInitialMessageData> {
-  const position = target.getAttribute(DataAttribute.PlusButtonInsertPosition);
-  const pattern = getPlusButtonDataAttributesPattern(position);
+export function parseAddButtonDataAttributes(target: HTMLElement): DeepPartial<IAddButtonInitialMessageData> {
+  const position = target.getAttribute(DataAttribute.AddButtonInsertPosition);
+  const pattern = getAddButtonDataAttributesPattern(position);
   const parsed = parseDataAttributes(pattern, target);
 
   return {
@@ -125,7 +125,7 @@ export function parsePlusButtonDataAttributes(target: HTMLElement): DeepPartial<
     itemId: parsed.get(ParserTokenKey.ItemId),
     ...(parsed.get(ParserTokenKey.ComponentId) && { contentComponentId: parsed.get(ParserTokenKey.ComponentId) }),
     elementCodename: parsed.get(ParserTokenKey.ElementCodename),
-    insertPosition: getPlusButtonInsertPosition(parsed),
+    insertPosition: getAddButtonInsertPosition(parsed),
   };
 }
 
@@ -142,19 +142,19 @@ function getEditButtonDataAttributesPattern(type: HighlightType): DataAttributes
   }
 }
 
-function getPlusButtonDataAttributesPattern(position: string | null): DataAttributesParserPattern {
+function getAddButtonDataAttributesPattern(position: string | null): DataAttributesParserPattern {
   switch (position) {
     case InsertPositionPlacement.End:
     case InsertPositionPlacement.Start:
-      return fixedPlusButtonParserPattern;
+      return fixedAddButtonParserPattern;
     case InsertPositionPlacement.After:
     case InsertPositionPlacement.Before:
     default:
-      return relativePlusButtonParserPattern;
+      return relativeAddButtonParserPattern;
   }
 }
 
-function getPlusButtonInsertPosition(parsed: ReadonlyMap<ParserTokenKey, string>): Partial<InsertPosition> {
+function getAddButtonInsertPosition(parsed: ReadonlyMap<ParserTokenKey, string>): Partial<InsertPosition> {
   const placement = (parsed.get(ParserTokenKey.Placement) as InsertPositionPlacement) ?? InsertPositionPlacement.After;
   const targetId = parsed.get(ParserTokenKey.TargetId);
 
