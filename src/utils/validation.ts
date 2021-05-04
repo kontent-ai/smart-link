@@ -1,10 +1,10 @@
 import {
   IContentItemClickedMessageData,
   IElementClickedMessageData,
-  IPlusActionMessageData,
-  IPlusInitialMessageData,
-  PlusButtonPermission,
-  PlusButtonPermissionCheckResult,
+  IAddActionMessageData,
+  IAddButtonInitialMessageData,
+  AddButtonPermission,
+  AddButtonPermissionCheckResult,
 } from '../lib/IFrameCommunicatorTypes';
 import { DeepPartial } from './dataAttributes';
 import { Logger } from '../lib/Logger';
@@ -48,29 +48,29 @@ export function validateElementClickMessageData(
   return validateContentItemClickEditMessageData(data);
 }
 
-export function validatePlusInitialMessageData(
-  data: DeepPartial<IPlusInitialMessageData>
-): data is IPlusInitialMessageData {
+export function validateAddInitialMessageData(
+  data: DeepPartial<IAddButtonInitialMessageData>
+): data is IAddButtonInitialMessageData {
   const errors: string[] = [];
 
   if (!data.projectId) {
-    errors.push('Project ID is required to handle plus button click.');
+    errors.push('Project ID is required to handle add button click.');
   }
 
   if (!data.languageCodename) {
-    errors.push('Language codename is required to handle plus button click.');
+    errors.push('Language codename is required to handle add button click.');
   }
 
   if (!data.itemId) {
-    errors.push('Item ID is required to handle plus button click.');
+    errors.push('Item ID is required to handle add button click.');
   }
 
   if (!data.elementCodename) {
-    errors.push('Element codename is required to handle plus button click.');
+    errors.push('Element codename is required to handle add button click.');
   }
 
   if (!data.insertPosition) {
-    errors.push('Insert position (placement, targetId) is required to handle plus button click.');
+    errors.push('Insert position (placement, targetId) is required to handle add button click.');
   }
 
   logErrors(errors);
@@ -78,22 +78,20 @@ export function validatePlusInitialMessageData(
   return errors.length === 0;
 }
 
-export function validatePlusActionMessageData(
-  data: DeepPartial<IPlusActionMessageData>
-): data is IPlusActionMessageData {
+export function validateAddActionMessageData(data: DeepPartial<IAddActionMessageData>): data is IAddActionMessageData {
   if (!data.action) {
-    Logger.error('Action is required to handle plus button click.');
+    Logger.error('Action is required to handle add button click.');
     return false;
   }
 
-  return validatePlusInitialMessageData(data);
+  return validateAddInitialMessageData(data);
 }
 
-export function hasPlusButtonPermissions(
-  permissions: ReadonlyMap<PlusButtonPermission, PlusButtonPermissionCheckResult>
+export function hasAddButtonPermissions(
+  permissions: ReadonlyMap<AddButtonPermission, AddButtonPermissionCheckResult>
 ): boolean {
   for (const permission of permissions.values()) {
-    if ([PlusButtonPermissionCheckResult.PermissionMissing].includes(permission)) {
+    if ([AddButtonPermissionCheckResult.PermissionMissing].includes(permission)) {
       return false;
     }
   }

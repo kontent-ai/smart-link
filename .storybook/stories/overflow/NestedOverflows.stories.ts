@@ -66,7 +66,7 @@ const NestedOverflowTemplate = ({
       data-kontent-component-id="c"
       style="position: ${nestedPosition}; overflow: ${nestedOverflow}; max-height: 400px;"
     >
-      <div data-kontent-element-codename="e" data-kontent-plus-button="true" data-kontent-plus-button-render-position="${buttonPosition}">
+      <div data-kontent-element-codename="e" data-kontent-add-button="true" data-kontent-add-button-render-position="${buttonPosition}">
         This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
         This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
         This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
@@ -78,7 +78,7 @@ const NestedOverflowTemplate = ({
         This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
         This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
       </div>
-      <div data-kontent-element-codename="e" data-kontent-plus-button="true" data-kontent-plus-button-render-position="${buttonPosition}">
+      <div data-kontent-element-codename="e" data-kontent-add-button="true" data-kontent-add-button-render-position="${buttonPosition}">
         This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
         This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
         This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
@@ -92,7 +92,7 @@ const NestedOverflowTemplate = ({
       </div>
     </div>
   
-    <div data-kontent-element-codename="e" data-kontent-plus-button="true" data-kontent-plus-button-render-position="${buttonPosition}">
+    <div data-kontent-element-codename="e" data-kontent-add-button="true" data-kontent-add-button-render-position="${buttonPosition}">
       This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
       This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
       This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.

@@ -40,7 +40,7 @@ export const OverflowTemplate = ({ overflow, position, buttonPosition }: IOverfl
     data-kontent-item-id="i"
     data-kontent-component-id="c"
   >
-    <div data-kontent-element-codename="e" style="width: 800px;"  data-kontent-plus-button="true" data-kontent-plus-button-render-position="${buttonPosition}">
+    <div data-kontent-element-codename="e" style="width: 800px;"  data-kontent-add-button="true" data-kontent-add-button-render-position="${buttonPosition}">
       This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
       This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
       This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
@@ -52,7 +52,7 @@ export const OverflowTemplate = ({ overflow, position, buttonPosition }: IOverfl
       This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
       This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
     </div>
-    <div data-kontent-element-codename="e" style="width: 800px;"  data-kontent-plus-button="true" data-kontent-plus-button-render-position="${buttonPosition}">
+    <div data-kontent-element-codename="e" style="width: 800px;"  data-kontent-add-button="true" data-kontent-add-button-render-position="${buttonPosition}">
       This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
       This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
       This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.

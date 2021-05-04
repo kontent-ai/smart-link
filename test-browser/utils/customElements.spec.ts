@@ -3,7 +3,7 @@ import {
   getHighlightTypeForElement,
   HighlightType,
   shouldElementHaveHighlight,
-  shouldElementHavePlusButton,
+  shouldElementHaveAddButton,
 } from '../../src/utils/customElements';
 
 describe('customElements.ts', () => {
@@ -50,11 +50,11 @@ describe('customElements.ts', () => {
     });
   });
 
-  describe('shouldElementHavePlusButton', () => {
+  describe('shouldElementHaveAddButton', () => {
     it('should return true when element exists and have required attributes', () => {
       const element = document.createElement('div');
-      element.setAttribute(MetadataAttribute.PlusButton, 'true');
-      expect(shouldElementHavePlusButton(element)).toBe(true);
+      element.setAttribute(MetadataAttribute.AddButton, 'true');
+      expect(shouldElementHaveAddButton(element)).toBe(true);
     });
   });
 
