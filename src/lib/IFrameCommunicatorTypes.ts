@@ -74,9 +74,9 @@ export enum AddButtonElementType {
 }
 
 export enum AddButtonPermission {
-  CreateNew = 'CreateNew',
-  Edit = 'Edit',
-  ViewParent = 'ViewParent',
+  CreateNew = 'createNew',
+  Edit = 'edit',
+  ViewParent = 'viewParent',
 }
 
 export enum AddButtonPermissionCheckResult {
