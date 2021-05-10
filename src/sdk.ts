@@ -2,10 +2,10 @@ import { isInsideIFrame } from './utils/iframe';
 import { NodeSmartLinkProvider } from './lib/NodeSmartLinkProvider';
 import { createStorage } from './utils/storage';
 import { IFrameCommunicator } from './lib/IFrameCommunicator';
-import { IFrameMessageType, ISDKStatusMessageData } from './lib/IFrameCommunicatorTypes';
+import { IFrameMessageType, ISDKInitializedMessageData, ISDKStatusMessageData } from './lib/IFrameCommunicatorTypes';
 import { QueryParamPresenceWatcher } from './lib/QueryParamPresenceWatcher';
 import { defineAllRequiredWebComponents } from './web-components/components';
-import { ConfigurationManager, IConfigurationManager, IKSLConfiguration } from './lib/ConfigurationManager';
+import { ConfigurationManager, IConfigurationManager, IKSLPublicConfiguration } from './lib/ConfigurationManager';
 import { InvalidEnvironmentError, NotInitializedError } from './utils/errors';
 import { Logger, LogLevel } from './lib/Logger';
 
@@ -19,12 +19,14 @@ class KontentSmartLinkSDK {
   private readonly iframeCommunicator: IFrameCommunicator;
   private readonly nodeSmartLinkProvider: NodeSmartLinkProvider;
 
-  constructor(configuration?: Partial<IKSLConfiguration>) {
-    this.configurationManager = new ConfigurationManager(configuration);
+  constructor(configuration?: Partial<IKSLPublicConfiguration>) {
+    this.configurationManager = ConfigurationManager.getInstance();
+    this.configurationManager.update(configuration);
+
     this.queryParamPresenceWatcher = new QueryParamPresenceWatcher();
     this.iframeCommunicator = new IFrameCommunicator();
 
-    this.nodeSmartLinkProvider = new NodeSmartLinkProvider(this.iframeCommunicator, this.configurationManager);
+    this.nodeSmartLinkProvider = new NodeSmartLinkProvider(this.iframeCommunicator);
 
     this.initialize();
   }
@@ -35,12 +37,14 @@ class KontentSmartLinkSDK {
     const level = this.configurationManager.debug ? LogLevel.Debug : LogLevel.Info;
     Logger.setLogLevel(level);
 
-    if (isInsideIFrame()) {
-      this.initializeIFrameCommunication();
-    } else if (this.configurationManager.queryParam) {
+    if (this.configurationManager.queryParam) {
       this.queryParamPresenceWatcher.watch(this.configurationManager.queryParam, this.nodeSmartLinkProvider.toggle);
     } else {
       this.nodeSmartLinkProvider.enable();
+    }
+
+    if (isInsideIFrame()) {
+      this.initializeIFrameCommunication();
     }
   };
 
@@ -50,7 +54,7 @@ class KontentSmartLinkSDK {
     this.nodeSmartLinkProvider.destroy();
   };
 
-  public updateConfiguration = (configuration: Partial<IKSLConfiguration>): void => {
+  public updateConfiguration = (configuration: Partial<IKSLPublicConfiguration>): void => {
     if (typeof configuration.queryParam !== 'undefined') {
       if (!configuration.queryParam) {
         this.nodeSmartLinkProvider.enable();
@@ -83,20 +87,34 @@ class KontentSmartLinkSDK {
       this.nodeSmartLinkProvider.enable();
     }
 
-    this.iframeCommunicator.addMessageListener(IFrameMessageType.Status, (data: ISDKStatusMessageData) => {
-      if (!data || !this.nodeSmartLinkProvider) return;
-
-      this.nodeSmartLinkProvider.toggle(data.enabled);
-
-      storage.set({
-        enabled: data.enabled,
-      });
-    });
-
-    this.iframeCommunicator.sendMessage(IFrameMessageType.Initialized, {
+    const messageData: ISDKInitializedMessageData = {
       projectId: this.configurationManager.defaultProjectId ?? null,
       languageCodename: this.configurationManager.defaultLanguageCodename ?? null,
       enabled,
+    };
+
+    this.iframeCommunicator.sendMessageWithResponse(IFrameMessageType.Initialized, messageData, (response) => {
+      if (!response || !response.isInsideWebSpotlight) {
+        return;
+      }
+
+      this.configurationManager.update({ isInsideWebSpotlight: response.isInsideWebSpotlight });
+      this.queryParamPresenceWatcher.unwatchAll();
+      this.nodeSmartLinkProvider.disable();
+
+      if (enabled) {
+        this.nodeSmartLinkProvider.enable();
+      }
+
+      this.iframeCommunicator.addMessageListener(IFrameMessageType.Status, (data: ISDKStatusMessageData) => {
+        if (!data || !this.nodeSmartLinkProvider) return;
+
+        this.nodeSmartLinkProvider.toggle(data.enabled);
+
+        storage.set({
+          enabled: data.enabled,
+        });
+      });
     });
   };
 }
@@ -105,7 +123,7 @@ class KontentSmartLink {
   private static instance: KontentSmartLink;
   private sdk: KontentSmartLinkSDK | null = null;
 
-  public static initializeOnLoad(configuration?: Partial<IKSLConfiguration>): Promise<KontentSmartLink> {
+  public static initializeOnLoad(configuration?: Partial<IKSLPublicConfiguration>): Promise<KontentSmartLink> {
     return new Promise<KontentSmartLink>((resolve) => {
       window.addEventListener('load', () => {
         resolve(KontentSmartLink.initialize(configuration));
@@ -113,7 +131,7 @@ class KontentSmartLink {
     });
   }
 
-  public static initialize(configuration?: Partial<IKSLConfiguration>): KontentSmartLink {
+  public static initialize(configuration?: Partial<IKSLPublicConfiguration>): KontentSmartLink {
     if (!KontentSmartLink.instance) {
       KontentSmartLink.instance = new KontentSmartLink();
     }
@@ -130,7 +148,7 @@ class KontentSmartLink {
     this.sdk = null;
   };
 
-  public setConfiguration = (configuration: Partial<IKSLConfiguration>): void => {
+  public setConfiguration = (configuration: Partial<IKSLPublicConfiguration>): void => {
     if (!this.sdk) {
       throw NotInitializedError('KontentSmartLink is not initialized or has already been destroyed.');
     } else {

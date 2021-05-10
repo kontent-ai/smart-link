@@ -1,5 +1,5 @@
 import { DataAttribute, DisableableFeature, MetadataAttribute } from './dataAttributes';
-import { isInsideIFrame } from './iframe';
+import { ConfigurationManager } from '../lib/ConfigurationManager';
 
 export enum HighlightType {
   None = '',
@@ -23,9 +23,13 @@ const AllAugmentableElementsSelector = `${ElementSelector}, ${ContentComponentSe
  * @returns {NodeListOf<HTMLElement>}
  */
 export function getAugmentableDescendants(node: HTMLElement | Document): NodeListOf<HTMLElement> {
-  if (isInsideIFrame()) {
+  const configurationManager = ConfigurationManager.getInstance();
+  const isInsideWebSpotlight = configurationManager.isInsideWebSpotlightPreviewIFrame;
+
+  if (isInsideWebSpotlight) {
     return node.querySelectorAll(AllAugmentableElementsSelector);
   }
+
   return node.querySelectorAll(ElementSelector);
 }
 
@@ -55,8 +59,10 @@ export function shouldElementHaveHighlight(element: HTMLElement | null): boolean
       return true;
     case HighlightType.ContentItem:
     case HighlightType.ContentComponent:
-    default:
-      return isInsideIFrame();
+    default: {
+      const configurationManager = ConfigurationManager.getInstance();
+      return configurationManager.isInsideWebSpotlightPreviewIFrame;
+    }
   }
 }
 
@@ -67,8 +73,10 @@ export function shouldElementHaveHighlight(element: HTMLElement | null): boolean
  * @returns {boolean}
  */
 export function shouldElementHaveAddButton(element: HTMLElement | null): boolean {
-  // add button should only be visible inside an iframe
-  return Boolean(isInsideIFrame() && element && element.hasAttribute(MetadataAttribute.AddButton));
+  const configurationManager = ConfigurationManager.getInstance();
+  const isInsideWebSpotlight = configurationManager.isInsideWebSpotlightPreviewIFrame;
+  // add button should only be visible inside Web Spotlight
+  return Boolean(isInsideWebSpotlight && element && element.hasAttribute(MetadataAttribute.AddButton));
 }
 
 /**
