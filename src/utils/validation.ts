@@ -1,11 +1,9 @@
 import {
+  IAddActionMessageData,
+  IAddButtonInitialMessageData,
   IContentComponentClickedMessageData,
   IContentItemClickedMessageData,
   IElementClickedMessageData,
-  IAddActionMessageData,
-  IAddButtonInitialMessageData,
-  AddButtonPermission,
-  AddButtonPermissionCheckResult,
 } from '../lib/IFrameCommunicatorTypes';
 import { DeepPartial } from './dataAttributes';
 import { Logger } from '../lib/Logger';
@@ -97,15 +95,4 @@ export function validateAddActionMessageData(data: DeepPartial<IAddActionMessage
   }
 
   return validateAddInitialMessageData(data);
-}
-
-export function hasAddButtonPermissions(
-  permissions: ReadonlyMap<AddButtonPermission, AddButtonPermissionCheckResult>
-): boolean {
-  for (const permission of permissions.values()) {
-    if ([AddButtonPermissionCheckResult.PermissionMissing].includes(permission)) {
-      return false;
-    }
-  }
-  return true;
 }
