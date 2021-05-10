@@ -1,37 +1,37 @@
 import { isElementWebComponent } from '../web-components/components';
 import {
+  AddButtonElementType,
+  IAddActionMessageData,
+  IAddButtonInitialMessageData,
+  IAddButtonPermissionsServerModel,
   IClickedMessageMetadata,
   IElementClickedMessageData,
   IFrameMessageType,
-  IAddActionMessageData,
-  IAddButtonPermissionsServerModel,
-  IAddButtonInitialMessageData,
-  AddButtonElementType,
 } from './IFrameCommunicatorTypes';
 import { IRenderer, SmartLinkRenderer } from './SmartLinkRenderer';
 import { KSLHighlightElementEvent } from '../web-components/KSLHighlightElement';
 import { getAugmentableDescendants, isElementAugmentable } from '../utils/customElements';
-import { validateContentComponentClickMessageData } from '../utils/validation';
-import { isInsideIFrame } from '../utils/iframe';
+import {
+  validateAddActionMessageData,
+  validateAddInitialMessageData,
+  validateContentComponentClickMessageData,
+  validateContentItemClickEditMessageData,
+  validateElementClickMessageData,
+} from '../utils/validation';
 import {
   KSLAddButtonElementActionEvent,
   KSLAddButtonElementInitialAsyncEvent,
 } from '../web-components/KSLAddButtonElement';
 import { IFrameCommunicator } from './IFrameCommunicator';
-import {
-  validateContentItemClickEditMessageData,
-  validateElementClickMessageData,
-  validateAddActionMessageData,
-  validateAddInitialMessageData,
-} from '../utils/validation';
 import { DeepPartial } from '../utils/dataAttributes';
-import { IConfigurationManager } from './ConfigurationManager';
+import { ConfigurationManager, IConfigurationManager } from './ConfigurationManager';
 import { buildKontentLink } from '../utils/link';
 import { Logger } from './Logger';
 
 export class NodeSmartLinkProvider {
   private readonly mutationObserver: MutationObserver;
   private readonly intersectionObserver: IntersectionObserver;
+  private readonly configurationManager: IConfigurationManager;
   private readonly renderer: IRenderer;
 
   private enabled = false;
@@ -39,10 +39,8 @@ export class NodeSmartLinkProvider {
   private observedElements = new Set<HTMLElement>();
   private visibleElements = new Set<HTMLElement>();
 
-  constructor(
-    private readonly iframeCommunicator: IFrameCommunicator,
-    private readonly configurationManager: IConfigurationManager
-  ) {
+  constructor(private readonly iframeCommunicator: IFrameCommunicator) {
+    this.configurationManager = ConfigurationManager.getInstance();
     this.mutationObserver = new MutationObserver(this.onDomMutation);
     this.intersectionObserver = new IntersectionObserver(this.onElementVisibilityChange);
     this.renderer = new SmartLinkRenderer();
@@ -246,6 +244,7 @@ export class NodeSmartLinkProvider {
   };
 
   private onEditElement = (event: KSLHighlightElementEvent): void => {
+    const isInsideWebSpotlight = this.configurationManager.isInsideWebSpotlightPreviewIFrame;
     const { data, targetNode } = event.detail;
 
     const messageData: Partial<IElementClickedMessageData> = {
@@ -260,7 +259,7 @@ export class NodeSmartLinkProvider {
 
     if ('elementCodename' in messageData && messageData.elementCodename) {
       if (validateElementClickMessageData(messageData)) {
-        if (isInsideIFrame()) {
+        if (isInsideWebSpotlight) {
           this.iframeCommunicator.sendMessage(IFrameMessageType.ElementClicked, messageData, messageMetadata);
         } else {
           const link = buildKontentLink(messageData);
@@ -269,7 +268,7 @@ export class NodeSmartLinkProvider {
       }
     } else if ('contentComponentId' in messageData && messageData.contentComponentId) {
       if (validateContentComponentClickMessageData(messageData)) {
-        if (isInsideIFrame()) {
+        if (isInsideWebSpotlight) {
           this.iframeCommunicator.sendMessage(IFrameMessageType.ContentComponentClicked, messageData, messageMetadata);
         } else {
           Logger.warn('Edit buttons for content components are only functional inside Web Spotlight.');
@@ -277,7 +276,7 @@ export class NodeSmartLinkProvider {
       }
     } else if ('itemId' in messageData && messageData.itemId) {
       if (validateContentItemClickEditMessageData(messageData)) {
-        if (isInsideIFrame()) {
+        if (isInsideWebSpotlight) {
           this.iframeCommunicator.sendMessage(IFrameMessageType.ContentItemClicked, messageData, messageMetadata);
         } else {
           Logger.warn('Add buttons for content items are only functional inside Web Spotlight.');
@@ -291,6 +290,7 @@ export class NodeSmartLinkProvider {
   };
 
   private onAddInitialClick = (event: KSLAddButtonElementInitialAsyncEvent): void => {
+    const isInsideWebSpotlight = this.configurationManager.isInsideWebSpotlightPreviewIFrame;
     const { eventData, onResolve, onReject } = event.detail;
     const { data, targetNode } = eventData;
 
@@ -301,7 +301,7 @@ export class NodeSmartLinkProvider {
     };
 
     if (validateAddInitialMessageData(messageData)) {
-      if (isInsideIFrame()) {
+      if (isInsideWebSpotlight) {
         const messageMetadata: IClickedMessageMetadata = {
           elementRect: targetNode.getBoundingClientRect(),
         };
@@ -326,6 +326,7 @@ export class NodeSmartLinkProvider {
   };
 
   private onAddActionClick = (event: KSLAddButtonElementActionEvent): void => {
+    const isInsideWebSpotlight = this.configurationManager.isInsideWebSpotlightPreviewIFrame;
     const { data, targetNode } = event.detail;
 
     const messageData: DeepPartial<IAddActionMessageData> = {
@@ -335,7 +336,7 @@ export class NodeSmartLinkProvider {
     };
 
     if (validateAddActionMessageData(messageData)) {
-      if (isInsideIFrame()) {
+      if (isInsideWebSpotlight) {
         const messageMetadata: IClickedMessageMetadata = {
           elementRect: targetNode.getBoundingClientRect(),
         };

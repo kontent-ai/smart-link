@@ -1,16 +1,16 @@
 import { isInsideIFrame } from '../utils/iframe';
 import { EventManager } from './EventManager';
 import {
+  IAddActionMessageData,
+  IAddButtonInitialMessageData,
+  IAddButtonPermissionsServerModel,
+  IClickedMessageMetadata,
+  IContentComponentClickedMessageData,
   IContentItemClickedMessageData,
   IElementClickedMessageData,
-  IClickedMessageMetadata,
   IFrameMessageType,
-  IAddActionMessageData,
-  IAddButtonPermissionsServerModel,
-  IAddButtonInitialMessageData,
   ISDKInitializedMessageData,
   ISDKStatusMessageData,
-  IContentComponentClickedMessageData,
 } from './IFrameCommunicatorTypes';
 import { createUuid } from '../utils/createUuid';
 import { InvalidEnvironmentError } from '../utils/errors';
@@ -23,7 +23,11 @@ type MessageSignature<TMessageData, TMessageMetaData = undefined, TMessageCallba
 ) => void;
 
 export type IFrameMessagesMap = {
-  readonly [IFrameMessageType.Initialized]: MessageSignature<ISDKInitializedMessageData>;
+  readonly [IFrameMessageType.Initialized]: MessageSignature<
+    ISDKInitializedMessageData,
+    undefined,
+    Callback<{ readonly isInsideWebSpotlight: boolean }>
+  >;
   readonly [IFrameMessageType.Status]: MessageSignature<ISDKStatusMessageData>;
   readonly [IFrameMessageType.ElementClicked]: MessageSignature<IElementClickedMessageData, IClickedMessageMetadata>;
   readonly [IFrameMessageType.ContentItemClicked]: MessageSignature<
