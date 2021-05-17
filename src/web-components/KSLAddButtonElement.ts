@@ -229,10 +229,7 @@ export class KSLAddButtonElement extends KSLPositionedElement {
 
       const { elementType, permissions } = response;
 
-      if (
-        !permissions ||
-        permissions.get(AddButtonPermission.ViewParent) === AddButtonPermissionCheckResult.PermissionMissing
-      ) {
+      if (!permissions || permissions.get(AddButtonPermission.ViewParent) !== AddButtonPermissionCheckResult.Ok) {
         this.buttonRef.loading = false;
         this.buttonRef.disabled = true;
         this.buttonRef.tooltipMessage = 'You are not allowed to add content here';
