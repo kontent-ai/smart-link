@@ -36,6 +36,7 @@ export enum DataAttribute {
 export enum MetadataAttribute {
   AddButton = 'data-kontent-add-button',
   AddButtonRenderPosition = 'data-kontent-add-button-render-position',
+  DisableHighlight = 'data-kontent-disable-highlight',
 }
 
 enum ParserTokenKey {
