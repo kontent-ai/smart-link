@@ -8,9 +8,9 @@ export enum HighlightType {
   ContentItem = 'content-item',
 }
 
-const ElementSelector = `*[${DataAttribute.ElementCodename}]`;
-const ContentComponentSelector = `*[${DataAttribute.ComponentId}]:not([${DataAttribute.ElementCodename}])`;
-const ContentItemSelector = `*[${DataAttribute.ItemId}]:not([${DataAttribute.ComponentId}]):not([${DataAttribute.ElementCodename}])`;
+const ElementSelector = `*[${DataAttribute.ElementCodename}]:not([${MetadataAttribute.DisableHighlight}])`;
+const ContentComponentSelector = `*[${DataAttribute.ComponentId}]:not([${DataAttribute.ElementCodename}]):not([${MetadataAttribute.DisableHighlight}])`;
+const ContentItemSelector = `*[${DataAttribute.ItemId}]:not([${DataAttribute.ComponentId}]):not([${DataAttribute.ElementCodename}]):not([${MetadataAttribute.DisableHighlight}])`;
 
 const ElementsWithAddButtonSelector = `*[${MetadataAttribute.AddButton}]`;
 const AllAugmentableElementsSelector = `${ElementSelector}, ${ContentComponentSelector}, ${ContentItemSelector}, ${ElementsWithAddButtonSelector}`;
@@ -77,7 +77,7 @@ export function shouldElementHaveAddButton(element: HTMLElement | null): boolean
  * @returns {HighlightType}
  */
 export function getHighlightTypeForElement(element: HTMLElement | null): HighlightType {
-  if (!element) {
+  if (!element || element.hasAttribute(MetadataAttribute.DisableHighlight)) {
     return HighlightType.None;
   }
 
