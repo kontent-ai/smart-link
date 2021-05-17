@@ -6,7 +6,6 @@ import { createTemplateForCustomElement } from '../utils/node';
 export enum ButtonType {
   Primary = 'primary',
   Quinary = 'quinary',
-  DestructiveQuinary = 'destructive-quinary',
 }
 
 const templateHTML = `
@@ -90,8 +89,7 @@ const templateHTML = `
       box-shadow: none;
     }
     
-    :host([type=${ButtonType.Quinary}]) .ksl-button,
-    :host([type=${ButtonType.DestructiveQuinary}]) .ksl-button {
+    :host([type=${ButtonType.Quinary}]) .ksl-button {
       --ksl-icon-width: 16px;
       --ksl-icon-height: 16px;
       border-radius: 5px;
@@ -105,8 +103,7 @@ const templateHTML = `
       background-color: #fff;
     }
     
-    :host([type=${ButtonType.Quinary}]) .ksl-button[disabled],
-    :host([type=${ButtonType.DestructiveQuinary}]) .ksl-button[disabled] {
+    :host([type=${ButtonType.Quinary}]) .ksl-button[disabled] {
       color: #8c8c8c;
       fill: #8c8c8c;
     }
@@ -117,13 +114,6 @@ const templateHTML = `
     
     :host([type=${ButtonType.Quinary}])  .ksl-button:not([disabled]):active {
       background-color: #fff0ef;
-    }
-    
-    :host([type=${ButtonType.DestructiveQuinary}]) .ksl-button:hover:not([disabled]),
-    :host([type=${ButtonType.DestructiveQuinary}]) .ksl-button:active:not([disabled]) {
-      fill: #fff;
-      color: #fff;
-      background-color: #B10202;
     }
   </style>
   <button class="ksl-button">
