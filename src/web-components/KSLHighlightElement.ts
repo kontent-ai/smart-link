@@ -1,5 +1,5 @@
 import { ButtonType, KSLButtonElement } from './KSLButtonElement';
-import { IconName, KSLIconElement } from './KSLIconElement';
+import { IconName } from './KSLIconElement';
 import { assert } from '../utils/assert';
 import { getHighlightTypeForElement, HighlightType } from '../utils/customElements';
 import { ElementPositionOffset, KSLPositionedElement } from './abstract/KSLPositionedElement';
@@ -56,13 +56,6 @@ const templateHTML = `
       z-index: 20;
     }
     
-    :host([deleted]) {
-      background-color: rgba(0, 0, 0, 0.5);
-      border-color: gray;
-      z-index: 11;
-      pointer-events: all;
-    }
-    
     :host(:focus) {
       outline: none;
     }
@@ -103,25 +96,12 @@ const templateHTML = `
       tooltip-message="Edit">
       <ksl-icon icon-name="${IconName.Edit}" />
     </ksl-button>
-    <ksl-button 
-      id="ksl-remove" 
-      class="ksl-highlight__toolbar-button"
-      type="${ButtonType.DestructiveQuinary}" 
-      tooltip-position="${ElementPositionOffset.BottomEnd}"
-      tooltip-message="Remove"
-    >
-      <ksl-icon icon-name="${IconName.Bin}" />
-    </ksl-button>
   </div>
 `;
 
 export class KSLHighlightElement extends KSLPositionedElement {
   public static get is() {
     return 'ksl-highlight' as const;
-  }
-
-  public static get observedAttributes(): string[] {
-    return ['deleted'];
   }
 
   public get type(): HighlightType {
@@ -136,25 +116,13 @@ export class KSLHighlightElement extends KSLPositionedElement {
     this.updateAttribute('selected', value);
   }
 
-  public get deleted(): boolean {
-    return this.hasAttribute('deleted');
-  }
-
-  public set deleted(value: boolean) {
-    this.updateAttribute('deleted', value);
-  }
-
   private readonly editButtonRef: KSLButtonElement;
-  private readonly removeButtonRef: KSLButtonElement;
-  private readonly removeButtonIconRef: KSLIconElement;
 
   constructor() {
     super();
 
     assert(this.shadowRoot, 'Shadow root must be always accessible in "open" mode.');
     this.editButtonRef = this.shadowRoot.querySelector('#ksl-edit') as KSLButtonElement;
-    this.removeButtonRef = this.shadowRoot.querySelector('#ksl-remove') as KSLButtonElement;
-    this.removeButtonIconRef = this.removeButtonRef.querySelector('ksl-icon') as KSLIconElement;
   }
 
   public static initializeTemplate(): HTMLTemplateElement {
@@ -165,22 +133,13 @@ export class KSLHighlightElement extends KSLPositionedElement {
     super.connectedCallback();
 
     this.editButtonRef.addEventListener('click', this.handleEditButtonClick);
-    this.removeButtonRef.addEventListener('click', this.handleRemoveButtonClick);
   }
 
   public disconnectedCallback(): void {
     super.connectedCallback();
 
-    this.editButtonRef.addEventListener('click', this.handleEditButtonClick);
-    this.removeButtonRef.addEventListener('click', this.handleRemoveButtonClick);
+    this.editButtonRef.removeEventListener('click', this.handleEditButtonClick);
     this.unregisterTargetNodeListeners();
-  }
-
-  public attributeChangedCallback(attributeName: string, _oldValue: string | null, newValue: string | null): void {
-    if (attributeName === 'deleted') {
-      this.editButtonRef.disabled = Boolean(newValue);
-      this.removeButtonRef.disabled = Boolean(newValue);
-    }
   }
 
   public attachTo = (node: HTMLElement): void => {
@@ -188,10 +147,7 @@ export class KSLHighlightElement extends KSLPositionedElement {
 
     super.attachTo(node);
 
-    const highlightType = this.type;
-    this.hidden = highlightType === HighlightType.None;
-    this.removeButtonRef.hidden = ![HighlightType.ContentItem, HighlightType.ContentComponent].includes(highlightType);
-    this.removeButtonIconRef.iconName = highlightType === HighlightType.ContentItem ? IconName.Times : IconName.Bin;
+    this.hidden = this.type === HighlightType.None;
 
     if (this.targetRef) {
       this.targetRef.addEventListener('mousemove', this.handleTargetNodeMouseEnter);
@@ -256,20 +212,5 @@ export class KSLHighlightElement extends KSLPositionedElement {
     });
 
     this.dispatchEvent(customEvent);
-  };
-
-  private handleRemoveButtonClick = (event: MouseEvent): void => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    this.removeButtonRef.loading = true;
-
-    setTimeout(() => {
-      this.removeButtonRef.loading = false;
-      this.removeButtonRef.disabled = true;
-      this.removeButtonRef.tooltipMessage = 'This feature is not supported.';
-    }, 3000);
-
-    Logger.warn('This button is not supported yet.');
   };
 }
