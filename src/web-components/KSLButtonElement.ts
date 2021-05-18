@@ -36,12 +36,12 @@ const templateHTML = `
       cursor: pointer;
     }
     
-    .ksl-button[disabled] {
-      cursor: not-allowed;
-    }
-    
     .ksl-button:focus {
       outline: none;
+    }
+    
+    :host([disabled]) .ksl-button {
+      cursor: not-allowed;
     }
     
     .ksl-button__content,
@@ -71,12 +71,12 @@ const templateHTML = `
       fill: #fff;
     }
     
-    :host([type=${ButtonType.Primary}]) .ksl-button:not([disabled]):hover,
-    :host([type=${ButtonType.Primary}]) .ksl-button:not([disabled]):active {
+    :host([type=${ButtonType.Primary}]:not([disabled])) .ksl-button:hover,
+    :host([type=${ButtonType.Primary}]:not([disabled])) .ksl-button:active {
       background-color: #953000;
     }
     
-    :host([type=${ButtonType.Primary}]) .ksl-button[disabled] {
+    :host([type=${ButtonType.Primary}][disabled]) .ksl-button {
       background-color: #DFDFDF;
       color: #8C8C8C;
       fill: #8C8C8C;
@@ -103,16 +103,16 @@ const templateHTML = `
       background-color: #fff;
     }
     
-    :host([type=${ButtonType.Quinary}]) .ksl-button[disabled] {
+    :host([type=${ButtonType.Quinary}][disabled]) .ksl-button {
       color: #8c8c8c;
       fill: #8c8c8c;
     }
     
-    :host([type=${ButtonType.Quinary}])  .ksl-button:not([disabled]):hover {
+    :host([type=${ButtonType.Quinary}]:not([disabled])) .ksl-button:hover {
       background-color: rgba(21, 21, 21, 0.1);
     }
     
-    :host([type=${ButtonType.Quinary}])  .ksl-button:not([disabled]):active {
+    :host([type=${ButtonType.Quinary}]:not([disabled])) .ksl-button:active {
       background-color: #fff0ef;
     }
   </style>
@@ -143,11 +143,11 @@ export class KSLButtonElement extends KSLCustomElementWithTooltip {
   }
 
   public get disabled(): boolean {
-    return this.buttonRef.disabled;
+    return this.hasAttribute('disabled');
   }
 
   public set disabled(value: boolean) {
-    this.buttonRef.disabled = value;
+    this.updateAttribute('disabled', value);
   }
 
   private readonly buttonRef: HTMLButtonElement;

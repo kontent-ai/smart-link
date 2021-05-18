@@ -18,6 +18,8 @@ import {
 import { AsyncCustomEvent } from '../utils/events';
 import { Logger } from '../lib/Logger';
 
+const ContentIsPublishedTooltip = 'Content is published';
+
 enum PopoverButtonId {
   CreateComponent = 'create-component',
   CreateLinkedItem = 'create-linked-item',
@@ -55,7 +57,7 @@ declare global {
   }
 }
 
-const popoverHTML = `
+const getPopoverHtml = ({ elementType, isParentPublished }: IAddButtonPermissionsServerModel) => `
   <style>
     .ksl-add-button__popover-button + .ksl-add-button__popover-button {
       margin-left: 4px;
@@ -65,8 +67,9 @@ const popoverHTML = `
     id="${PopoverButtonId.InsertLinkedItem}"
     class="ksl-add-button__popover-button"
     type="${ButtonType.Quinary}"
-    tooltip-message="Add existing linked item"
     tooltip-position="${ElementPositionOffset.Top}"
+    tooltip-message="${isParentPublished ? ContentIsPublishedTooltip : 'Add existing linked item'}"
+    ${isParentPublished && 'disabled'}
   >
     <ksl-icon icon-name="${IconName.Puzzle}"/>
   </ksl-button>
@@ -74,8 +77,10 @@ const popoverHTML = `
     id="${PopoverButtonId.CreateLinkedItem}"
     class="ksl-add-button__popover-button"
     type="${ButtonType.Quinary}"
-    tooltip-message="Add new linked item"
     tooltip-position="${ElementPositionOffset.Top}"
+    tooltip-message="${isParentPublished ? ContentIsPublishedTooltip : 'Add new linked item'}"
+    ${isParentPublished && 'disabled'}
+    ${elementType !== AddButtonElementType.LinkedItems && 'hidden'}
   >
     <ksl-icon icon-name="${IconName.PlusPuzzle}"/>
   </ksl-button>
@@ -83,8 +88,10 @@ const popoverHTML = `
     id="${PopoverButtonId.CreateComponent}"
     class="ksl-add-button__popover-button"
     type="${ButtonType.Quinary}"
-    tooltip-message="Add component"
     tooltip-position="${ElementPositionOffset.Top}"
+    tooltip-message="${isParentPublished ? ContentIsPublishedTooltip : 'Add component'}"
+    ${isParentPublished && 'disabled'}
+    ${elementType !== AddButtonElementType.RichText && 'hidden'}
   >
     <ksl-icon icon-name="${IconName.CollapseScheme}"/>
   </ksl-button>
@@ -227,7 +234,7 @@ export class KSLAddButtonElement extends KSLPositionedElement {
         eventData
       );
 
-      const { elementType, permissions } = response;
+      const { permissions } = response;
 
       if (!permissions || permissions.get(AddButtonPermission.ViewParent) !== AddButtonPermissionCheckResult.Ok) {
         this.buttonRef.loading = false;
@@ -238,7 +245,7 @@ export class KSLAddButtonElement extends KSLPositionedElement {
         this.buttonRef.disabled = false;
         this.buttonRef.tooltipMessage = 'Add component/item';
 
-        this.showPopover(elementType);
+        this.showPopover(response);
       }
     } catch (reason) {
       Logger.error(reason);
@@ -265,7 +272,7 @@ export class KSLAddButtonElement extends KSLPositionedElement {
     }
   };
 
-  private showPopover = (elementType: AddButtonElementType): void => {
+  private showPopover = (response: IAddButtonPermissionsServerModel): void => {
     assert(this.shadowRoot, 'Shadow root must be available in "open" mode.');
 
     if (this.popoverRef) {
@@ -275,7 +282,7 @@ export class KSLAddButtonElement extends KSLPositionedElement {
     this.buttonRef.tooltipPosition = ElementPositionOffset.Bottom;
 
     const popover = document.createElement(KSLPopoverElement.is);
-    popover.innerHTML = popoverHTML;
+    popover.innerHTML = getPopoverHtml(response);
 
     const popoverParent = this.shadowRoot;
 
@@ -283,7 +290,7 @@ export class KSLAddButtonElement extends KSLPositionedElement {
     this.popoverRef.position = ElementPositionOffset.Top;
     this.popoverRef.attachTo(this);
 
-    this.addPopoverEventListeners(elementType);
+    this.addPopoverEventListeners(response.elementType);
 
     this.popoverRef.visible = true;
     this.popoverRef.adjustPosition();
@@ -316,20 +323,12 @@ export class KSLAddButtonElement extends KSLPositionedElement {
       `#${PopoverButtonId.InsertLinkedItem}`
     ) as KSLButtonElement;
 
-    if (createComponentButtonRef) {
-      if (elementType === AddButtonElementType.RichText) {
-        createComponentButtonRef.addEventListener('click', this.handleCreateComponentClick);
-      } else {
-        createComponentButtonRef.hidden = true;
-      }
+    if (createComponentButtonRef && elementType === AddButtonElementType.RichText) {
+      createComponentButtonRef.addEventListener('click', this.handleCreateComponentClick);
     }
 
-    if (createLinkedItemButtonRef) {
-      if (elementType === AddButtonElementType.LinkedItems) {
-        createLinkedItemButtonRef.addEventListener('click', this.handleCreateLinkedItemClick);
-      } else {
-        createLinkedItemButtonRef.hidden = true;
-      }
+    if (createLinkedItemButtonRef && elementType === AddButtonElementType.LinkedItems) {
+      createLinkedItemButtonRef.addEventListener('click', this.handleCreateLinkedItemClick);
     }
 
     if (insertLinkedItemButtonRef) {
