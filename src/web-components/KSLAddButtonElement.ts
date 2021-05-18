@@ -19,6 +19,7 @@ import { AsyncCustomEvent } from '../utils/events';
 import { Logger } from '../lib/Logger';
 
 const ContentIsPublishedTooltip = 'Content is published';
+const DefaultTooltipMessage = 'Insert...';
 
 enum PopoverButtonId {
   CreateComponent = 'create-component',
@@ -68,7 +69,7 @@ const getPopoverHtml = ({ elementType, isParentPublished }: IAddButtonPermission
     class="ksl-add-button__popover-button"
     type="${ButtonType.Quinary}"
     tooltip-position="${ElementPositionOffset.Top}"
-    tooltip-message="${isParentPublished ? ContentIsPublishedTooltip : 'Add existing linked item'}"
+    tooltip-message="${isParentPublished ? ContentIsPublishedTooltip : 'Insert existing item'}"
     ${isParentPublished && 'disabled'}
   >
     <ksl-icon icon-name="${IconName.Puzzle}"/>
@@ -78,7 +79,7 @@ const getPopoverHtml = ({ elementType, isParentPublished }: IAddButtonPermission
     class="ksl-add-button__popover-button"
     type="${ButtonType.Quinary}"
     tooltip-position="${ElementPositionOffset.Top}"
-    tooltip-message="${isParentPublished ? ContentIsPublishedTooltip : 'Add new linked item'}"
+    tooltip-message="${isParentPublished ? ContentIsPublishedTooltip : 'Create new item'}"
     ${isParentPublished && 'disabled'}
     ${elementType !== AddButtonElementType.LinkedItems && 'hidden'}
   >
@@ -89,7 +90,7 @@ const getPopoverHtml = ({ elementType, isParentPublished }: IAddButtonPermission
     class="ksl-add-button__popover-button"
     type="${ButtonType.Quinary}"
     tooltip-position="${ElementPositionOffset.Top}"
-    tooltip-message="${isParentPublished ? ContentIsPublishedTooltip : 'Add component'}"
+    tooltip-message="${isParentPublished ? ContentIsPublishedTooltip : 'Insert new component'}"
     ${isParentPublished && 'disabled'}
     ${elementType !== AddButtonElementType.RichText && 'hidden'}
   >
@@ -147,7 +148,7 @@ export class KSLAddButtonElement extends KSLPositionedElement {
 
     window.addEventListener('click', this.handleClickOutside, { capture: true });
     this.buttonRef.addEventListener('click', this.handleClick);
-    this.buttonRef.tooltipMessage = 'Add component/item';
+    this.buttonRef.tooltipMessage = DefaultTooltipMessage;
   }
 
   public disconnectedCallback(): void {
@@ -243,7 +244,7 @@ export class KSLAddButtonElement extends KSLPositionedElement {
       } else {
         this.buttonRef.loading = false;
         this.buttonRef.disabled = false;
-        this.buttonRef.tooltipMessage = 'Add component/item';
+        this.buttonRef.tooltipMessage = DefaultTooltipMessage;
 
         this.showPopover(response);
       }
