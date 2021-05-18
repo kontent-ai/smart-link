@@ -7,14 +7,15 @@ import { KSLContainerElement } from './KSLContainerElement';
 import { createTemplateForCustomElement } from '../utils/node';
 import { DeepPartial, MetadataAttribute, parseAddButtonDataAttributes } from '../utils/dataAttributes';
 import {
-  IAddActionMessageData,
-  IAddButtonPermissionsServerModel,
-  IAddButtonInitialMessageData,
   AddButtonAction,
   AddButtonElementType,
+  AddButtonPermission,
+  AddButtonPermissionCheckResult,
+  IAddActionMessageData,
+  IAddButtonInitialMessageData,
+  IAddButtonPermissionsServerModel,
 } from '../lib/IFrameCommunicatorTypes';
 import { AsyncCustomEvent } from '../utils/events';
-import { hasAddButtonPermissions } from '../utils/validation';
 import { Logger } from '../lib/Logger';
 
 enum PopoverButtonId {
@@ -228,10 +229,10 @@ export class KSLAddButtonElement extends KSLPositionedElement {
 
       const { elementType, permissions } = response;
 
-      if (!permissions || !hasAddButtonPermissions(permissions)) {
+      if (!permissions || permissions.get(AddButtonPermission.ViewParent) !== AddButtonPermissionCheckResult.Ok) {
         this.buttonRef.loading = false;
-        this.buttonRef.disabled = false;
-        this.buttonRef.tooltipMessage = 'You have no rights to do this.';
+        this.buttonRef.disabled = true;
+        this.buttonRef.tooltipMessage = 'You are not allowed to add content here';
       } else {
         this.buttonRef.loading = false;
         this.buttonRef.disabled = false;
