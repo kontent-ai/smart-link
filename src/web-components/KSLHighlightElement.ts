@@ -93,7 +93,7 @@ const templateHTML = `
       class="ksl-highlight__toolbar-button"
       type="${ButtonType.Quinary}"
       tooltip-position="${ElementPositionOffset.BottomEnd}"
-      tooltip-message="Edit">
+    >
       <ksl-icon icon-name="${IconName.Edit}" />
     </ksl-button>
   </div>
@@ -129,6 +129,22 @@ export class KSLHighlightElement extends KSLPositionedElement {
     return createTemplateForCustomElement(templateHTML);
   }
 
+  private static getEditButtonTooltip(type: HighlightType): string {
+    switch (type) {
+      case HighlightType.Element:
+        return 'Edit element';
+
+      case HighlightType.ContentComponent:
+        return 'Edit component';
+
+      case HighlightType.ContentItem:
+        return 'Edit item';
+
+      default:
+        return 'Edit';
+    }
+  }
+
   public connectedCallback(): void {
     super.connectedCallback();
 
@@ -147,7 +163,9 @@ export class KSLHighlightElement extends KSLPositionedElement {
 
     super.attachTo(node);
 
-    this.hidden = this.type === HighlightType.None;
+    const type = this.type;
+    this.hidden = type === HighlightType.None;
+    this.editButtonRef.tooltipMessage = KSLHighlightElement.getEditButtonTooltip(type);
 
     if (this.targetRef) {
       this.targetRef.addEventListener('mousemove', this.handleTargetNodeMouseEnter);
