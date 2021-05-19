@@ -83,6 +83,7 @@ export enum AddButtonPermissionCheckResult {
   ItemNotTranslated = 'ItemNotTranslated',
   Ok = 'Ok',
   PermissionMissing = 'PermissionMissing',
+  RteWithForbiddenComponents = 'RteWithForbiddenComponents',
   Unknown = 'Unknown',
 }
 
