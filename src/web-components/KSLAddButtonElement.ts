@@ -20,6 +20,8 @@ import { Logger } from '../lib/Logger';
 
 const ContentIsPublishedTooltip = 'Content is published';
 const DefaultTooltipMessage = 'Insert...';
+const getCreateLinkedItemTooltip = (canUserCreateLinkedItem: boolean) =>
+  canUserCreateLinkedItem ? 'Create new item' : 'Your role cannot create items from the allowed types';
 
 enum PopoverButtonId {
   CreateComponent = 'create-component',
@@ -58,8 +60,11 @@ declare global {
   }
 }
 
-const getPopoverHtml = ({ elementType, isParentPublished }: IAddButtonPermissionsServerModel) => `
-  <style>
+const getPopoverHtml = ({ elementType, isParentPublished, permissions }: IAddButtonPermissionsServerModel) => {
+  const canUserCreateLinkedItem = permissions.get(AddButtonPermission.CreateNew) === AddButtonPermissionCheckResult.Ok;
+
+  return `
+    <style>
     .ksl-add-button__popover-button + .ksl-add-button__popover-button {
       margin-left: 4px;
     }
@@ -79,8 +84,10 @@ const getPopoverHtml = ({ elementType, isParentPublished }: IAddButtonPermission
     class="ksl-add-button__popover-button"
     type="${ButtonType.Quinary}"
     tooltip-position="${ElementPositionOffset.Top}"
-    tooltip-message="${isParentPublished ? ContentIsPublishedTooltip : 'Create new item'}"
-    ${isParentPublished && 'disabled'}
+    tooltip-message="${
+      isParentPublished ? ContentIsPublishedTooltip : getCreateLinkedItemTooltip(canUserCreateLinkedItem)
+    }"
+    ${(isParentPublished || !canUserCreateLinkedItem) && 'disabled'}
     ${elementType !== AddButtonElementType.LinkedItems && 'hidden'}
   >
     <ksl-icon icon-name="${IconName.PlusPuzzle}"/>
@@ -97,6 +104,7 @@ const getPopoverHtml = ({ elementType, isParentPublished }: IAddButtonPermission
     <ksl-icon icon-name="${IconName.CollapseScheme}"/>
   </ksl-button>
 `;
+};
 
 const templateHTML = `
   <style>
@@ -236,11 +244,19 @@ export class KSLAddButtonElement extends KSLPositionedElement {
       );
 
       const { permissions } = response;
+      const isUserMissingPermissions =
+        !permissions ||
+        permissions.get(AddButtonPermission.ViewParent) !== AddButtonPermissionCheckResult.Ok ||
+        permissions.get(AddButtonPermission.Edit) !== AddButtonPermissionCheckResult.Ok;
+      const areComponentsForbidden =
+        permissions.get(AddButtonPermission.CreateNew) === AddButtonPermissionCheckResult.RteWithForbiddenComponents;
 
-      if (!permissions || permissions.get(AddButtonPermission.ViewParent) !== AddButtonPermissionCheckResult.Ok) {
+      if (isUserMissingPermissions || areComponentsForbidden) {
         this.buttonRef.loading = false;
         this.buttonRef.disabled = true;
-        this.buttonRef.tooltipMessage = 'You are not allowed to add content here';
+        this.buttonRef.tooltipMessage = isUserMissingPermissions
+          ? 'You are not allowed to add content here'
+          : "Components and items can't be added here";
       } else {
         this.buttonRef.loading = false;
         this.buttonRef.disabled = false;
