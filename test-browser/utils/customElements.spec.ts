@@ -6,12 +6,14 @@ import {
   shouldElementHaveHighlight,
 } from '../../src/utils/customElements';
 import { createHtmlFixture } from '../test-helpers/createHtmlFixture';
+import { ConfigurationManager } from '../../src/lib/ConfigurationManager';
+import { DataAttribute, MetadataAttribute } from '../../src/utils/dataAttributes';
 
 describe('customElements.ts', () => {
   describe('getAugmentableDescendants', () => {
     const fixture = createHtmlFixture();
 
-    it('should return elements with highlights and add buttons when inside iframe', () => {
+    it('should return elements with highlights and add buttons when inside WS', () => {
       // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
       fixture.setHtml(`
         <div id="container">
@@ -66,14 +68,73 @@ describe('customElements.ts', () => {
       const elementF = fixture.querySelector('#elementF') as HTMLElement;
       const elementH = fixture.querySelector('#elementH') as HTMLElement;
 
+      ConfigurationManager.getInstance().update({ forceWebSpotlightMode: true });
       const result = getAugmentableDescendants(container);
-
       expect(result.length).toBe(5);
       expect(result).toContain(elementA);
       expect(result).toContain(elementC);
       expect(result).toContain(elementE);
       expect(result).toContain(elementF);
       expect(result).toContain(elementH);
+      ConfigurationManager.getInstance().update({ forceWebSpotlightMode: false });
+    });
+
+    it('should return elements with highlights and add buttons when outside WS', () => {
+      // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
+      fixture.setHtml(`
+        <div id="container">
+          <div
+            id="elementA"
+            data-kontent-element-codename="element-codename"
+            data-kontent-disable-features="random-value"
+          />
+          <div
+            id="elementB"
+            data-kontent-component-id="component-id"
+            data-kontent-disable-features="highlight"
+          />
+          <div
+            id="elementC"
+            data-kontent-item-id="item-id"
+          />
+          <div
+            id="elementD"
+            data-kontent-element-codename="element-codename"
+            data-kontent-disable-features="highlight"
+          />
+          <div
+            id="elementE"
+            data-kontent-add-button
+            data-kontent-add-button-insert-position="after"
+            data-kontent-add-button-render-position="bottom"
+          >
+            <div
+              id="elementF"
+              data-kontent-element-codename="element-codename"
+            />
+            <div
+              id="elementG"
+              data-kontent-item-id="item-id"
+              data-kontent-disable-features="highlight"
+            />
+            <div
+              id="elementH"
+              data-kontent-component-id="component-id"
+            />
+          </div>
+        </div>
+      `);
+      // </editor-fold>
+
+      const container = fixture.querySelector('#container') as HTMLElement;
+
+      const elementA = fixture.querySelector('#elementA') as HTMLElement;
+      const elementF = fixture.querySelector('#elementF') as HTMLElement;
+
+      const result = getAugmentableDescendants(container);
+      expect(result.length).toBe(2);
+      expect(result).toContain(elementA);
+      expect(result).toContain(elementF);
     });
   });
 
@@ -121,10 +182,19 @@ describe('customElements.ts', () => {
   });
 
   describe('shouldElementHaveAddButton', () => {
-    it('should return true when element exists and have required attributes', () => {
+    it('should return false outside Web Spotlight even when element has required attributes', () => {
+      const element = document.createElement('div');
+      element.setAttribute(MetadataAttribute.AddButton, 'true');
+      expect(shouldElementHaveAddButton(element)).toBe(false);
+    });
+
+    it('should return true when inside Web Spotlight and element has required attributes', () => {
       const element = document.createElement('div');
       element.setAttribute('data-kontent-add-button', 'true');
+
+      ConfigurationManager.getInstance().update({ forceWebSpotlightMode: true });
       expect(shouldElementHaveAddButton(element)).toBe(true);
+      ConfigurationManager.getInstance().update({ forceWebSpotlightMode: false });
     });
   });
 
@@ -135,16 +205,22 @@ describe('customElements.ts', () => {
       expect(shouldElementHaveHighlight(element)).toBe(true);
     });
 
-    it('should return true when element has component id attribute', () => {
+    it('should return true when inside Web Spotlight and element has component id attribute', () => {
       const element = document.createElement('div');
       element.setAttribute('data-kontent-component-id', 'id');
+
+      ConfigurationManager.getInstance().update({ forceWebSpotlightMode: true });
       expect(shouldElementHaveHighlight(element)).toBe(true);
+      ConfigurationManager.getInstance().update({ forceWebSpotlightMode: false });
     });
 
-    it('should return true when element has item id attribute', () => {
+    it('should return true when inside Web Spotlight and element has item id attribute', () => {
       const element = document.createElement('div');
       element.setAttribute('data-kontent-item-id', 'id');
+
+      ConfigurationManager.getInstance().update({ forceWebSpotlightMode: true });
       expect(shouldElementHaveHighlight(element)).toBe(true);
+      ConfigurationManager.getInstance().update({ forceWebSpotlightMode: false });
     });
 
     it('should return false when element has required attribute and highlight feature is disabled', () => {
@@ -159,6 +235,20 @@ describe('customElements.ts', () => {
       element.setAttribute('data-kontent-element-codename', 'codename');
       element.setAttribute('data-kontent-disable-features', 'unsupported-value');
       expect(shouldElementHaveHighlight(element)).toBe(true);
+    });
+
+    it('should return true only for elements with element codename attribute when outside Web Spotlight', () => {
+      const element = document.createElement('div');
+      element.setAttribute(DataAttribute.ElementCodename, 'codename');
+      expect(shouldElementHaveHighlight(element)).toBe(true);
+
+      const component = document.createElement('div');
+      component.setAttribute(DataAttribute.ComponentId, 'id');
+      expect(shouldElementHaveHighlight(component)).toBe(false);
+
+      const item = document.createElement('div');
+      item.setAttribute(DataAttribute.ItemId, 'id');
+      expect(shouldElementHaveHighlight(item)).toBe(false);
     });
   });
 });

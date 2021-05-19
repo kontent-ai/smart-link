@@ -81,7 +81,11 @@ export class ConfigurationManager implements IConfigurationManager {
     return forceWebSpotlightMode || (isInsideIFrame() && isInsideWebSpotlight);
   }
 
-  private configuration: KSLConfiguration = defaultConfiguration;
+  private configuration: KSLConfiguration;
+
+  private constructor() {
+    this.configuration = defaultConfiguration;
+  }
 
   public static getInstance(): ConfigurationManager {
     if (!ConfigurationManager.instance) {
