@@ -93,12 +93,8 @@ class KontentSmartLinkSDK {
       enabled,
     };
 
-    this.iframeCommunicator.sendMessageWithResponse(IFrameMessageType.Initialized, messageData, (response) => {
-      if (!response || !response.isInsideWebSpotlight) {
-        return;
-      }
-
-      this.configurationManager.update({ isInsideWebSpotlight: response.isInsideWebSpotlight });
+    this.iframeCommunicator.sendMessageWithResponse(IFrameMessageType.Initialized, messageData, () => {
+      this.configurationManager.update({ isInsideWebSpotlight: true });
       this.queryParamPresenceWatcher.unwatchAll();
       this.nodeSmartLinkProvider.disable();
 

@@ -26,7 +26,7 @@ export type IFrameMessagesMap = {
   readonly [IFrameMessageType.Initialized]: MessageSignature<
     ISDKInitializedMessageData,
     undefined,
-    Callback<{ readonly isInsideWebSpotlight: boolean }>
+    Callback<undefined>
   >;
   readonly [IFrameMessageType.Status]: MessageSignature<ISDKStatusMessageData>;
   readonly [IFrameMessageType.ElementClicked]: MessageSignature<IElementClickedMessageData, IClickedMessageMetadata>;
@@ -109,7 +109,7 @@ export class IFrameCommunicator {
     }
   };
 
-  private registerCallback = <T>(requestId: string, callback?: Callback<T>): void => {
+  private registerCallback = (requestId: string, callback?: Callback<any>): void => {
     if (!callback) {
       return;
     }
