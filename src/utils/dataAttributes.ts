@@ -1,11 +1,11 @@
 import { getElementAncestors } from './node';
 import {
+  IAddButtonInitialMessageData,
   IContentComponentClickedMessageData,
   IContentItemClickedMessageData,
   IElementClickedMessageData,
-  InsertPositionPlacement,
-  IAddButtonInitialMessageData,
   InsertPosition,
+  InsertPositionPlacement,
 } from '../lib/IFrameCommunicatorTypes';
 import { getHighlightTypeForElement, HighlightType } from './customElements';
 import { Logger } from '../lib/Logger';
@@ -36,7 +36,15 @@ export enum DataAttribute {
 export enum MetadataAttribute {
   AddButton = 'data-kontent-add-button',
   AddButtonRenderPosition = 'data-kontent-add-button-render-position',
-  DisableHighlight = 'data-kontent-disable-highlight',
+  DisableFeatures = 'data-kontent-disable-features',
+}
+
+/**
+ * Valid values of the MetadataAttribute.DisableFeatures attribute.
+ * Those values can be used to disable certain features for the selected node.
+ */
+export enum DisableableFeature {
+  Highlight = 'highlight',
 }
 
 enum ParserTokenKey {
