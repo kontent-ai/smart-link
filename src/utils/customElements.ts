@@ -1,4 +1,4 @@
-import { DataAttribute, MetadataAttribute } from './dataAttributes';
+import { DataAttribute, DisableableFeature, MetadataAttribute } from './dataAttributes';
 import { isInsideIFrame } from './iframe';
 
 export enum HighlightType {
@@ -8,9 +8,10 @@ export enum HighlightType {
   ContentItem = 'content-item',
 }
 
-const ElementSelector = `*[${DataAttribute.ElementCodename}]:not([${MetadataAttribute.DisableHighlight}])`;
-const ContentComponentSelector = `*[${DataAttribute.ComponentId}]:not([${DataAttribute.ElementCodename}]):not([${MetadataAttribute.DisableHighlight}])`;
-const ContentItemSelector = `*[${DataAttribute.ItemId}]:not([${DataAttribute.ComponentId}]):not([${DataAttribute.ElementCodename}]):not([${MetadataAttribute.DisableHighlight}])`;
+const DisabledHighlightFeatureSelector = `[${MetadataAttribute.DisableFeatures}*="${DisableableFeature.Highlight}"]`;
+const ElementSelector = `*[${DataAttribute.ElementCodename}]:not(${DisabledHighlightFeatureSelector})`;
+const ContentComponentSelector = `*[${DataAttribute.ComponentId}]:not([${DataAttribute.ElementCodename}]):not(${DisabledHighlightFeatureSelector})`;
+const ContentItemSelector = `*[${DataAttribute.ItemId}]:not([${DataAttribute.ComponentId}]):not([${DataAttribute.ElementCodename}]):not(${DisabledHighlightFeatureSelector})`;
 
 const ElementsWithAddButtonSelector = `*[${MetadataAttribute.AddButton}]`;
 const AllAugmentableElementsSelector = `${ElementSelector}, ${ContentComponentSelector}, ${ContentItemSelector}, ${ElementsWithAddButtonSelector}`;
@@ -77,7 +78,7 @@ export function shouldElementHaveAddButton(element: HTMLElement | null): boolean
  * @returns {HighlightType}
  */
 export function getHighlightTypeForElement(element: HTMLElement | null): HighlightType {
-  if (!element || element.hasAttribute(MetadataAttribute.DisableHighlight)) {
+  if (!element || isFeatureDisabledForElement(element, DisableableFeature.Highlight)) {
     return HighlightType.None;
   }
 
@@ -95,4 +96,9 @@ export function getHighlightTypeForElement(element: HTMLElement | null): Highlig
   }
 
   return HighlightType.None;
+}
+
+function isFeatureDisabledForElement(element: HTMLElement, feature: DisableableFeature): boolean {
+  const attribute = element.getAttribute(MetadataAttribute.DisableFeatures);
+  return attribute?.toLowerCase().includes(feature) ?? false;
 }
