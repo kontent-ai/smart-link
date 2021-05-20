@@ -18,17 +18,30 @@ const ComplexTemplate = ({ containerStyle }: IComplexTemplate) => `
       </nav>
       <a class="btn btn-outline-primary" href="#">Sign up</a>
     </div>
-    <div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center" data-kontent-item-id="item-id">
-      <h1 class="display-4" data-kontent-element-codename="title">Pricing</h1>
+    <div 
+      class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center" 
+      data-kontent-item-id="item-id" 
+      data-kontent-disable-features="random-value,random-value-2"
+    >
+      <h1 
+        class="display-4" 
+        data-kontent-element-codename="title"
+        data-kontent-disable-features="random-value,random-value-2"
+      >Pricing</h1>
       <p class="lead" data-kontent-element-codename="description">
         Quickly build an effective pricing table for your potential customers with this Bootstrap example.
         It’s built with default Bootstrap components and utilities with little customization.
       </p>
     </div>
-    <div class="container" data-kontent-item-id="item-id">
+    <div 
+      class="container" 
+      data-kontent-item-id="item-id" 
+      data-kontent-element-codename="pricing" 
+      data-kontent-disable-features="highlight,random-value,random-value-2"
+    >
       <div class="card-deck mb-3 text-center">
         <div class="card mb-4 shadow-sm" data-kontent-component-id="component-id">
-          <div class="card-header" data-kontent-element-codename="title">
+          <div class="card-header" data-kontent-element-codename="title" data-kontent-disable-features="random-value,highlight,random-value-2">
             <h4 class="my-0 font-weight-normal">Free</h4>
           </div>
           <div class="card-body">
