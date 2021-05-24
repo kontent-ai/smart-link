@@ -6,7 +6,7 @@ import { IFrameMessageType, ISDKInitializedMessageData, ISDKStatusMessageData } 
 import { QueryParamPresenceWatcher } from './lib/QueryParamPresenceWatcher';
 import { defineAllRequiredWebComponents } from './web-components/components';
 import { ConfigurationManager, IConfigurationManager, IKSLPublicConfiguration } from './lib/ConfigurationManager';
-import { InvalidEnvironmentError, NotInitializedError } from './utils/errors';
+import { NotInitializedError } from './utils/errors';
 import { Logger, LogLevel } from './lib/Logger';
 
 interface IKontentSmartLinkIFrameSettings {
@@ -73,10 +73,6 @@ class KontentSmartLinkSDK {
   };
 
   private initializeIFrameCommunication = (): void => {
-    if (!isInsideIFrame()) {
-      throw InvalidEnvironmentError('[KSL]: iframe communication can only be initialized while inside iframe.');
-    }
-
     this.iframeCommunicator.initialize();
 
     const storage = createStorage<IKontentSmartLinkIFrameSettings>('kontent-smart-link:iframe-settings');
