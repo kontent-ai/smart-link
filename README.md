@@ -6,13 +6,13 @@
 ![jsdelivr](https://img.shields.io/jsdelivr/npm/hm/@kentico/kontent-smart-link)
 ![snyk](https://img.shields.io/snyk/vulnerabilities/github/Kentico/kontent-smart-link)
 
->Kontent Smart Link SDK can be used to automatically inject smart links 
->to Kentico Kontent according to manually specified [HTML data attributes](https://www.w3schools.com/tags/att_data-.asp) 
->on your website. It also lets you connect your website with Web Spotlight (for faster editing and preview of your content).
+> Kontent Smart Link SDK can be used to automatically inject smart links
+> to Kentico Kontent according to manually specified [HTML data attributes](https://www.w3schools.com/tags/att_data-.asp)
+> on your website. It also lets you connect your website with Web Spotlight (for faster editing and preview of your content).
 
 ## Installation
 
-You can install this library using `npm` or you can use global CDNs such as `jsdelivr` directly.
+You can install this library using `npm`, or you can use global CDNs such as `jsdelivr` directly.
 
 ### npm
 
@@ -22,8 +22,9 @@ npm i @kentico/kontent-smart-link
 
 ### UMD Bundles
 
-When using UMD bundle and including this library in `script` tag on your `html` page, you can find it under the `KontentSmartLink` global variable.
-JS bundle and its minified version are distributed in `dist` folder.
+When using the UMD bundle and including this library inside the `script` tag of your HTML page, you can then find
+an SDK instance under the `KontentSmartLink` global variable. JS bundle and its minified version are distributed
+in `dist` folder.
 
 - `kontent-smart-link.umd.min.js`
 - `kontent-smart-link.umd.js`
@@ -48,176 +49,340 @@ https://cdn.jsdelivr.net/npm/@kentico/kontent-smart-link@latest/dist/kontent-sma
 
 ## Usage
 
-Kontent Smart Link SDK uses [HTML data attributes](https://www.w3schools.com/tags/att_data-.asp) to find elements that represent some content items/content components/elements from Kentico Kontent.
-Then it automatically injects [smart links](https://docs.kontent.ai/tutorials/develop-apps/build-strong-foundation/set-up-editing-from-preview#a-using-smart-links) for all of those elements.
-Injecting smart links to Kontent means that all elements that are marked with special data attributes will be highlighted and made interactive (handle clicks/redirect to Kontent/navigates from the preview in Web Spotlight/etc.).
-
-In order to initialize the Kontent Smart Link SDK on your website, you have to call its `initialize` or `initializeOnLoad` method. Both of the previously mentioned methods return an instance of the initialized SDK (`initializeOnLoad` returns a Promise resolving to instance) that has two methods:
-- `setConfiguration(config)`;
-- `destroy()`.
-
-The main difference between the two methods is that the `initializeOnLoad` method will add an event listener to the window `load` event, and initialize the Kontent Smart Link SDK only when everything on the page has been loaded.
-That is why it wraps an instance of the SDK into a Promise. Therefore, if you want to initialize the Kontent Smart Link SDK inside the `head` tag when the page may not be loaded yet, you should probably use `initializeOnLoad` method.
-
-The SDK uses a query parameter to enable/disable smart link injection. That is why, when the SDK is initialized, it starts listening to query parameters in the URL.
-The name of the query parameter defaults to `ksl-enabled`, but can be changed using the configuration argument of the `initialize` or `initializeOnLoad` methods or using the `setConfiguration` method.
-Only the presence of the query parameter is checked and its value is ignored, so all of the following options are valid: `?ksl-enabled=true`, `?ksl-enabled`, `?ksl-enabled=1`, etc.
-
-### Configuration
-
-You can pass the configuration object as a first argument of the `initialize`, `initializeOnLoad` or `setConfiguration` methods.
-
-|Attribute|Default|Description|
-|---------|-------|-----------|
-|debug|false|When it's set to `true`, enables all debug logs. Can be useful to get more information about how the SDK works inside.
-|defaultDataAttributes|```{ projectId: undefined, languageCodename: undefined }```|Default values for data attributes, which are only used when those data attributes are not found in DOM during data attributes parsing process.|
-|queryParam|'kontent-smart-link-enabled'|Name of the query parameter that must be present in the URL to turn the smart link injection on. It is not necessary for query parameter to have a truthy value (just the presence of this query parameter is checked). If set to falsy value ('', null), the smart link injection will always be enabled. Query parameter is only used outside Web Spotlight.|
+Kontent Smart Link SDK parses manually specified [HTML data attributes](https://www.w3schools.com/tags/att_data-.asp) on
+your webpage and automatically injects
+[smart links](https://docs.kontent.ai/tutorials/develop-apps/build-strong-foundation/set-up-editing-from-preview#a-using-smart-links)
+to Kentico Kontent. Injecting smart links to Kontent means that all elements marked with special data attributes will
+become interactive (handle clicks/redirect to Kontent/navigate from the preview in Web Spotlight/etc.). The type of
+injected smart link depends on used data attributes, their hierarchy, and context (Web Spotlight).
 
 ### Data attributes
 
-The Kontent Smart Link SDK highly depends on the data attributes in your HTML markup and it won't work as expected without them. The SDK won't add
-those data attributes to your HTML, you must add all of those attributes yourself. The SDK will then use those attributes as a source
-of data (project id, element codename, etc.) when injecting the smart links.
+Kontent Smart Link SDK highly depends on a set of manually specified data attributes in your HTML markup. That is why it
+won't work properly without those attributes. The SDK won't add the data attributes to your HTML, you must add them yourself so that SDK will then be able to use them as a source of data (e.g. Kontent
+project ID, element code name, etc.) when injecting the smart links.
 
-|Attribute|Alternative|Required|Description|
-|---------|-----------|----------|----------|
-| data-kontent-project-id | Can be set globally using the `projectId` attribute of the first argument of `initialize` or `initializeOnLoad` methods. If both are used, data-attribute will have a higher priority.  | ✔ | Specifies ID of a project in Kentico Kontent.|
-| data-kontent-language-codename | Can be set globally using the `languageCodename` attribute of the first argument of `initialize` or `initializeOnLoad` methods. If both are used, data-attribute will have a higher priority.  | ✔ | Specifies codename of a language in Kentico Kontent.  |
-| data-kontent-item-id | ❌ | ✔ | Specifies ID of an item in Kentico Kontent.|
-| data-kontent-component-id | ❌ | ❌ | Specifies ID of a [content component](https://docs.kontent.ai/tutorials/write-and-collaborate/structure-your-content/structure-your-content#a-create-single-use-content) in Kentico Kontent. |
-| data-kontent-element-codename | ❌ | ✔ | Specifies codename of an element in Kentico Kontent.|
+#### Available data attributes
 
-The SDK supports the hierarchical inheritance of data attributes, which means that you don't have to put all of those data attributes
-on the same item. The parsing process starts with the `data-kontent-element-codename` attribute and goes up the list trying to find 
-other attributes on the same node or on all of its ancestors (up to the body element). 
+|Attribute|Value|Description|
+|---------|:----------:|----------|
+| data-kontent-project-id | guid | Kontent project/environment ID. |
+| data-kontent-language-codename | string | Kontent language codename. |
+| data-kontent-item-id | guid | Content item ID. |
+| data-kontent-component-id |  guid | [Content component](https://docs.kontent.ai/tutorials/write-and-collaborate/structure-your-content/structure-your-content#a-create-single-use-content) ID. |
+| data-kontent-element-codename | string | Content type element codename. |
+| data-kontent-add-button | - | Specifies that node should have add-button rendered near it. |
+| data-kontent-add-button-insert-position | `start` &#124; `before` &#124; `after` &#124; `end` | Specifies the insert position of an item/content component added using add button. |
+| data-kontent-add-button-render-position | `bottom-start` &#124; `bottom` &#124; `bottom-end` &#124; `left-start` &#124; `left` &#124; `left-end` &#124; `top-start` &#124; `top` &#124; `top-end` &#124; `right-start` &#124; `right` &#124; `right-end` | Specifies visual location of add button. |
+| data-kontent-disable-features | `highlight` | Specifies that the selected node should not have highlight (which includes edit buttons). Useful when there are too many smart links on your page. |
 
-Usually, you will put `data-kontent-project-id` and `data-kontent-language-codename` attributes on a body node
-so that the project id and language codename values are the same for all elements inside of the body. Next, you will put 
-`data-kontent-item-id` attributes on all HTML nodes that represent a Kontent item. Then inside of those nodes, you will find
-all child nodes that represent elements of the Kontent item and put `data-kontent-element-codename` attribute on them. The SDK will then find all
-elements that have `data-kontent-element-codename` attribute, highlight them and make those elements
-interactive (handle clicks/redirect to Kontent/navigates from the preview in Web Spotlight/etc.). 
+#### Data attributes hierarchy
 
-[//]: # (TODO: add information about data attributes hierarchy)
+Although it is possible to put all previously specified data attributes on the same DOM node, you don't have to do it.
+We recommend you set data attributes hierarchically so that you don't have to duplicate the same attributes.
+
+For example, your webpage probably represents one specific project in Kontent, which means that you can place
+`data-kontent-project-id` attribute on your `<body>` element or another wrapping DOM node so that all descendant nodes
+inherit this project ID. The same could be true for a language code name. If your page uses only 1 language variant at a
+time, you could place your `data-kontent-language-codename` attribute next to your `data-kontent-project-id` from a
+previous step. But remember, that since language variant is relevant to some specific
+project, `data-kontent-language-codename` attribute should always be on the same element as `data-kontent-project-id`
+attribute or on some of its descendants. After that, you can find all DOM nodes that represent Kontent items and
+place `data-kontent-item-id` attribute on them. Then inside those nodes, you can find all descendants that represent
+some element of the Kontent item and put `data-kontent-element-codename`
+attribute on them. In the case of Rich Text elements and Linked Items elements, there could be other content items or
+content components inside them, which have their own elements and so on.
 
 #### Content components
 
-[Content component](https://docs.kontent.ai/tutorials/write-and-collaborate/structure-your-content/structure-your-content#a-create-single-use-content) is a single-use content, 
-that is also sometimes referred to as one-off, channel-specific, or non-reusable.
-Content components exist only within a specific rich text element in your content items and become
-their integral part. This means you won't find components in your list of items in Content Inventory in Kontent.
+[Content component](https://docs.kontent.ai/tutorials/write-and-collaborate/structure-your-content/structure-your-content#a-create-single-use-content)
+is single-use content, that is also sometimes referred to as one-off, channel-specific, or non-reusable. Content
+components exist only within a specific rich text element in your content items and become their integral part. This
+means you won't find components in your list of items in Content Inventory in Kontent.
 
-You should use `data-kontent-component-id` attribute to specify that something represents a content component
-in your HTML, so that the SDK knows that this item has no separate page in the Kontent and must be opened
-in the context of its parent content item.
+You should use `data-kontent-component-id` attribute to specify that something represents a content component in your
+HTML so that the SDK knows that this item has no separate page in the Kontent and must be opened in the context of its
+parent content item.
 
-### iFrame Communication
+### Smart link types
 
-When running inside an iframe element, the Kontent Smart Link SDK will send iframe messages to the parent window instead of redirecting user to the Kontent page.
-This is needed for the SDK to work properly inside Web Spotlight.
+Currently, there are 4 types of smart links supported by Kontent Smart Link SDK. All of them require certain data
+attributes to be specified in HTML markup of your webpage. Please note, that most of those smart link types are only
+available and visible inside Web Spotlight preview iframe.
+
+#### Edit element button
+
+Edit element button allows you to edit a specific element of a content item by clicking on it in preview. Inside Web
+Spotlight, this will lead to In-Context editor being opened, and the selected element will be scrolled into view.
+Outside Web Spotlight, you will be redirected to Kontent item editor.
+
+**Data attributes:** `data-kontent-project-id` → `data-kontent-language-codename` → `data-kontent-item-id`
+→ `data-kontent-component-id?` → `data-kontent-element-codename`.
+
+**Environment:** This feature is available both inside and outside Web Spotlight.
+
+#### Edit content component button
+
+Edit content component button allows you to edit a specific content component by clicking on it in preview. This will
+lead to In-Context editor being opened, and the selected content component scrolled into view.
+
+**Data attributes:** `data-kontent-project-id` → `data-kontent-language-codename` → `data-kontent-item-id`
+→ `data-kontent-component-id`.
+
+**Environment:** This feature is only available inside Web Spotlight.
+
+#### Edit content item button
+
+Edit content item button allows you to edit a specific content item by clicking on it in preview. This will lead to
+In-Context editor being opened.
+
+**Data attributes:** `data-kontent-project-id` → `data-kontent-language-codename` → `data-kontent-item-id`.
+
+**Environment:** This feature is only available inside Web Spotlight.
+
+#### Add button
+
+Add button allows you to add content to your page right from your preview. It supports both Linked items elements and
+Rich Text elements.
+
+**Environment:** This feature is only available inside Web Spotlight.
+
+##### Fixed add button
+
+**Data attributes:** `data-kontent-project-id` → `data-kontent-language-codename` → `data-kontent-item-id`
+→ `data-kontent-component-id?` → `data-kontent-element-codename`(RTE or LIE) → `data-kontent-add-button`
+& `data-kontent-add-button-render-position?` & `data-kontent-add-button-insert-position=start|end` .
+
+##### Relative add button
+
+Relative add button allows you to add content relatively to some existing content in your Rich Text element or Linked
+item element. For example, you can insert a new content component after or before the existing content component in RTE.
+To turn add button into a relative add button, you need to set insert position to `before` or `after` and provide target
+id on the same node using `data-kontent-item-id` or `data-kontent-component-id` attribute.
+
+**Data attributes:** `data-kontent-project-id` → `data-kontent-language-codename` → `data-kontent-item-id`
+→ `data-kontent-component-id?` → `data-kontent-element-codename`(RTE or LIE)
+→ `data-kontent-item-id|data-kontent-component-id`(target item) & `data-kontent-add-button`
+& `data-kontent-add-button-render-position?` & `data-kontent-add-button-insert-position=before|after`.
+
+### SDK Initialization
+
+After all data attributes have been set, you can initialize Kontent Smart Link SDK on your website. You can use
+`initialize` or `initializeOnLoad` method in order to do it. Both of the previously mentioned methods return an instance
+of initialized SDK (`initializeOnLoad` returns a Promise resolving to an instance). The main difference between the two
+methods is that the `initializedOnLoad` method will wait for the page to load before initializing the SDK. This can be
+useful when you want to initialize the SDK in the `head` section of your webpage when the page has not been fully loaded
+yet.
+
+Kontent Smart Link SDK uses multiple event listeners, timeouts, observers to track the position of the relevant
+elements, so please always call `.destroy()` method to dispose all of those side effects before trying to initialize the
+SDK again (e.g. inside `useEffect` cleanup function) to avoid memory leaks.
+
+### Configuration
+
+Both initialization methods take an optional configuration argument, that you can use to configure the SDK. You can also
+use instance `setConfiguration` method to update configuration of initialized SDK.
+
+|Attribute|Default|Description|
+|---------|:-------:|-----------|
+|debug|false|When it's set to `true`, enables all debug logs. Can be useful to get more information about how the SDK works inside, but can affect performance.
+|defaultDataAttributes|```{ projectId: undefined, languageCodename: undefined }```|Default values for data attributes, which are only used when those data attributes are not found in DOM during data attributes parsing process. For now, only `projectId` and `languageCodename` attributes are supported. |
+|queryParam|`ksl-enabled`|Name of the query parameter that must be present in the URL to turn the smart link injection on. It is not necessary for query parameter to have a truthy value (just the presence of this query parameter is checked). If set to falsy value ('', null), the smart link injection will always be enabled. Query parameter is only used outside Web Spotlight.|
+
+### Using SDK inside and outside Web Spotlight
+
+When Kontent Smart Link SDK is used outside Web Spotlight, it listens to the query parameters in the URL to toggle smart
+link injection. The name of the query parameter defaults to `ksl-enabled`, but can be changed using the `queryParam`
+configuration argument of the `initialize` or `initializeOnLoad` methods. Only the presence of the query parameter is
+checked and its value is ignored, so all the following options are valid: `?ksl-enabled=true`, `?ksl-enabled=false`
+, `?ksl-enabled`, etc.
+
+If you set the query parameter to a false value (null, ""), then the SDK will always be enabled.
+
+If the SDK detects it is run inside an iframe at the beginning of the initialization process, it will try to connect to
+the Web Spotlight by sending an iframe message to the parent window. If Web Spotlight response is received, query
+parameter detection will be turned off and additional features (more in the smart link types section) will be enabled.
+Else the SDK will continue to work as if it was outside Web Spotlight (query parameters detection, redirects to Kontent,
+etc.)
+
+#### IFrame Communication
+
+When running inside Web Spotlight preview iframe, Kontent Smart Link SDK enables several additional features and sends
+iframe messages instead of redirecting user to Kontent page. All message types are listed below.
 
 |Message|Data|Origin|Description|
-|---|---|---|---|
-|kontent-smart-link:initialized|<code>{ projectId: string &#124; null, languageCodename: string &#124; null, enabled: boolean }</code>|SDK|This event is fired by the SDK when it is initialized.|
-|kontent-smart-link:status|<code>{ enabled: boolean }</code>|Client|You can send this event to turn on/off the SDK.|
-|kontent-smart-link:element:clicked|<code>{ projectId: string, languageCodename: string, itemId: string, elementCodename: string }</code>|SDK|This message is sent by the SDK when element with `data-kontent-element-codename` attribute is clicked.|
+|---|:---:|:---:|---|
+|kontent-smart-link:initialized|<code>{ projectId: string &#124; null, languageCodename: string &#124; null, enabled: boolean }</code>|SDK|This message is sent by the SDK when it is initialized.|
+|kontent-smart-link:initialized:response|-|Host|This message is sent by the host as a response to initialized message.|
+|kontent-smart-link:status|<code>{ enabled: boolean }</code>|Host|This message is used to toggle the SDK features.|
+|kontent-smart-link:element:clicked|<code>{ projectId: string, languageCodename: string, itemId: string, contentComponentId?: string, elementCodename: string }</code>|SDK|This message is sent by the SDK when element with `data-kontent-element-codename` attribute is clicked.|
+|kontent-smart-link:content-component:clicked|<code>{ projectId: string, languageCodename: string, itemId: string, contentComponentId: string }</code>|SDK|This message is sent by the SDK when element with `data-kontent-component-id` attribute is clicked.|
+|kontent-smart-link:content-item:clicked|<code>{ projectId: string, languageCodename: string, itemId: string }</code>|SDK|This message is sent by the SDK when element with `data-kontent-item-id` attribute is clicked.|
+|kontent-smart-link:add:initial|<code>{ projectId: string, languageCodename: string, itemId: string, contentComponentId?: string, elementCodename: string, insertPosition: { targetId?: string, placement: 'start' &#124; 'end' &#124; 'before' &#124; 'after', } }</code>|SDK|This message is sent by the SDK when add button is clicked.|
+|kontent-smart-link:add:initial:response|<code>{ elementType: 'LinkedItems' &#124; 'RichText' &#124; 'Unknown', isParentPublished: boolean, permissions: Map<string,string> }</code>|Host|This message is sent by the host as a response to initial add button click.|
+|kontent-smart-link:add:action|<code>{ projectId: string, languageCodename: string, itemId: string, contentComponentId?: string, elementCodename: string, action: string, insertPosition: { targetId?: string, placement: 'start' &#124; 'end' &#124; 'before' &#124; 'after', } }</code>|SDK|This message is sent by the SDK when add button action is clicked.|
 
-[//]: # (TODO: add new iframe messages)
+#### Nested iframes
 
-### Customization
-
-The following custom CSS properties can be used to customize the visuals of the SDK output.
-
-|Custom property|Description|Default|
-|---|---|---|
-|--ksl-highlight-border-color-selected|Selected (hovered) highlight border color.|rgba(219, 60, 0, 1)|
-|--ksl-highlight-border-color|Highlight border color.|rgba(219,60,0,0.5)|
-|--ksl-highlight-border-radius|Highlight border radius.|5px|
-|--ksl-highlight-border-style|Highlight border style.|dashed|
-|--ksl-highlight-border-width|Highlight border width.|2px|
-|--ksl-tooltip-background-color|Tooltip background color.|#141619|
-|--ksl-tooltip-color|Tooltip text color.|#fff|
-
-[//]: # (TODO: add more customization options)
+There may be some cases when you would want to put your page into another iframe (e.g. to simulate a mobile device
+resolution). But if you then load your nested iframe page inside Web Spotlight preview tab, it would act as if it wasn't
+inside Web Spotlight. This happens because the initialization message sent from SDK to Kontent gets lost in the parent
+iframe. You can use the following workaround to fix the issue: https://github.com/Kentico/kontent-smart-link/issues/16.
 
 ### Examples
 
 #### HTML & UMD & CDN
+
 ```html
 <html>
-    <head>
-        <title>Kontent Smart Link - HTML example</title>
-        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@kentico/kontent-smart-link@2.0.0/dist/kontent-smart-link.umd.min.js"></script>
-        <script type="text/javascript">
-            KontentSmartLink.initializeOnLoad({queryParam: 'preview'});
-        </script>
-    </head>
-    <body data-kontent-project-id="1d50a0f7-9033-48f3-a96e-7771c73f9683" data-kontent-language-codename="default">
-        <div class="home" data-kontent-item-id="af858748-f48a-4169-9b35-b10c9d3984ef">
-            <img class="home__banner" data-kontent-element-codename="image" />
-            <h1 data-kontent-element-codename="text">...</h1>
-        </div>
-    </body>
+  <head>
+    <title>Kontent Smart Link - HTML example</title>
+    <script type="text/javascript"
+            src="https://cdn.jsdelivr.net/npm/@kentico/kontent-smart-link@2.0.0/dist/kontent-smart-link.umd.min.js"></script>
+    <script type="text/javascript">
+      KontentSmartLink.initializeOnLoad({ queryParam: "preview" });
+    </script>
+  </head>
+  <body data-kontent-project-id="1d50a0f7-9033-48f3-a96e-7771c73f9683" data-kontent-language-codename="en-US">
+    <nav class="navigation" data-kontent-item-id="6ea11626-336d-47e5-9f35-2d44fa1ad6d6">
+      <img class="navigation__logo" data-kontent-element-codename="logo" />
+      <ul
+        class="navigation__list"
+        data-kontent-element-codename="navigation"
+        data-kontent-add-button
+        data-kontent-render-position="left"
+        data-kontent-insert-position="start"
+      >
+        <li class="navigation__list-item" data-kontent-component-id="036acd8f-5e6d-4023-b0f8-a4b8e0b573b1">
+          <span data-kontent-element-codename="title">Home</span>
+        </li>
+        <li class="navigation__list-item" data-kontent-component-id="f539f1bc-9dc4-4df5-8876-dbb1de5ae6eb">
+          <span data-kontent-element-codename="title">About us</span>
+        </li>
+      </ul>
+    </nav>
+    <div
+      class="page"
+      data-kontent-item-id="af858748-f48a-4169-9b35-b10c9d3984ef"
+      data-kontent-element-codename="page_content"
+    >
+      <div
+        class="section"
+        data-kontent-component-id="51a90561-9084-4d32-9e34-80da7c88c202"
+        data-kontent-add-button
+        data-kontent-add-button-render-position="bottom"
+        data-kontent-add-button-insert-position="after"
+      >
+        <img class="home__banner" data-kontent-element-codename="image" />
+        <h1 data-kontent-element-codename="title">Home page</h1>
+      </div>
+      <div
+        class="section"
+        data-kontent-component-id="23e657d2-e4ce-4878-a77d-365db46c956d"
+        data-kontent-add-button
+        data-kontent-add-button-render-position="bottom"
+        data-kontent-add-button-insert-position="after"
+      >
+        <p data-kontent-element-codename="text">...</p>
+      </div>
+    </div>
+  </body>
 </html>
 ```
 
 #### ES6
-```js
-import KontentSmartLink from '@kentico/kontent-smart-link';
 
+```js
+import KontentSmartLink from "@kentico/kontent-smart-link";
+
+// This is just an example of SDK initialization inside ES6 module.
+// HTML markup should still contain all necessary data-attributes.
 const kontentSmartLink = KontentSmartLink.initializeOnLoad({
-    projectId: '1d50a0f7-9033-48f3-a96e-7771c73f9683',
-    languageCodename: 'default',
-    queryParam: 'preview',
+  debug: true,
+  defaultDataAttributes: {
+    projectId: "1d50a0f7-9033-48f3-a96e-7771c73f9683",
+    languageCodename: "default",
+  },
+  queryParam: "ksl-preview"
 });
 ```
 
 #### Next.js
 
-In order to use the SDK with the Next.js framework you can either initialize it separately on each page or initialize it once for the whole application
-using the `_app.jsx` file. Do not forget to `destroy()` SDK for it to work properly.
+In order to use the SDK with the Next.js framework you can either initialize it separately on each page or initialize it
+once for the whole application using the `_app.jsx` file. Do not forget to `destroy()` SDK for it to work properly.
 
 ```js
 // _app.jsx
-import KontentSmartLink from '@kentico/kontent-smart-link';
+import KontentSmartLink from "@kentico/kontent-smart-link";
 
 const MyApp = ({
   Component,
-  pageProps,
+  pageProps
 }) => {
   useEffect(() => {
+    // This is just an example of SDK initialization inside ES6 module.
+    // HTML markup should still contain all necessary data-attributes (e.g. PageSection component).
     const kontentSmartLink = KontentSmartLink.initialize({
-      queryParam: 'preview-mode'    
+      defaultDataAttributes: {
+        projectId: "1d50a0f7-9033-48f3-a96e-7771c73f9683",
+        languageCodename: "default",
+      },
+      queryParam: "preview-mode"
     });
+
     return () => {
       kontentSmartLink.destroy();
-    }; 
+    };
   });
- 
-  return <Component {...pageProps} />;
+
+  return (
+    <PageSection>
+      <Component {...pageProps} />
+    </PageSection>
+  );
+};
+
+const PageSection = (props) => {
+  return (
+    <div data-kontent-item-id="3fdbc5a0-13e6-4516-82c3-50bf4db43644">
+      <div data-kontent-element-codename="page_section__content">
+        {props.children}
+      </div>
+    </div>
+  );
 };
 ```
 
 ### Gatsby
 
-You can either initialize the SDK on every page or use a layout to initialize the SDK while using Gatsby. Do not forget to `destroy()` SDK for it to work properly.
+You can either initialize the SDK on every page or use a layout to initialize the SDK while using Gatsby. Do not forget
+to `destroy()` SDK for it to work properly.
 
 ```js
 // src/components/layout.jsx
-import KontentSmartLink from '@kentico/kontent-smart-link';
+import KontentSmartLink from "@kentico/kontent-smart-link";
 
 export default function Layout({ children }) {
-    useEffect(() => {
-        const kontentSmartLink = KontentSmartLink.initialize({
-          queryParam: 'preview-mode'    
-        });
-        return () => {
-          kontentSmartLink.destroy();
-        }; 
+  useEffect(() => {
+    // This is just an example of SDK initialization inside ES6 module.
+    // HTML markup should still contain all necessary data-attributes (e.g. .layout element).
+    const kontentSmartLink = KontentSmartLink.initialize({
+      queryParam: "enable-ksl-sdk"
     });
+    return () => {
+      kontentSmartLink.destroy();
+    };
+  });
 
-    return (
-      <div class="layout">{children}</div>
+  return (
+    <div
+      class="layout"
+      data-kontent-project-id="1d50a0f7-9033-48f3-a96e-7771c73f9683"
+      data-kontent-language-codename="en-US"
+    >
+      {children}
+    </div>
   );
 }
 ```
@@ -226,20 +391,24 @@ export default function Layout({ children }) {
 
 ### Unit tests
 
-Since this SDK highly depends on browser APIs, the unit tests are run by Karma test runner (+ Jasmine) inside Chrome browser.
-To run all tests in a watch mode you can use the `npm run test:unit` command. To run all tests only once you can use
-the `npm run test:unit:ci` command. All unit tests are located in the `test-browser` folder.
+Since this SDK highly depends on browser APIs, the unit tests are run by Karma test runner (+ Jasmine) inside Chrome
+browser. To run all tests in a watch mode you can use the `npm run test:unit` command. To run all tests only once you
+can use the `npm run test:unit:ci` command. All unit tests are located in the `test-browser` folder.
 
 ### Visual regression tests
 
-Visual regression testing is implemented using Storybook and Loki. Each story in Storybook represents a test case, which is 
-then used by Loki to generate screenshots. In order to run visual regression tests you need to start Storybook using
+Visual regression testing is implemented using Storybook and Loki. Each story in Storybook represents a test case, which
+is then used by Loki to generate screenshots. In order to run visual regression tests you need to start Storybook using
 the `npm run storybook` command and then start loki testing using the `npm run test:visual` command. Or you can use
-the `npm run test:visual:ci` command to automatically start the Storybook server in a CI mode and run visual tests. 
+the `npm run test:visual:ci` command to automatically start the Storybook server in a CI mode and run visual tests.
 
-Visual regression tests use the built version of SDK, so before running them make sure you rebuild the SDK
-after the last change you made. You can this using the `npm run build` command or using the `npm run dev` command to
-start build in a watch mode.
+Visual regression tests use the built version of SDK, so before running them make sure you rebuild the SDK after the
+last change you made. You can this using the `npm run build` command or using the `npm run dev` command to start build
+in a watch mode.
+
+## Breaking changes
+
+All breaking changes can be found in [a separate markdown file](BREAKING.md).
 
 ## Feedback & Contribution
 
