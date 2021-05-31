@@ -7,13 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] - 2021-06-02
+
 ### Added
 
-- New smart link rendering logic using Web Components
+- Smart links are now rendered using Web Components.
+- Changes in smart link rendering algorithm for better performance.
+- New data attributes related to add button have been added to SDK (`data-kontent-add-button`, `data-kontent-add-button-insert-position`, `data-kontent-add-button-render-position`).
+- New data attribute to disable features (highlights) has been added to SDK (`data-kontent-disable-features`).
+- Edit buttons now support content components and content items.
+- New iframe messages added to iframe communication.
+
+### Fixed
+
+- Better error handling (e.g. local storage access rights).
+- Improve rendering algorithm for better performance.
 
 ### Changed
 
-- If query parameter is set to empty string or null, the smart links will be always enabled.
+- Setting query parameter to a falsy value (null, "") results in SDK being always enabled.
+- IFrame communication is only used when inside Web Spotlight iframe.
+- Configuration object has been changed:
+    - New debug property can be set to true to enable additional debug logs.
+    - Default project ID and language codename have been moved under `defaultDataAttributes` property.
+    - Default query parameter name has been changed from `kontent-smart-link-enabled` to `ksl-enabled`.
 
 ### Removed
 
@@ -72,7 +89,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public release of SDK
 
-[unreleased]: https://github.com/Kentico/kontent-smart-link/compare/v1.3.0...HEAD
+[unreleased]: https://github.com/Kentico/kontent-smart-link/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/Kentico/kontent-smart-link/compare/v1.3.0...v2.0.0
 [1.3.0]: https://github.com/Kentico/kontent-smart-link/compare/v1.2.2...v1.3.0
 [1.2.2]: https://github.com/Kentico/kontent-smart-link/compare/v1.2.1...v1.2.2
 [1.2.1]: https://github.com/Kentico/kontent-smart-link/compare/v1.2.0...v1.2.1
