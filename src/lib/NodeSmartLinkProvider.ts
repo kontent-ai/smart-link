@@ -311,7 +311,7 @@ export class NodeSmartLinkProvider {
           messageData,
           (response?: IAddButtonPermissionsServerModel) => {
             if (!response || response.elementType === AddButtonElementType.Unknown) {
-              return onReject({ message: 'Something went wrong.' });
+              return onReject({ message: 'Something went wrong' });
             }
 
             return onResolve(response);
@@ -320,8 +320,10 @@ export class NodeSmartLinkProvider {
         );
       } else {
         Logger.warn('Add buttons are only functional inside Web Spotlight.');
-        onReject({ message: 'Add buttons are only functional inside Web Spotlight.' });
+        onReject({ message: 'Add buttons are only functional inside Web Spotlight' });
       }
+    } else {
+      onReject({ message: 'Required data attributes are missing' });
     }
   };
 
