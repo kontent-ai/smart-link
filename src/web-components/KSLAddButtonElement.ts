@@ -273,7 +273,7 @@ export class KSLAddButtonElement extends KSLPositionedElement {
       if (reason && typeof reason.message === 'string') {
         this.buttonRef.tooltipMessage = reason.message;
       } else {
-        this.buttonRef.tooltipMessage = 'Something went wrong.';
+        this.buttonRef.tooltipMessage = 'Something went wrong';
       }
     }
   };
