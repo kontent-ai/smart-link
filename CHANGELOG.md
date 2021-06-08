@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.1] - 2021-06-08
+
 ### Fixed
 
 - Fixed the problem with infinite loading when data attributes required for add button were missing.
@@ -94,7 +96,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public release of SDK
 
-[unreleased]: https://github.com/Kentico/kontent-smart-link/compare/v2.0.0...HEAD
+[unreleased]: https://github.com/Kentico/kontent-smart-link/compare/v2.0.1...HEAD
+[2.0.1]: https://github.com/Kentico/kontent-smart-link/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/Kentico/kontent-smart-link/compare/v1.3.0...v2.0.0
 [1.3.0]: https://github.com/Kentico/kontent-smart-link/compare/v1.2.2...v1.3.0
 [1.2.2]: https://github.com/Kentico/kontent-smart-link/compare/v1.2.1...v1.2.2
