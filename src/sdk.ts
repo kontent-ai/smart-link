@@ -79,10 +79,6 @@ class KontentSmartLinkSDK {
     const stored = storage.get();
     const enabled = stored !== null ? stored?.enabled : true;
 
-    if (enabled) {
-      this.nodeSmartLinkProvider.enable();
-    }
-
     const messageData: ISDKInitializedMessageData = {
       projectId: this.configurationManager.defaultProjectId ?? null,
       languageCodename: this.configurationManager.defaultLanguageCodename ?? null,
