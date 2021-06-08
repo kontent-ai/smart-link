@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed the problem with infinite loading when data attributes required for add button were missing.
+- Fixed highlights blinking when iframe communication is initialized.
 
 ## [2.0.0] - 2021-06-02
 
