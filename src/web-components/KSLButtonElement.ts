@@ -2,6 +2,8 @@ import { IconName } from './KSLIconElement';
 import { assert } from '../utils/assert';
 import { KSLCustomElementWithTooltip } from './abstract/KSLCustomElementWithTooltip';
 import { createTemplateForCustomElement } from '../utils/node';
+import { Colors } from './tokens/colors';
+import { Shadows } from './tokens/shadows';
 
 export enum ButtonType {
   Primary = 'primary',
@@ -65,27 +67,27 @@ const templateHTML = `
       min-height: 40px;
       max-height: 40px;
       border-radius: 5000px;
-      box-shadow: 0 8px 10px rgba(219, 60, 0, 0.2), 0 6px 20px rgba(219, 60, 0, 0.12), 0 8px 14px rgba(219, 60, 0, 0.14);
-      background-color: #DB3C00;
-      color: #fff;
-      fill: #fff;
+      box-shadow: var(--ksl-shadow-primary, ${Shadows.Primary});
+      background-color: var(--ksl-color-primary, ${Colors.Primary});
+      color: var(--ksl-color-text-secondary, ${Colors.TextSecondary});
+      fill: var(--ksl-color-text-secondary, ${Colors.TextSecondary});
     }
     
     :host([type=${ButtonType.Primary}]:not([disabled])) .ksl-button:hover,
     :host([type=${ButtonType.Primary}]:not([disabled])) .ksl-button:active {
-      background-color: #953000;
+      background-color: var(--ksl-color-primary-hover, ${Colors.PrimaryHover});
     }
     
     :host([type=${ButtonType.Primary}][disabled]) .ksl-button {
-      background-color: #DFDFDF;
-      color: #8C8C8C;
-      fill: #8C8C8C;
+      background-color: var(--ksl-color-background-default-disabled, ${Colors.BackgroundDefaultDisabled});
+      color: var(--ksl-color-text-default-disabled, ${Colors.TextDefaultDisabled});
+      fill: var(--ksl-color-text-default-disabled, ${Colors.TextDefaultDisabled});
       box-shadow: none;
     }
     
     :host([type=${ButtonType.Primary}][loading]) .ksl-button {
-      color: #DB3C00;
-      fill: #DB3C00;
+      color: var(--ksl-color-primary, ${Colors.Primary});
+      fill: var(--ksl-color-primary, ${Colors.Primary});
       box-shadow: none;
     }
     
@@ -98,22 +100,22 @@ const templateHTML = `
       min-width: 24px;
       max-height: 24px;
       max-width: 24px;
-      color: #000;
-      fill: #000;
-      background-color: #fff;
+      color: var(--ksl-color-text-default, ${Colors.TextDefault});
+      fill: var(--ksl-color-text-default, ${Colors.TextDefault});
+      background-color: var(--ksl-color-background-default, ${Colors.BackgroundDefault});
     }
     
     :host([type=${ButtonType.Quinary}][disabled]) .ksl-button {
-      color: #8c8c8c;
-      fill: #8c8c8c;
+      color: var(--ksl-color-text-default-disabled, ${Colors.TextDefaultDisabled});
+      fill: var(--ksl-color-text-default-disabled, ${Colors.TextDefaultDisabled});
     }
     
     :host([type=${ButtonType.Quinary}]:not([disabled])) .ksl-button:hover {
-      background-color: rgba(21, 21, 21, 0.1);
+      background-color: var(--ksl-color-background-default-hover, ${Colors.BackgroundDefaultHover});
     }
     
     :host([type=${ButtonType.Quinary}]:not([disabled])) .ksl-button:active {
-      background-color: #fff0ef;
+      background-color: var(--ksl-color-background-default-selected, ${Colors.BackgroundDefaultSelected});
     }
   </style>
   <button class="ksl-button">

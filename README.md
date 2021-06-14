@@ -189,6 +189,26 @@ use instance `setConfiguration` method to update configuration of initialized SD
 |defaultDataAttributes|```{ projectId: undefined, languageCodename: undefined }```|Default values for data attributes, which are only used when those data attributes are not found in DOM during data attributes parsing process. For now, only `projectId` and `languageCodename` attributes are supported. |
 |queryParam|`ksl-enabled`|Name of the query parameter that must be present in the URL to turn the smart link injection on. It is not necessary for query parameter to have a truthy value (just the presence of this query parameter is checked). If set to falsy value ('', null), the smart link injection will always be enabled. Query parameter is only used outside Web Spotlight.|
 
+### Customization
+
+The following custom CSS properties can be used to customize the visuals of the SDK output.
+
+|Custom property|Default|Description|
+|---|:---:|---|
+|--ksl-color-background-default|`rgba(255, 255, 255, 1)`|Default background color used in toolbar and popover.|
+|--ksl-color-background-default-disabled|`rgba(223, 223, 223, 1)`|Disabled background color for buttons inside toolbar and popover.|
+|--ksl-color-background-default-hover|`rgba(21, 21, 21, 0.1)`|Hover background color for buttons inside toolbar and popover.|
+|--ksl-color-background-default-selected|`rgba(255, 240, 239, 1)`|Selected background color for buttons inside toolbar and popover.|
+|--ksl-color-background-secondary|`rgba(20, 22, 25, 1)`|Secondary background color used in tooltips.|
+|--ksl-color-primary|`rgba(219, 60, 0, 1)`|Primary color used as a hover border color in highlights and as a background color in add buttons.|
+|--ksl-color-primary-hover|`rgba(149, 48, 0, 1)`|Primary color used as a hover background color in add buttons.|
+|--ksl-color-primary-transparent|`rgba(219, 60, 0, 0.5)`|Primary color with transparency used as a default border color in highlights.|
+|--ksl-color-text-default|`rgba(255, 255, 255, 1)`|Text color used on a default background (buttons inside toolbar and popover).|
+|--ksl-color-text-default-disabled|`rgba(140, 140, 140, 1)`|Disabled text color used on a default background.|
+|--ksl-color-text-secondary|`rgba(21, 21, 21, 1)`|Text color used inside tooltips and add buttons.|
+|--ksl-shadow-default|`0 8px 32px rgba(16, 33, 60, 0.24), 0 0 8px rgba(0, 0, 0, 0.03)`|Default shadow for toolbar.|
+|--ksl-shadow-primary|`0 8px 10px rgba(219, 60, 0, 0.2), 0 6px 20px rgba(219, 60, 0, 0.12), 0 8px 14px rgba(219, 60, 0, 0.14)`|Shadow for add buttons.|
+
 ### Using SDK inside and outside Web Spotlight
 
 When Kontent Smart Link SDK is used outside Web Spotlight, it listens to the query parameters in the URL to toggle smart

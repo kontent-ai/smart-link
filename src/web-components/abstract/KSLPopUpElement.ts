@@ -1,14 +1,16 @@
 import { ElementPositionOffset, KSLPositionedElement } from './KSLPositionedElement';
 import { createTemplateForCustomElement, getTotalScrollOffset } from '../../utils/node';
+import { Colors } from '../tokens/colors';
+import { Shadows } from '../tokens/shadows';
 
 const templateHTML = `
   <style>
     :host {
       --arrow-size: var(--ksl-pop-up-arrow-size, 12px);
-      --background-color: var(--ksl-pop-up-background-color, #fff);
+      --background-color: var(--ksl-pop-up-background-color, ${Colors.BackgroundDefault});
       --border-radius: var(--ksl-pop-up-border-radius, 4px);
-      --box-shadow: var(--ksl-pop-up-box-shadow, 0 8px 32px rgba(16, 33, 60, 0.24), 0 0 8px rgba(0, 0, 0, 0.03));
-      --color: var(--ksl-pop-up-color, #000);
+      --box-shadow: var(--ksl-pop-up-box-shadow, ${Shadows.Default});
+      --color: var(--ksl-pop-up-color, ${Colors.TextDefault});
       --padding: var(--ksl-pop-up-padding, 8px 8px);
       
       display: block;
@@ -33,7 +35,7 @@ const templateHTML = `
       align-items: center;
       box-shadow: var(--box-shadow);
       background-color: var(--background-color);
-      padding: var(--padding) var(--padding);
+      padding: var(--padding);
       border-radius: var(--border-radius);
       font-size: 12px;
       line-height: 16px;

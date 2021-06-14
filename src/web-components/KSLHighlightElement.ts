@@ -7,6 +7,8 @@ import { KSLContainerElement } from './KSLContainerElement';
 import { createTemplateForCustomElement } from '../utils/node';
 import { DeepPartial, EditButtonClickedData, parseEditButtonDataAttributes } from '../utils/dataAttributes';
 import { Logger } from '../lib/Logger';
+import { Colors } from './tokens/colors';
+import { Shadows } from './tokens/shadows';
 
 interface IKSLHighlightElementEventData {
   readonly data: DeepPartial<EditButtonClickedData>;
@@ -41,10 +43,9 @@ const templateHTML = `
       min-width: 40px;
       width: 100%;
       height: 100%;
-      border-width: var(--ksl-highlight-border-width, 2px);
-      border-style: var(--ksl-highlight-border-style, dashed);
-      border-color: var(--ksl-highlight-border-color, rgba(219, 60, 0, .5));
-      border-radius: var(--ksl-highlight-border-radius, 5px);
+      border: 2px dashed;
+      border-color: var(--ksl-color-primary-transparent, ${Colors.PrimaryTransparent});
+      border-radius: 5px;
     }
     
     :host([hidden]) {
@@ -52,7 +53,7 @@ const templateHTML = `
     }
     
     :host([selected]) {
-      border-color: var(--ksl-highlight-border-color-selected, rgba(219, 60, 0, 1));
+      border-color: var(--ksl-color-primary, ${Colors.Primary});
       z-index: 20;
     }
     
@@ -73,10 +74,10 @@ const templateHTML = `
       min-height: 40px;
       max-height: 40px;
       border-radius: 8px;
-      background-color: #fff;
+      background-color: var(--ksl-color-background-default, ${Colors.BackgroundDefault});
       z-index: 10;
       padding: 8px;
-      box-shadow: 0 8px 32px rgba(16, 33, 60, 0.24), 0 0 8px rgba(0, 0, 0, 0.03);
+      box-shadow: var(--ksl-shadow-default, ${Shadows.Default});
     }
     
     .ksl-highlight__toolbar:hover {

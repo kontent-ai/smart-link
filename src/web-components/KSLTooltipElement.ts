@@ -1,13 +1,14 @@
 import { KSLPopUpElement } from './abstract/KSLPopUpElement';
 import { createTemplateForCustomElement } from '../utils/node';
+import { Colors } from './tokens/colors';
 
 const templateHTML = `
   <style>
     :host {
       --ksl-pop-up-arrow-size: 4px;
-      --ksl-pop-up-background-color: #141619;
+      --ksl-pop-up-background-color: var(--ksl-color-background-secondary, ${Colors.BackgroundSecondary});
       --ksl-pop-up-box-shadow: none;
-      --ksl-pop-up-color: #fff;
+      --ksl-pop-up-color: var(--ksl-color-text-secondary, ${Colors.TextSecondary});
       --ksl-pop-up-padding: 4px 6px;
     }
   </style>
