@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Colors used in SDK can now be customized using CSS properties.
 
+### Fixed
+
+- The highlighted element now has hover effect when its edit button is hovered.
+
 ## [2.0.1] - 2021-06-08
 
 ### Fixed

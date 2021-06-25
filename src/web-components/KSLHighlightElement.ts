@@ -52,6 +52,7 @@ const templateHTML = `
       display: none;
     }
     
+    :host(:hover),
     :host([selected]) {
       border-color: var(--ksl-color-primary, ${Colors.Primary});
       z-index: 20;
