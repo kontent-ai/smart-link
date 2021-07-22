@@ -8,6 +8,7 @@ import { defineAllRequiredWebComponents } from './web-components/components';
 import { ConfigurationManager, IConfigurationManager, IKSLPublicConfiguration } from './lib/ConfigurationManager';
 import { NotInitializedError } from './utils/errors';
 import { Logger, LogLevel } from './lib/Logger';
+import { reload } from './utils/reload';
 
 interface IKontentSmartLinkIFrameSettings {
   readonly enabled: boolean;
@@ -80,9 +81,12 @@ class KontentSmartLinkSDK {
     const enabled = stored !== null ? stored?.enabled : true;
 
     const messageData: ISDKInitializedMessageData = {
-      projectId: this.configurationManager.defaultProjectId ?? null,
-      languageCodename: this.configurationManager.defaultLanguageCodename ?? null,
       enabled,
+      languageCodename: this.configurationManager.defaultLanguageCodename ?? null,
+      projectId: this.configurationManager.defaultProjectId ?? null,
+      supportedFeatures: {
+        refreshHandler: true,
+      },
     };
 
     this.iframeCommunicator.sendMessageWithResponse(IFrameMessageType.Initialized, messageData, () => {
@@ -102,6 +106,10 @@ class KontentSmartLinkSDK {
         storage.set({
           enabled: data.enabled,
         });
+      });
+
+      this.iframeCommunicator.addMessageListener(IFrameMessageType.RefreshPreview, () => {
+        reload();
       });
     });
   };
