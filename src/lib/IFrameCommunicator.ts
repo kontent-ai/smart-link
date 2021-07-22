@@ -16,7 +16,7 @@ import { createUuid } from '../utils/createUuid';
 import { InvalidEnvironmentError } from '../utils/errors';
 
 type Callback<TResponseData = undefined> = (data?: TResponseData) => void;
-type MessageSignature<TMessageData, TMessageMetaData = undefined, TMessageCallback = undefined> = (
+type MessageSignature<TMessageData = undefined, TMessageMetaData = undefined, TMessageCallback = undefined> = (
   data: TMessageData,
   metadata: TMessageMetaData,
   callback: TMessageCallback
@@ -44,6 +44,7 @@ export type IFrameMessagesMap = {
     Callback<IAddButtonPermissionsServerModel>
   >;
   readonly [IFrameMessageType.AddAction]: MessageSignature<IAddActionMessageData, IClickedMessageMetadata>;
+  readonly [IFrameMessageType.RefreshPreview]: MessageSignature;
 };
 
 export interface IFrameMessage<E extends keyof IFrameMessagesMap> {

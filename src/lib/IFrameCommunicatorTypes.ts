@@ -1,7 +1,12 @@
+interface ISDKSupportedFeatures {
+  readonly refreshHandler: boolean;
+}
+
 export interface ISDKInitializedMessageData {
-  readonly projectId: string | null;
-  readonly languageCodename: string | null;
   readonly enabled: boolean;
+  readonly languageCodename: string | null;
+  readonly projectId: string | null;
+  readonly supportedFeatures: ISDKSupportedFeatures;
 }
 
 export interface IClickedMessageMetadata {
@@ -101,6 +106,7 @@ export enum IFrameMessageType {
   Status = 'kontent-smart-link:status',
   AddInitial = 'kontent-smart-link:add:initial',
   AddAction = 'kontent-smart-link:add:action',
+  RefreshPreview = 'kontent-smart-link:preview:refresh',
 }
 
 export enum IFrameResponseType {
