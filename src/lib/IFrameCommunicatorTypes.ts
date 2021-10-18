@@ -35,6 +35,16 @@ export interface IElementClickedMessageData extends IContentItemClickedMessageDa
   readonly elementCodename: string;
 }
 
+export interface IRefreshMessageData {
+  readonly projectId: string;
+  readonly languageCodename: string;
+  readonly updatedItemCodename: string;
+}
+
+export interface IRefreshMessageMetadata {
+  readonly manualRefresh: boolean;
+}
+
 export enum InsertPositionPlacement {
   After = 'after',
   Before = 'before',
