@@ -1,35 +1,56 @@
 import { isInsideIFrame } from './utils/iframe';
 import { NodeSmartLinkProvider } from './lib/NodeSmartLinkProvider';
-import { createStorage } from './utils/storage';
+import { createStorage, IStorage } from './utils/storage';
 import { IFrameCommunicator } from './lib/IFrameCommunicator';
-import { IFrameMessageType, ISDKInitializedMessageData, ISDKStatusMessageData } from './lib/IFrameCommunicatorTypes';
+import {
+  IFrameMessageType,
+  IRefreshMessageData,
+  IRefreshMessageMetadata,
+  ISDKInitializedMessageData,
+  ISDKStatusMessageData,
+} from './lib/IFrameCommunicatorTypes';
 import { QueryParamPresenceWatcher } from './lib/QueryParamPresenceWatcher';
 import { defineAllRequiredWebComponents } from './web-components/components';
 import { ConfigurationManager, IConfigurationManager, IKSLPublicConfiguration } from './lib/ConfigurationManager';
 import { NotInitializedError } from './utils/errors';
 import { Logger, LogLevel } from './lib/Logger';
 import { reload } from './utils/reload';
+import { Callback, EventHandler, EventManager } from './lib/EventManager';
 
-interface IKontentSmartLinkIFrameSettings {
+interface IKontentSmartLinkStoredSettings {
   readonly enabled: boolean;
 }
+
+enum KontentSmartLinkEvent {
+  Refresh = 'refresh',
+}
+
+type KontentSmartLinkEventsMap = {
+  readonly [KontentSmartLinkEvent.Refresh]: EventHandler<IRefreshMessageData, IRefreshMessageMetadata, Callback>;
+};
 
 class KontentSmartLinkSDK {
   private readonly configurationManager: IConfigurationManager;
   private readonly queryParamPresenceWatcher: QueryParamPresenceWatcher;
   private readonly iframeCommunicator: IFrameCommunicator;
   private readonly nodeSmartLinkProvider: NodeSmartLinkProvider;
+  private readonly events: EventManager<KontentSmartLinkEventsMap>;
 
   constructor(configuration?: Partial<IKSLPublicConfiguration>) {
     this.configurationManager = ConfigurationManager.getInstance();
     this.configurationManager.update(configuration);
 
+    this.events = new EventManager<KontentSmartLinkEventsMap>();
     this.queryParamPresenceWatcher = new QueryParamPresenceWatcher();
     this.iframeCommunicator = new IFrameCommunicator();
 
     this.nodeSmartLinkProvider = new NodeSmartLinkProvider(this.iframeCommunicator);
 
     this.initialize();
+  }
+
+  private static getSettingsStorage(): IStorage<IKontentSmartLinkStoredSettings> {
+    return createStorage<IKontentSmartLinkStoredSettings>('kontent-smart-link:iframe-settings');
   }
 
   public initialize = async (): Promise<void> => {
@@ -50,6 +71,7 @@ class KontentSmartLinkSDK {
   };
 
   public destroy = (): void => {
+    this.events.removeAllListeners();
     this.queryParamPresenceWatcher.unwatchAll();
     this.iframeCommunicator.destroy();
     this.nodeSmartLinkProvider.destroy();
@@ -73,12 +95,26 @@ class KontentSmartLinkSDK {
     this.configurationManager.update(configuration);
   };
 
+  public on = <TEvent extends keyof KontentSmartLinkEventsMap>(
+    event: TEvent,
+    handler: KontentSmartLinkEventsMap[TEvent]
+  ): void => {
+    this.events.on(event, handler);
+  };
+
+  public off = <TEvent extends keyof KontentSmartLinkEventsMap>(
+    event: TEvent,
+    handler: KontentSmartLinkEventsMap[TEvent]
+  ): void => {
+    this.events.off(event, handler);
+  };
+
   private initializeIFrameCommunication = (): void => {
     this.iframeCommunicator.initialize();
 
-    const storage = createStorage<IKontentSmartLinkIFrameSettings>('kontent-smart-link:iframe-settings');
-    const stored = storage.get();
-    const enabled = stored !== null ? stored?.enabled : true;
+    const storage = KontentSmartLinkSDK.getSettingsStorage();
+    const settings = storage.get();
+    const enabled = settings !== null ? settings?.enabled : true;
 
     const messageData: ISDKInitializedMessageData = {
       enabled,
@@ -98,20 +134,29 @@ class KontentSmartLinkSDK {
         this.nodeSmartLinkProvider.enable();
       }
 
-      this.iframeCommunicator.addMessageListener(IFrameMessageType.Status, (data: ISDKStatusMessageData) => {
-        if (!data || !this.nodeSmartLinkProvider) return;
-
-        this.nodeSmartLinkProvider.toggle(data.enabled);
-
-        storage.set({
-          enabled: data.enabled,
-        });
-      });
-
-      this.iframeCommunicator.addMessageListener(IFrameMessageType.RefreshPreview, () => {
-        reload();
-      });
+      this.iframeCommunicator.addMessageListener(IFrameMessageType.Status, this.handleStatusMessage);
+      this.iframeCommunicator.addMessageListener(IFrameMessageType.RefreshPreview, this.handleRefreshMessage);
     });
+  };
+
+  private handleStatusMessage = (data: ISDKStatusMessageData): void => {
+    if (!data || !this.nodeSmartLinkProvider) return;
+
+    this.nodeSmartLinkProvider.toggle(data.enabled);
+
+    KontentSmartLinkSDK.getSettingsStorage().set({
+      enabled: data.enabled,
+    });
+  };
+
+  private handleRefreshMessage = (data: IRefreshMessageData, metadata: IRefreshMessageMetadata): void => {
+    const isCustomRefreshHandlerImplemented = this.events.hasEventListener(KontentSmartLinkEvent.Refresh);
+
+    if (isCustomRefreshHandlerImplemented) {
+      this.events.emit(KontentSmartLinkEvent.Refresh, data, metadata, reload);
+    } else {
+      reload();
+    }
   };
 }
 
@@ -149,6 +194,28 @@ class KontentSmartLink {
       throw NotInitializedError('KontentSmartLink is not initialized or has already been destroyed.');
     } else {
       this.sdk.updateConfiguration(configuration);
+    }
+  };
+
+  public on = <TEvent extends keyof KontentSmartLinkEventsMap>(
+    event: TEvent,
+    handler: KontentSmartLinkEventsMap[TEvent]
+  ): void => {
+    if (!this.sdk) {
+      throw NotInitializedError('KontentSmartLink is not initialized or has already been destroyed.');
+    } else {
+      this.sdk.on(event, handler);
+    }
+  };
+
+  public off = <TEvent extends keyof KontentSmartLinkEventsMap>(
+    event: TEvent,
+    handler: KontentSmartLinkEventsMap[TEvent]
+  ): void => {
+    if (!this.sdk) {
+      throw NotInitializedError('KontentSmartLink is not initialized or has already been destroyed.');
+    } else {
+      this.sdk.off(event, handler);
     }
   };
 }
