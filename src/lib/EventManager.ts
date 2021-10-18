@@ -6,11 +6,11 @@ export type EventHandler<TEventData = undefined, TEventMetadata = undefined, TEv
   callback: TEventCallback
 ) => void;
 
-type EventsMap = {
+type EventMap = {
   [k: string]: (...args: any[]) => void;
 };
 
-export class EventManager<Events extends EventsMap> {
+export class EventManager<Events extends EventMap> {
   private listeners = new Map<keyof Events, Set<Events[any]>>();
 
   public on = <E extends keyof Events>(event: E, listener: Events[E]): void => {

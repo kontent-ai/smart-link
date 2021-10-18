@@ -17,7 +17,7 @@ import {
 import { createUuid } from '../utils/createUuid';
 import { InvalidEnvironmentError } from '../utils/errors';
 
-export type IFrameMessagesMap = {
+export type IFrameMessageMap = {
   readonly [IFrameMessageType.Initialized]: EventHandler<ISDKInitializedMessageData, undefined, Callback>;
   readonly [IFrameMessageType.Status]: EventHandler<ISDKStatusMessageData>;
   readonly [IFrameMessageType.ElementClicked]: EventHandler<IElementClickedMessageData, IClickedMessageMetadata>;
@@ -38,15 +38,15 @@ export type IFrameMessagesMap = {
   readonly [IFrameMessageType.RefreshPreview]: EventHandler<IRefreshMessageData, IRefreshMessageMetadata>;
 };
 
-export interface IFrameMessage<TMessageType extends keyof IFrameMessagesMap> {
+export interface IFrameMessage<TMessageType extends keyof IFrameMessageMap> {
   readonly type: TMessageType;
-  readonly data: Parameters<IFrameMessagesMap[TMessageType]>[0];
-  readonly metadata?: Parameters<IFrameMessagesMap[TMessageType]>[1];
+  readonly data: Parameters<IFrameMessageMap[TMessageType]>[0];
+  readonly metadata?: Parameters<IFrameMessageMap[TMessageType]>[1];
   readonly requestId?: string;
 }
 
 export class IFrameCommunicator {
-  private readonly events: EventManager<IFrameMessagesMap> = new EventManager<IFrameMessagesMap>();
+  private readonly events: EventManager<IFrameMessageMap> = new EventManager<IFrameMessageMap>();
   private readonly callbacks: Map<string, Callback<any>> = new Map();
 
   public initialize(): void {
@@ -58,29 +58,29 @@ export class IFrameCommunicator {
     window.removeEventListener('message', this.onMessage, true);
   }
 
-  public addMessageListener = <M extends keyof IFrameMessagesMap>(type: M, listener: IFrameMessagesMap[M]): void => {
+  public addMessageListener = <M extends keyof IFrameMessageMap>(type: M, listener: IFrameMessageMap[M]): void => {
     this.events.on(type, listener);
   };
 
-  public removeMessageListener = <M extends keyof IFrameMessagesMap>(type: M, listener: IFrameMessagesMap[M]): void => {
+  public removeMessageListener = <M extends keyof IFrameMessageMap>(type: M, listener: IFrameMessageMap[M]): void => {
     this.events.off(type, listener);
   };
 
-  public sendMessageWithResponse = <M extends keyof IFrameMessagesMap>(
+  public sendMessageWithResponse = <M extends keyof IFrameMessageMap>(
     type: M,
-    data: Parameters<IFrameMessagesMap[M]>[0],
-    callback: Parameters<IFrameMessagesMap[M]>[2],
-    metadata?: Parameters<IFrameMessagesMap[M]>[1]
+    data: Parameters<IFrameMessageMap[M]>[0],
+    callback: Parameters<IFrameMessageMap[M]>[2],
+    metadata?: Parameters<IFrameMessageMap[M]>[1]
   ): void => {
     const requestId = createUuid();
     this.registerCallback(requestId, callback);
     this.sendMessage(type, data, metadata, requestId);
   };
 
-  public sendMessage = <M extends keyof IFrameMessagesMap>(
+  public sendMessage = <M extends keyof IFrameMessageMap>(
     type: M,
-    data: Parameters<IFrameMessagesMap[M]>[0],
-    metadata?: Parameters<IFrameMessagesMap[M]>[1],
+    data: Parameters<IFrameMessageMap[M]>[0],
+    metadata?: Parameters<IFrameMessageMap[M]>[1],
     requestId?: string
   ): void => {
     if (!isInsideIFrame()) {
