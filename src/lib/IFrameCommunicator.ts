@@ -1,5 +1,5 @@
 import { isInsideIFrame } from '../utils/iframe';
-import { EventManager } from './EventManager';
+import { Callback, EventHandler, EventManager } from './EventManager';
 import {
   IAddActionMessageData,
   IAddButtonInitialMessageData,
@@ -9,48 +9,39 @@ import {
   IContentItemClickedMessageData,
   IElementClickedMessageData,
   IFrameMessageType,
+  IRefreshMessageData,
+  IRefreshMessageMetadata,
   ISDKInitializedMessageData,
   ISDKStatusMessageData,
 } from './IFrameCommunicatorTypes';
 import { createUuid } from '../utils/createUuid';
 import { InvalidEnvironmentError } from '../utils/errors';
 
-type Callback<TResponseData = undefined> = (data?: TResponseData) => void;
-type MessageSignature<TMessageData = undefined, TMessageMetaData = undefined, TMessageCallback = undefined> = (
-  data: TMessageData,
-  metadata: TMessageMetaData,
-  callback: TMessageCallback
-) => void;
-
 export type IFrameMessagesMap = {
-  readonly [IFrameMessageType.Initialized]: MessageSignature<
-    ISDKInitializedMessageData,
-    undefined,
-    Callback<undefined>
-  >;
-  readonly [IFrameMessageType.Status]: MessageSignature<ISDKStatusMessageData>;
-  readonly [IFrameMessageType.ElementClicked]: MessageSignature<IElementClickedMessageData, IClickedMessageMetadata>;
-  readonly [IFrameMessageType.ContentItemClicked]: MessageSignature<
+  readonly [IFrameMessageType.Initialized]: EventHandler<ISDKInitializedMessageData, undefined, Callback>;
+  readonly [IFrameMessageType.Status]: EventHandler<ISDKStatusMessageData>;
+  readonly [IFrameMessageType.ElementClicked]: EventHandler<IElementClickedMessageData, IClickedMessageMetadata>;
+  readonly [IFrameMessageType.ContentItemClicked]: EventHandler<
     IContentItemClickedMessageData,
     IClickedMessageMetadata
   >;
-  readonly [IFrameMessageType.ContentComponentClicked]: MessageSignature<
+  readonly [IFrameMessageType.ContentComponentClicked]: EventHandler<
     IContentComponentClickedMessageData,
     IClickedMessageMetadata
   >;
-  readonly [IFrameMessageType.AddInitial]: MessageSignature<
+  readonly [IFrameMessageType.AddInitial]: EventHandler<
     IAddButtonInitialMessageData,
     IClickedMessageMetadata,
     Callback<IAddButtonPermissionsServerModel>
   >;
-  readonly [IFrameMessageType.AddAction]: MessageSignature<IAddActionMessageData, IClickedMessageMetadata>;
-  readonly [IFrameMessageType.RefreshPreview]: MessageSignature;
+  readonly [IFrameMessageType.AddAction]: EventHandler<IAddActionMessageData, IClickedMessageMetadata>;
+  readonly [IFrameMessageType.RefreshPreview]: EventHandler<IRefreshMessageData, IRefreshMessageMetadata>;
 };
 
-export interface IFrameMessage<E extends keyof IFrameMessagesMap> {
-  readonly type: E;
-  readonly data: Parameters<IFrameMessagesMap[E]>[0];
-  readonly metadata?: Parameters<IFrameMessagesMap[E]>[1];
+export interface IFrameMessage<TMessageType extends keyof IFrameMessagesMap> {
+  readonly type: TMessageType;
+  readonly data: Parameters<IFrameMessagesMap[TMessageType]>[0];
+  readonly metadata?: Parameters<IFrameMessagesMap[TMessageType]>[1];
   readonly requestId?: string;
 }
 
@@ -103,7 +94,7 @@ export class IFrameCommunicator {
   private onMessage = (event: MessageEvent): void => {
     if (!event.data) return;
     const message = event.data as IFrameMessage<any>;
-    this.events.emit(message.type, message.data);
+    this.events.emit(message.type, message.data, message.metadata);
 
     if (message.requestId) {
       this.executeCallback(message.requestId, message.data);
@@ -118,7 +109,7 @@ export class IFrameCommunicator {
     this.callbacks.set(requestId, callback);
   };
 
-  private executeCallback = <T>(requestId: string, data: T): void => {
+  private executeCallback = <TData>(requestId: string, data: TData): void => {
     const callback = this.callbacks.get(requestId);
 
     if (callback) {
