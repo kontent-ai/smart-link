@@ -22,9 +22,9 @@ npm i @kentico/kontent-smart-link
 
 ### UMD Bundles
 
-When using the UMD bundle and including this library inside the `script` tag of your HTML page, you can then find
-an SDK instance under the `KontentSmartLink` global variable. JS bundle and its minified version are distributed
-in `dist` folder.
+When using the UMD bundle and including this library inside the `script` tag of your HTML page, you can then find an SDK
+instance under the `KontentSmartLink` global variable. JS bundle and its minified version are distributed in `dist`
+folder.
 
 - `kontent-smart-link.umd.min.js`
 - `kontent-smart-link.umd.js`
@@ -59,8 +59,9 @@ injected smart link depends on used data attributes, their hierarchy, and contex
 ### Data attributes
 
 Kontent Smart Link SDK highly depends on a set of manually specified data attributes in your HTML markup. That is why it
-won't work properly without those attributes. The SDK won't add the data attributes to your HTML, you must add them yourself so that SDK will then be able to use them as a source of data (e.g. Kontent
-project ID, element code name, etc.) when injecting the smart links.
+won't work properly without those attributes. The SDK won't add the data attributes to your HTML, you must add them
+yourself so that SDK will then be able to use them as a source of data (e.g. Kontent project ID, element code name,
+etc.) when injecting the smart links.
 
 #### Available data attributes
 
@@ -191,7 +192,8 @@ use instance `setConfiguration` method to update configuration of initialized SD
 
 ### Customization
 
-The following [custom CSS properties](https://developer.mozilla.org/en-US/docs/Web/CSS/--*) can be used to customize the visuals of the SDK output.
+The following [custom CSS properties](https://developer.mozilla.org/en-US/docs/Web/CSS/--*) can be used to customize the
+visuals of the SDK output.
 
 |Custom property|Default|Description|
 |---|:---:|---|
@@ -210,7 +212,8 @@ The following [custom CSS properties](https://developer.mozilla.org/en-US/docs/W
 |--ksl-shadow-primary|`0 8px 10px rgba(219, 60, 0, 0.2), 0 6px 20px rgba(219, 60, 0, 0.12), 0 8px 14px rgba(219, 60, 0, 0.14)`|Shadow for add buttons.|
 
 For example, if you want to override all SDK colors and shadows for all SDK elements on the page, you can do it by
-changing the values of all available custom properties of a `:root` element in your CSS or inside a new `<style>` tag on your page.
+changing the values of all available custom properties of a `:root` element in your CSS or inside a new `<style>` tag on
+your page.
 
 ```css
 :root {
@@ -228,6 +231,101 @@ changing the values of all available custom properties of a `:root` element in y
     --ksl-shadow-default: 0 8px 32px rgba(0, 24, 69, 0.24), 0 0 8px rgba(0, 0, 0, 0.03);
     --ksl-shadow-primary: 0 8px 10px rgba(4, 102, 200, 0.2), 0 6px 20px rgba(4, 102, 200, 0.12), 0 8px 14px rgba(4, 102, 200, 0.14);
 }
+```
+
+### Preview autorefresh in Web Spotlight
+
+When working with the in-context editor in Web Spotlight, it is good to keep the content of your preview fresh without
+having to refresh it manually after every change. Starting from version 2.2.0, the Smart Link SDK supports the preview
+autorefresh feature in Web Spotlight.
+
+For your web apps to support the preview autorefresh feature, make sure that your preview environment:
+
+1. Uses the latest version of the Smart Link SDK.
+2. Uses the `X-KC-Wait-For-Loading-New-Content` header set to `true` when fetching data from Delivery Preview API.
+
+If both previously mentioned conditions are met, Web Spotlight will wait for your changes to be ready on Delivery
+Preview API, and after that, the preview page will be refreshed automatically.
+
+#### Implementing custom refresh handler
+
+In some cases, simply refreshing the preview page after the change in Web Spotlight is not enough. For example, if you
+use a static site generator for your preview, refreshed page may not have the new data, because it has to be rebuilt.
+You need to trigger the rebuild of the page before refreshing it. Another case is when you don't want to refresh the
+whole page after a change in a content item. Instead, you can re-fetch the updated item and re-render the part of the UI
+where this item is displayed. Both of these problems can be solved using a custom refresh handler.
+
+If you register a custom refresh handler, it will be called instead of a default handler every time when refresh is triggered
+in Web Spotlight (both manually and automatically).
+
+A custom refresh handler receives three arguments:
+
+|#|Argument|Type|Description|
+|---|---|---|---|
+|1|Data| { projectId: string, languageCodename: string, updatedItemCodename: string } &#124; undefined | Data is only available for autorefresh. |
+|2|Metadata| { manualRefresh: boolean } | Manual refresh is set to `true` when the refresh was triggered by user. ||
+|3|Original refresh| () => void | Default refresh handler.|
+
+To implement a custom refresh handler, use the `.on` method on the SDK instance:
+
+```ts
+import KontentSmartLink, { KontentSmartLinkEvent } from '@kentico/kontent-smart-link';
+
+const sdk = KontentSmartLink.initialize({ ... });
+
+sdk.on(KontentSmartLinkEvent.Refresh, (data, metadata, originalRefresh) => {
+  // your custom refresh logic
+});
+```
+
+You can then unregister the custom refresh handler using the `.off` method on the SDK instance.
+
+##### Examples
+
+###### Re-fetching data without full refresh in React
+
+```ts
+import KontentSmartLink, { KontentSmartLinkEvent } from '@kentico/kontent-smart-link';
+
+const MyApplication: React.FC = () => {
+  const [data, setData] = useState(null);
+  const fetchData = useCallback((projectId, languageCodename, itemCodename) => {...
+  }, []);
+
+  useEffect(() => {
+    const sdk = KontentSmartLink.initialize();
+
+    sdk.on(KontentSmartLinkEvent.Refresh, (data: IRefreshMessageData, metadata: IRefreshMessageMetadata, originalRefresh: () => void) => {
+      // if user triggered the refresh manually, just refresh the page
+      if (metadata.manualRefresh) {
+        originalRefresh();
+      } else {
+        // refetch data for the updated item, instead of refreshing the whole page
+        const { projectId, languageCodename, updatedItemCodename } = data;
+        fetchData(projectId, languageCodename, updatedItemCodename);
+      }
+    });
+
+    return () => {
+      sdk.destroy();
+    };
+  }, [fetchData]);
+
+  return (
+...)
+  ;
+};
+```
+
+###### Sending request to rebuild the SSG page before refreshing it
+
+```ts
+sdk.on(KontentSmartLinkEvent.Refresh, (data: IRefreshMessageData, metadata: IRefreshMessageMetadata, originalRefresh: () => void) => {
+  // You can trigger the rebuild of the page, wait for it to finish and refresh the page after that.
+  // Please consider displaying some sort of loader to your users, in case rebuild process takes time, to let them
+  // know that the refresh is in progress.
+  sendRequestToAzureFunctionToRebuildTheSite().then(originalRefresh);
+});
 ```
 
 ### Using SDK inside and outside Web Spotlight
@@ -275,6 +373,7 @@ iframe. You can use the following workaround to fix the issue: https://github.co
 #### HTML & UMD & CDN
 
 ```html
+
 <html>
   <head>
     <title>Kontent Smart Link - HTML example</title>

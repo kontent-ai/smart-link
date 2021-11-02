@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Refresh preview page from the inside, using a new iframe message to keep the position of a scrollbar after the refresh.
+- Add support for custom refresh handler implementation.
+
 ## [2.1.0] - 2021-07-01
 
 ### Added
