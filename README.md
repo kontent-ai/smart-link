@@ -8,11 +8,11 @@
 
 > Kontent Smart Link SDK can be used to automatically inject smart links
 > to Kentico Kontent according to manually specified [HTML data attributes](https://www.w3schools.com/tags/att_data-.asp)
-> on your website. It also lets you connect your website with Web Spotlight (for faster editing and preview of your content).
+> on your website. It also lets you connect your website with Web Spotlight for faster editing and preview of your content.
 
 ## Installation
 
-You can install this library using `npm`, or you can use global CDNs such as `jsdelivr` directly.
+You can install this library using `npm` or using global CDNs such as `jsdelivr`.
 
 ### npm
 
@@ -59,23 +59,23 @@ injected smart link depends on used data attributes, their hierarchy, and contex
 ### Data attributes
 
 Kontent Smart Link SDK highly depends on a set of manually specified data attributes in your HTML markup. That is why it
-won't work properly without those attributes. The SDK won't add the data attributes to your HTML, you must add them
+won't work properly without those attributes. **The SDK won't add the data attributes to your HTML, you must add them
 yourself so that SDK will then be able to use them as a source of data (e.g. Kontent project ID, element code name,
-etc.) when injecting the smart links.
+etc.) when injecting the smart links.**
 
 #### Available data attributes
 
 |Attribute|Value|Description|
 |---------|:----------:|----------|
-| data-kontent-project-id | guid | Kontent project/environment ID. |
-| data-kontent-language-codename | string | Kontent language codename. |
-| data-kontent-item-id | guid | Content item ID. |
-| data-kontent-component-id |  guid | [Content component](https://docs.kontent.ai/tutorials/write-and-collaborate/structure-your-content/structure-your-content#a-create-single-use-content) ID. |
-| data-kontent-element-codename | string | Content type element codename. |
-| data-kontent-add-button | - | Specifies that node should have add-button rendered near it. |
-| data-kontent-add-button-insert-position | `start` &#124; `before` &#124; `after` &#124; `end` | Specifies the insert position of an item/content component added using add button. |
-| data-kontent-add-button-render-position | `bottom-start` &#124; `bottom` &#124; `bottom-end` &#124; `left-start` &#124; `left` &#124; `left-end` &#124; `top-start` &#124; `top` &#124; `top-end` &#124; `right-start` &#124; `right` &#124; `right-end` | Specifies visual location of add button. |
-| data-kontent-disable-features | `highlight` | Specifies that the selected node should not have highlight (which includes edit buttons). Useful when there are too many smart links on your page. |
+| `data-kontent-project-id` | guid | Kontent project/environment ID. |
+| `data-kontent-language-codename` | string | Kontent language codename. |
+| `data-kontent-item-id` | guid | Content item ID. |
+| `data-kontent-component-id` |  guid | [Content component](https://docs.kontent.ai/tutorials/write-and-collaborate/structure-your-content/structure-your-content#a-create-single-use-content) ID. |
+| `data-kontent-element-codename` | string | Content type element codename. |
+| `data-kontent-add-button` | - | Specifies that node should have add-button rendered near it. |
+| `data-kontent-add-button-insert-position` | `start` &#124; `before` &#124; `after` &#124; `end` | Specifies the insert position of an item/content component added using add button. |
+| `data-kontent-add-button-render-position` | `bottom-start` &#124; `bottom` &#124; `bottom-end` &#124; `left-start` &#124; `left` &#124; `left-end` &#124; `top-start` &#124; `top` &#124; `top-end` &#124; `right-start` &#124; `right` &#124; `right-end` | Specifies visual location of add button. |
+| `data-kontent-disable-features` | `highlight` | Specifies that the selected node should not have highlight (which includes edit buttons). Useful when there are too many smart links on your page. |
 
 #### Data attributes hierarchy
 
@@ -242,31 +242,24 @@ autorefresh feature in Web Spotlight.
 For your web apps to support the preview autorefresh feature, make sure that your preview environment:
 
 1. Uses the latest version of the Smart Link SDK.
-2. Uses the `X-KC-Wait-For-Loading-New-Content` header set to `true` when fetching data from Delivery Preview API.
+2. Has the `X-KC-Wait-For-Loading-New-Content` header set to `true` when fetching data from Delivery Preview API.
 
-If both previously mentioned conditions are met, Web Spotlight will wait for your changes to be ready on Delivery
-Preview API, and after that, the preview page will be refreshed automatically.
+If both previously mentioned conditions are met, Web Spotlight will wait for your changes to be ready via the Delivery
+Preview API, and after that, the preview will be refreshed automatically.
 
 #### Implementing custom refresh handler
 
-In some cases, simply refreshing the preview page after the change in Web Spotlight is not enough. For example, if you
-use a static site generator for your preview, refreshed page may not have the new data, because it has to be rebuilt.
-You need to trigger the rebuild of the page before refreshing it. Another case is when you don't want to refresh the
-whole page after a change in a content item. Instead, you can re-fetch the updated item and re-render the part of the UI
-where this item is displayed. Both of these problems can be solved using a custom refresh handler.
+In some cases, simply refreshing the page might not be enough. For example, if you use a static site generator for your
+preview, you need to trigger the rebuild of the page before refreshing it. Or maybe you don't want to refresh the entire
+page when a single item has been updated and would rather re-render only the affected place in the UI. In some cases,
+simply refreshing the preview page after the change in Web Spotlight is not enough.
 
-If you register a custom refresh handler, it will be called instead of a default handler every time when refresh is triggered
-in Web Spotlight (both manually and automatically).
+That's why the Smart Link SDK supports the custom refresh handler, which allows you to specify how your web page reacts
+to refresh events received from Web Spotlight. If you register a custom refresh handler, it will be called instead of a
+default handler every time when refresh is triggered in Web Spotlight (both manually and automatically).
 
-A custom refresh handler receives three arguments:
-
-|#|Argument|Type|Description|
-|---|---|---|---|
-|1|Data| { projectId: string, languageCodename: string, updatedItemCodename: string } &#124; undefined | Data is only available for autorefresh. |
-|2|Metadata| { manualRefresh: boolean } | Manual refresh is set to `true` when the refresh was triggered by user. ||
-|3|Original refresh| () => void | Default refresh handler.|
-
-To implement a custom refresh handler, use the `.on` method on the SDK instance:
+You can implement a custom refresh handler using
+the `.on(KontentSmartLinkEvent.Refresh, (data, metadata, originalRefresh) => {})` method on the SDK instance:
 
 ```ts
 import KontentSmartLink, { KontentSmartLinkEvent } from '@kentico/kontent-smart-link';
@@ -278,23 +271,34 @@ sdk.on(KontentSmartLinkEvent.Refresh, (data, metadata, originalRefresh) => {
 });
 ```
 
+A custom refresh handler takes three arguments:
+
+|Argument|Type|Description|
+|---|---|---|
+|Data| { projectId: string, languageCodename: string, updatedItemCodename: string } &#124; undefined | Information about updated item, that caused autorefresh. It is only available when refresh is triggered automatically. |
+|Metadata| { manualRefresh: boolean } | Manual refresh is set to `true` when the refresh is triggered by user. |
+|Original refresh| () => void | Default refresh handler.|
+
 You can then unregister the custom refresh handler using the `.off` method on the SDK instance.
 
 ##### Examples
 
-###### Re-fetching data without full refresh in React
+###### Re-fetching item data without fully refreshing in React
+
+It is possible to only update the affected place of the UI by re-fetching page data instead of refreshing the whole
+page. The following code sample shows how this could be implemented in a React application.
 
 ```ts
 import KontentSmartLink, { KontentSmartLinkEvent } from '@kentico/kontent-smart-link';
 
-const MyApplication: React.FC = () => {
+const PageContent: React.FC = () => {
   const [data, setData] = useState(null);
-  const fetchData = useCallback((projectId, languageCodename, itemCodename) => {...
-  }, []);
+  const fetchData = useCallback((projectId, languageCodename, itemCodename) => {...}, []);
 
   useEffect(() => {
     const sdk = KontentSmartLink.initialize();
 
+    // register custom refresh handler to avoid full refresh in some cases
     sdk.on(KontentSmartLinkEvent.Refresh, (data: IRefreshMessageData, metadata: IRefreshMessageMetadata, originalRefresh: () => void) => {
       // if user triggered the refresh manually, just refresh the page
       if (metadata.manualRefresh) {
@@ -311,22 +315,110 @@ const MyApplication: React.FC = () => {
     };
   }, [fetchData]);
 
-  return (
-...)
-  ;
+  return (...);
 };
 ```
 
-###### Sending request to rebuild the SSG page before refreshing it
+###### Sending request to rebuild the SSG page before refreshing it (Netlify + Gatsby)
+
+When using static site generators, you have to rebuild your website in order to apply your changes. The following
+example shows how this could be done using a custom refresh handler. In this example, we used Gatsby deployed to
+Netlify, but the solution for other SSG frameworks should be similar.
+
+The `deploy-status` function is a custom Netlify function used to get the status of the last deploy, so that we can
+check if the deployment is finished and the page can be refreshed.
 
 ```ts
-sdk.on(KontentSmartLinkEvent.Refresh, (data: IRefreshMessageData, metadata: IRefreshMessageMetadata, originalRefresh: () => void) => {
-  // You can trigger the rebuild of the page, wait for it to finish and refresh the page after that.
-  // Please consider displaying some sort of loader to your users, in case rebuild process takes time, to let them
-  // know that the refresh is in progress.
-  sendRequestToAzureFunctionToRebuildTheSite().then(originalRefresh);
-});
+// ./.netlify/functions/deploy-status.js
+import fetch from 'node-fetch';
+
+const siteId = process.env.NETLIFY_SITE_ID;
+const token = process.env.NETLIFY_TOKEN;
+
+const handler = async event => {
+  try {
+    const endpoint = `https://api.netlify.com/api/v1/sites/${siteId}/deploys`;
+    const result = await fetch(endpoint, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await result.json();
+
+    // first entry is last deploy
+    const deploy = {
+      state: data[0].state,
+    };
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify(deploy),
+    };
+  } catch (error) {
+    return { statusCode: 500, body: error.toString() };
+  }
+}
+
+module.exports = { handler };
 ```
+
+We trigger rebuild process inside our custom refresh handler and wait for the deployment process to finish.
+After that the page can be refreshed using the `originalRefresh` callback.
+
+```ts
+// inside a component used as a wrapper for all pages
+
+// This function triggers the build hook defined on Netlify, which
+// starts deployment process on Netlify. This is required to get new data
+// to preview.
+//
+// This is just the PoC. In a real app, we need to kill the previous active deploy, before
+// starting a new one.
+const triggerRebuildOnNetlifyAndWaitForDeploy = useCallback(() => {
+  fetch('https://api.netlify.com/build_hooks/{HOOK_ID}?trigger_title=autorefresh', {
+    method: 'POST',
+  }).then(() => {
+    async function checkDeployStatus() {
+      // 'deploy-status' is a custom Netlify function that returns status of the last deploy
+      const buildReq = await fetch('/.netlify/functions/deploy-status');
+      const buildData = await buildReq.json();
+
+      // display a loader to users to let them know rebuild is in progress
+      setRebuildInProgress(buildData.state !== 'ready');
+
+      if (buildData.state === 'ready') {
+        resolve();
+      } else {
+        setTimeout(checkDeployStatus, 3000);
+      }
+    }
+
+    checkDeployStatus();
+  })
+}, []);
+
+useEffect(() => {
+  const plugin = KontentSmartLink.initialize({
+    queryParam: 'preview-mode',
+  });
+
+  // custom refresh handler
+  plugin.on('refresh', (data, metadata, originalReload) => {
+    // You can trigger the rebuild of the page, wait for it to finish and refresh the page after that.
+    // Please consider displaying some sort of loader to your users, in case rebuild process takes time, to let them
+    // know that the refresh is in progress.
+    triggerRebuildOnNetlifyAndWaitForDeploy().then(originalReload)
+  });
+
+  return () => {
+    plugin.destroy();
+  }
+}, [triggerRebuildOnNetlifyAndWaitForDeploy]);
+```
+
+For even better experience, you can combine the previous two methods and re-fetch content from Delivery Preview API
+on the client-side to update affected placed while waiting for the rebuild process to finish.
 
 ### Using SDK inside and outside Web Spotlight
 
@@ -360,6 +452,7 @@ iframe messages instead of redirecting user to Kontent page. All message types a
 |kontent-smart-link:add:initial|<code>{ projectId: string, languageCodename: string, itemId: string, contentComponentId?: string, elementCodename: string, insertPosition: { targetId?: string, placement: 'start' &#124; 'end' &#124; 'before' &#124; 'after', } }</code>|SDK|This message is sent by the SDK when add button is clicked.|
 |kontent-smart-link:add:initial:response|<code>{ elementType: 'LinkedItems' &#124; 'RichText' &#124; 'Unknown', isParentPublished: boolean, permissions: Map<string,string> }</code>|Host|This message is sent by the host as a response to initial add button click.|
 |kontent-smart-link:add:action|<code>{ projectId: string, languageCodename: string, itemId: string, contentComponentId?: string, elementCodename: string, action: string, insertPosition: { targetId?: string, placement: 'start' &#124; 'end' &#124; 'before' &#124; 'after', } }</code>|SDK|This message is sent by the SDK when add button action is clicked.|
+|kontent-smart-link:preview:refresh|<code>{ projectId: string, languageCodename: string, updatedItemCodename: string }</code> &#124; undefined|Host|This message is sent when preview has to be refreshed.|
 
 #### Nested iframes
 
