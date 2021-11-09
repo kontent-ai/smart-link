@@ -14,7 +14,8 @@
   "files": [
     "dist",
     "commonjs",
-    "es"
+    "es",
+    "types"
   ],
   "scripts": {
     "build": "npm run build:commonjs && npm run build:umd && npm run build:es",
