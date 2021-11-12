@@ -27,6 +27,7 @@ import { DeepPartial } from '../utils/dataAttributes';
 import { ConfigurationManager, IConfigurationManager } from './ConfigurationManager';
 import { buildKontentLink } from '../utils/link';
 import { Logger } from './Logger';
+import { InvalidEnvironmentError } from '../utils/errors';
 
 export class NodeSmartLinkProvider {
   private readonly mutationObserver: MutationObserver;
@@ -40,6 +41,14 @@ export class NodeSmartLinkProvider {
   private visibleElements = new Set<HTMLElement>();
 
   constructor(private readonly iframeCommunicator: IFrameCommunicator) {
+    if (
+      typeof window === 'undefined' ||
+      typeof MutationObserver === 'undefined' ||
+      typeof IntersectionObserver === 'undefined'
+    ) {
+      throw InvalidEnvironmentError('NodeSmartLinkProvider can only be initialized in a browser environment.');
+    }
+
     this.configurationManager = ConfigurationManager.getInstance();
     this.mutationObserver = new MutationObserver(this.onDomMutation);
     this.intersectionObserver = new IntersectionObserver(this.onElementVisibilityChange);
