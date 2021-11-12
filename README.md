@@ -9,6 +9,9 @@
 > Kontent Smart Link SDK can be used to automatically inject smart links
 > to Kentico Kontent according to manually specified [HTML data attributes](https://www.w3schools.com/tags/att_data-.asp)
 > on your website. It also lets you connect your website with Web Spotlight for faster editing and preview of your content.
+> 
+> :warning: Kontent Smart Link SDK is **a browser-only SDK**, which means that the Node.js environment is not currently supported. Make sure to always initialize
+> the Smart Link SDK in a browser context.
 
 ## Installation
 
