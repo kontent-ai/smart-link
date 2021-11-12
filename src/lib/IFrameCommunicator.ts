@@ -50,6 +50,10 @@ export class IFrameCommunicator {
   private readonly callbacks: Map<string, Callback<any>> = new Map();
 
   public initialize(): void {
+    if (typeof window === 'undefined') {
+      throw InvalidEnvironmentError('IFrameCommunicator can only be initialized in a browser environment.');
+    }
+
     window.addEventListener('message', this.onMessage, true);
   }
 

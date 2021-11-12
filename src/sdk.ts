@@ -12,7 +12,7 @@ import {
 import { QueryParamPresenceWatcher } from './lib/QueryParamPresenceWatcher';
 import { defineAllRequiredWebComponents } from './web-components/components';
 import { ConfigurationManager, IConfigurationManager, IKSLPublicConfiguration } from './lib/ConfigurationManager';
-import { NotInitializedError } from './utils/errors';
+import { InvalidEnvironmentError, NotInitializedError } from './utils/errors';
 import { Logger, LogLevel } from './lib/Logger';
 import { reload } from './utils/reload';
 import { Callback, EventHandler, EventManager } from './lib/EventManager';
@@ -165,6 +165,10 @@ class KontentSmartLink {
   private sdk: KontentSmartLinkSDK | null = null;
 
   public static initializeOnLoad(configuration?: Partial<IKSLPublicConfiguration>): Promise<KontentSmartLink> {
+    if (typeof window === 'undefined') {
+      throw InvalidEnvironmentError('KontentSmartLink can only be initialized in a browser environment.');
+    }
+
     return new Promise<KontentSmartLink>((resolve) => {
       window.addEventListener('load', () => {
         resolve(KontentSmartLink.initialize(configuration));
