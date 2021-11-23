@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Better error messages when trying to initialize the Smart Link SDK outside the browser environment to make it clear that it is a browser-only SDK.
+
 ## [2.2.0] - 2021-11-10
 
 ### Added
