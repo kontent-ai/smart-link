@@ -592,6 +592,32 @@ const PageSection = (props) => {
 };
 ```
 
+Additionally, you may encounter an issue with `SameSite` cookies not being set correctly. This can be solved by utilizing the code snippet below in your [API route handling preview](https://nextjs.org/docs/advanced-features/preview-mode) file to replace `SameSite=Lax` to `SameSite=None; Secure;` right after `res.setPreviewData` call.
+
+```js
+const setCookieSameSite = (res, value) => {
+    const cookies = res.getHeader("Set-Cookie");
+    const updatedCookies = cookies?.map((cookie) =>
+        cookie.replace(
+            "SameSite=Lax",
+            `SameSite=${value}; Secure;`
+        )
+    )
+    res.setHeader(
+        "Set-Cookie",
+        updatedCookies
+    );
+};
+export default function handler(req, res) {
+    // ...
+    res.setPreviewData({})
+
+    // THIS NEEDED TO BE ADDED
+    setCookieSameSite(res, "None");
+    // ...
+}
+```
+
 ### Gatsby
 
 You can either initialize the SDK on every page or use a layout to initialize the SDK while using Gatsby. Do not forget
