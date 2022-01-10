@@ -1,4 +1,5 @@
 import { ComplexLayout } from './layout.helpers';
+import { BaseZIndex } from '../../../src/web-components/constants/z-index';
 
 const CustomizationTemplate = () => `
     <style>
@@ -16,6 +17,7 @@ const CustomizationTemplate = () => `
         --ksl-color-text-secondary: rgba(255, 255, 255, 1);
         --ksl-shadow-default: 0 8px 32px rgba(0, 24, 69, 0.24), 0 0 8px rgba(0, 0, 0, 0.03);
         --ksl-shadow-primary: 0 8px 10px rgba(4, 102, 200, 0.2), 0 6px 20px rgba(4, 102, 200, 0.12), 0 8px 14px rgba(4, 102, 200, 0.14);
+        --ksl-z-index: ${BaseZIndex};
       }
     </style>
     ${ComplexLayout({})}

@@ -2,6 +2,7 @@ import { ElementPositionOffset, KSLPositionedElement } from './KSLPositionedElem
 import { createTemplateForCustomElement, getTotalScrollOffset } from '../../utils/node';
 import { Colors } from '../tokens/colors';
 import { Shadows } from '../tokens/shadows';
+import { BaseZIndex } from '../constants/z-index';
 
 const templateHTML = `
   <style>
@@ -16,7 +17,7 @@ const templateHTML = `
       display: block;
       position: absolute;
       opacity: 0;
-      z-index: 10000;
+      z-index: calc(var(--ksl-z-index, ${BaseZIndex}) + 1000);
       transition: opacity 250ms ease-in-out;
     }
   
