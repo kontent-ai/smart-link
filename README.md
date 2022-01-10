@@ -215,6 +215,7 @@ visuals of the SDK output.
 |--ksl-color-text-secondary|`rgba(21, 21, 21, 1)`|Text color used inside tooltips and add buttons.|
 |--ksl-shadow-default|`0 8px 32px rgba(16, 33, 60, 0.24), 0 0 8px rgba(0, 0, 0, 0.03)`|Default shadow for toolbar.|
 |--ksl-shadow-primary|`0 8px 10px rgba(219, 60, 0, 0.2), 0 6px 20px rgba(219, 60, 0, 0.12), 0 8px 14px rgba(219, 60, 0, 0.14)`|Shadow for add buttons.|
+|--ksl-z-index|`9000`|Base value of z-index used for calculation of individual values for each ksl-element type|
 
 For example, if you want to override all SDK colors and shadows for all SDK elements on the page, you can do it by
 changing the values of all available custom properties of a `:root` element in your CSS or inside a new `<style>` tag on
@@ -235,6 +236,7 @@ your page.
     --ksl-color-text-secondary: rgba(255, 255, 255, 1);
     --ksl-shadow-default: 0 8px 32px rgba(0, 24, 69, 0.24), 0 0 8px rgba(0, 0, 0, 0.03);
     --ksl-shadow-primary: 0 8px 10px rgba(4, 102, 200, 0.2), 0 6px 20px rgba(4, 102, 200, 0.12), 0 8px 14px rgba(4, 102, 200, 0.14);
+    --ksl-z-index: 9000;
 }
 ```
 

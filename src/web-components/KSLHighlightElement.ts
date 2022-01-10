@@ -9,6 +9,7 @@ import { DeepPartial, EditButtonClickedData, parseEditButtonDataAttributes } fro
 import { Logger } from '../lib/Logger';
 import { Colors } from './tokens/colors';
 import { Shadows } from './tokens/shadows';
+import { BaseZIndex } from './constants/z-index';
 
 interface IKSLHighlightElementEventData {
   readonly data: DeepPartial<EditButtonClickedData>;
@@ -55,7 +56,7 @@ const templateHTML = `
     :host(:hover),
     :host([selected]) {
       border-color: var(--ksl-color-primary, ${Colors.Primary});
-      z-index: 20;
+      z-index: calc(var(--ksl-z-index, ${BaseZIndex}) + 10);
     }
     
     :host(:focus) {
@@ -76,13 +77,13 @@ const templateHTML = `
       max-height: 40px;
       border-radius: 8px;
       background-color: var(--ksl-color-background-default, ${Colors.BackgroundDefault});
-      z-index: 10;
+      z-index: var(--ksl-z-index, ${BaseZIndex});
       padding: 8px;
       box-shadow: var(--ksl-shadow-default, ${Shadows.Default});
     }
     
     .ksl-highlight__toolbar:hover {
-      z-index: 20;
+      z-index: calc(var(--ksl-z-index, ${BaseZIndex}) + 10);
     }
     
     .ksl-highlight__toolbar-button + .ksl-highlight__toolbar-button {

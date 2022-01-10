@@ -17,6 +17,7 @@ import {
 } from '../lib/IFrameCommunicatorTypes';
 import { AsyncCustomEvent } from '../utils/events';
 import { Logger } from '../lib/Logger';
+import { BaseZIndex } from './constants/z-index';
 
 const ContentIsPublishedTooltip = 'Content is published';
 const DefaultTooltipMessage = 'Insert...';
@@ -111,7 +112,7 @@ const templateHTML = `
     :host {
       display: inline-block;
       position: absolute;
-      z-index: 9999;
+      z-index: calc(var(--ksl-z-index, ${BaseZIndex}) + 20);
       pointer-events: all;
       touch-action: initial;
     }
