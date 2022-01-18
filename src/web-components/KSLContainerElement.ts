@@ -3,6 +3,7 @@ import { KSLAddButtonElement } from './KSLAddButtonElement';
 import { KSLHighlightElement } from './KSLHighlightElement';
 import { createTemplateForCustomElement, getRenderingRootMetadata, getTotalScrollOffset } from '../utils/node';
 import { IPositionable } from './abstract/KSLPositionedElement';
+import { BaseZIndex } from './constants/z-index';
 
 const templateHTML = `
   <style>
@@ -16,6 +17,7 @@ const templateHTML = `
       bottom: 0;
       pointer-events: none;
       touch-action: none;
+      z-index: var(--ksl-z-index, ${BaseZIndex});
     }
     
     :host([clipped]) {
