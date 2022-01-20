@@ -2,7 +2,7 @@ import { ElementPositionOffset, KSLPositionedElement } from './KSLPositionedElem
 import { createTemplateForCustomElement, getTotalScrollOffset } from '../../utils/node';
 import { Colors } from '../tokens/colors';
 import { Shadows } from '../tokens/shadows';
-import { BaseZIndex } from '../constants/z-index';
+import { BaseZIndex } from '../constants/zIndex';
 
 const templateHTML = `
   <style>

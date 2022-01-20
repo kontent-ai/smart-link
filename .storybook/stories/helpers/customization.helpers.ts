@@ -1,5 +1,5 @@
 import { ComplexLayout } from './layout.helpers';
-import { BaseZIndex } from '../../../src/web-components/constants/z-index';
+import { BaseZIndex } from '../../../src/web-components/constants/zIndex';
 
 const CustomizationTemplate = () => `
     <style>

@@ -3,7 +3,7 @@ import { KSLAddButtonElement } from './KSLAddButtonElement';
 import { KSLHighlightElement } from './KSLHighlightElement';
 import { createTemplateForCustomElement, getRenderingRootMetadata, getTotalScrollOffset } from '../utils/node';
 import { IPositionable } from './abstract/KSLPositionedElement';
-import { BaseZIndex } from './constants/z-index';
+import { BaseZIndex } from './constants/zIndex';
 
 const templateHTML = `
   <style>
