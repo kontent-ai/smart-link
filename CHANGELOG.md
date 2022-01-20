@@ -7,13 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-##2021 [2.3.1] - 2021-01-20
+## [2.3.1] - 2022-01-20
 
 ### Fixed
 
 - Edit element highlight is now included in elements affected by custom z-index.
 
-## [2.3.0] - 2021-01-17
+## [2.3.0] - 2022-01-17
 
 ### Added
 
