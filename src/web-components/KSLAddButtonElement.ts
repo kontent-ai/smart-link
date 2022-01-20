@@ -17,7 +17,7 @@ import {
 } from '../lib/IFrameCommunicatorTypes';
 import { AsyncCustomEvent } from '../utils/events';
 import { Logger } from '../lib/Logger';
-import { BaseZIndex } from './constants/z-index';
+import { BaseZIndex } from './constants/zIndex';
 
 const ContentIsPublishedTooltip = 'Content is published';
 const DefaultTooltipMessage = 'Insert...';

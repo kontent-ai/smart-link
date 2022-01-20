@@ -9,7 +9,7 @@ import { DeepPartial, EditButtonClickedData, parseEditButtonDataAttributes } fro
 import { Logger } from '../lib/Logger';
 import { Colors } from './tokens/colors';
 import { Shadows } from './tokens/shadows';
-import { BaseZIndex } from './constants/z-index';
+import { BaseZIndex } from './constants/zIndex';
 
 interface IKSLHighlightElementEventData {
   readonly data: DeepPartial<EditButtonClickedData>;
