@@ -56,8 +56,8 @@ https://cdn.jsdelivr.net/npm/@kentico/kontent-smart-link@latest/dist/kontent-sma
 
 Kontent Smart Link SDK parses manually specified [HTML data attributes](https://www.w3schools.com/tags/att_data-.asp) on
 your webpage and automatically injects
-[smart links](https://docs.kontent.ai/tutorials/develop-apps/build-strong-foundation/set-up-editing-from-preview#a-using-smart-links)
-to Kentico Kontent. Injecting smart links to Kontent means that all elements marked with special data attributes will
+[smart links](https://kontent.ai/learn/tutorials/develop-apps/build-strong-foundation/set-up-editing-from-preview#a-automatically-create-edit-links-in-web-apps)
+to Kontent. Injecting smart links to Kontent means that all elements marked with special data attributes will
 become interactive (handle clicks/redirect to Kontent/navigate from the preview in Web Spotlight/etc.). The type of
 injected smart link depends on used data attributes, their hierarchy, and context (Web Spotlight).
 
@@ -75,7 +75,7 @@ etc.) when injecting the smart links.**
 | `data-kontent-project-id` | guid | Kontent project/environment ID. |
 | `data-kontent-language-codename` | string | Kontent language codename. |
 | `data-kontent-item-id` | guid | Content item ID. |
-| `data-kontent-component-id` |  guid | [Content component](https://docs.kontent.ai/tutorials/write-and-collaborate/structure-your-content/structure-your-content#a-create-single-use-content) ID. |
+| `data-kontent-component-id` |  guid | [Content component](https://kontent.ai/learn/tutorials/write-and-collaborate/structure-your-content/structure-your-content#a-create-single-use-content) ID. |
 | `data-kontent-element-codename` | string | Content type element codename. |
 | `data-kontent-add-button` | - | Specifies that node should have add-button rendered near it. |
 | `data-kontent-add-button-insert-position` | `start` &#124; `before` &#124; `after` &#124; `end` | Specifies the insert position of an item/content component added using add button. |
@@ -101,7 +101,7 @@ content components inside them, which have their own elements and so on.
 
 #### Content components
 
-[Content component](https://docs.kontent.ai/tutorials/write-and-collaborate/structure-your-content/structure-your-content#a-create-single-use-content)
+[Content component](https://kontent.ai/learn/tutorials/write-and-collaborate/structure-your-content/structure-your-content#a-create-single-use-content)
 is single-use content, that is also sometimes referred to as one-off, channel-specific, or non-reusable. Content
 components exist only within a specific rich text element in your content items and become their integral part. This
 means you won't find components in your list of items in Content Inventory in Kontent.
