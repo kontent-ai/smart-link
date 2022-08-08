@@ -12,37 +12,37 @@ export abstract class Logger {
     Logger.logLevel = level;
   }
 
-  public static error(...args: any[]): void {
+  public static error(...args: unknown[]): void {
     if (Logger.logLevel <= LogLevel.Error) {
       console.error('[KSL][Error]: ', ...args);
     }
   }
 
-  public static warn(...args: any[]): void {
+  public static warn(...args: unknown[]): void {
     if (Logger.logLevel <= LogLevel.Warn) {
       console.warn('[KSL][Warning]: ', ...args);
     }
   }
 
-  public static info(...args: any[]): void {
+  public static info(...args: unknown[]): void {
     if (Logger.logLevel <= LogLevel.Info) {
       console.info('[KSL][Info]: ', ...args);
     }
   }
 
-  public static debug(...args: any[]): void {
+  public static debug(...args: unknown[]): void {
     if (Logger.logLevel <= LogLevel.Debug) {
       console.log(...args);
     }
   }
 
-  public static debugGroupCollapsed(...args: any): void {
+  public static debugGroupCollapsed(...args: unknown[]): void {
     if (Logger.logLevel <= LogLevel.Debug) {
       console.groupCollapsed(...args);
     }
   }
 
-  public static debugGroup(...args: any): void {
+  public static debugGroup(...args: unknown[]): void {
     if (Logger.logLevel <= LogLevel.Debug) {
       console.group(...args);
     }
