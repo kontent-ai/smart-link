@@ -63,7 +63,7 @@ export abstract class KSLCustomElement extends HTMLElement {
    * Usually customElements.define is called inline right at the bottom of the custom element file,
    * but this would not work with SSR, since custom elements can't be defined on the backend.
    */
-  public static define(): Promise<void> {
+  public static define(): Promise<CustomElementConstructor> {
     if (typeof window === 'undefined') {
       throw InvalidEnvironmentError('KSLCustomElement: custom elements can only be defined in a browser environment.');
     }
@@ -76,13 +76,14 @@ export abstract class KSLCustomElement extends HTMLElement {
     // Conversion to unknown is needed so that we can explicitly converse
     // this class to CustomElementConstructor.
     const self = this as unknown;
+    const constructor = window.customElements.get(this.is);
 
-    if (!window.customElements.get(this.is)) {
+    if (!constructor) {
       customElements.define(this.is, self as CustomElementConstructor);
       return customElements.whenDefined(this.is);
     }
 
-    return Promise.resolve();
+    return Promise.resolve(constructor);
   }
 
   /**
