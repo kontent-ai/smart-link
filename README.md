@@ -218,7 +218,7 @@ visuals of the SDK output.
 |--ksl-z-index|`9000`|Base value of z-index used for calculation of individual values for each ksl-element type|
 
 For example, if you want to override all SDK colors and shadows for all SDK elements on the page, you can do it by
-changing the values of all available custom properties of a `:root` element in your CSS or inside a new `<style>` tag on
+changing the values of all available custom properties of a `:root` element in your CSS or inside a new [`<style>` tag](https://www.scaler.com/topics/html/style-tag-in-html/) on
 your page.
 
 ```css
