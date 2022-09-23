@@ -1,15 +1,15 @@
 # Kontent Smart Link SDK
 
-![licence](https://img.shields.io/github/license/Kentico/kontent-smart-link)
-![npm](https://img.shields.io/npm/v/@kentico/kontent-smart-link)
-![downloads](https://img.shields.io/npm/dt/@kentico/kontent-smart-link)
-![jsdelivr](https://img.shields.io/jsdelivr/npm/hm/@kentico/kontent-smart-link)
-![snyk](https://img.shields.io/snyk/vulnerabilities/github/Kentico/kontent-smart-link)
+![licence](https://img.shields.io/github/license/kontent-ai/smart-link)
+![npm](https://img.shields.io/npm/v/@kontent-ai/smart-link)
+![downloads](https://img.shields.io/npm/dt/@kontent-ai/smart-link)
+![jsdelivr](https://img.shields.io/jsdelivr/npm/hm/@kontent-ai/smart-link)
+![snyk](https://img.shields.io/snyk/vulnerabilities/github/kontent-ai/smart-link)
 
-###### [Usage](#usage) | [Contributing](https://github.com/Kentico/kontent-smart-link/blob/master/CONTRIBUTING.md) | [Troubleshooting](https://github.com/Kentico/kontent-smart-link/blob/master/TROUBLESHOOTING.md) | [Breaking changes](https://github.com/Kentico/kontent-smart-link/blob/master/BREAKING.md)
+###### [Usage](#usage) | [Contributing](https://github.com/kontent-ai/smart-link/blob/master/CONTRIBUTING.md) | [Troubleshooting](https://github.com/kontent-ai/smart-link/blob/master/TROUBLESHOOTING.md) | [Breaking changes](https://github.com/kontent-ai/smart-link/blob/master/BREAKING.md)
 
 > Kontent Smart Link SDK can be used to automatically inject smart links
-> to Kentico Kontent according to manually specified [HTML data attributes](https://www.w3schools.com/tags/att_data-.asp)
+> to Kontent.ai according to manually specified [HTML data attributes](https://www.w3schools.com/tags/att_data-.asp)
 > on your website. It also lets you connect your website with Web Spotlight for faster editing and preview of your content.
 > 
 > :warning: Kontent Smart Link SDK is **a browser-only SDK**, which means that the Node.js environment is not currently supported. Make sure to always initialize
@@ -22,7 +22,7 @@ You can install this library using `npm` or using global CDNs such as `jsdelivr`
 ### npm
 
 ```
-npm i @kentico/kontent-smart-link
+npm i @kontent-ai/smart-link
 ```
 
 ### UMD Bundles
@@ -38,18 +38,18 @@ folder.
 
 #### kontent-smart-link.umd.js
 
-![Gzip browser bundle](https://img.badgesize.io/https://unpkg.com/@kentico/kontent-smart-link@latest/dist/kontent-smart-link.umd.js?compression=gzip)
+![Gzip browser bundle](https://img.badgesize.io/https://unpkg.com/@kontent-ai/smart-link@latest/dist/kontent-smart-link.umd.js?compression=gzip)
 
 ```
-https://cdn.jsdelivr.net/npm/@kentico/kontent-smart-link@latest/dist/kontent-smart-link.umd.js
+https://cdn.jsdelivr.net/npm/@kontent-ai/smart-link@latest/dist/kontent-smart-link.umd.js
 ```
 
 ##### kontent-smart-link.umd.min.js
 
-![Gzip browser bundle](https://img.badgesize.io/https://unpkg.com/@kentico/kontent-smart-link@latest/dist/kontent-smart-link.umd.min.js?compression=gzip)
+![Gzip browser bundle](https://img.badgesize.io/https://unpkg.com/@kontent-ai/smart-link@latest/dist/kontent-smart-link.umd.min.js?compression=gzip)
 
 ```
-https://cdn.jsdelivr.net/npm/@kentico/kontent-smart-link@latest/dist/kontent-smart-link.umd.min.js
+https://cdn.jsdelivr.net/npm/@kontent-ai/smart-link@latest/dist/kontent-smart-link.umd.min.js
 ```
 
 ## Usage
@@ -269,7 +269,7 @@ You can implement a custom refresh handler using
 the `.on(KontentSmartLinkEvent.Refresh, (data, metadata, originalRefresh) => {})` method on the SDK instance:
 
 ```ts
-import KontentSmartLink, { KontentSmartLinkEvent } from '@kentico/kontent-smart-link';
+import KontentSmartLink, { KontentSmartLinkEvent } from '@kontent-ai/smart-link';
 
 const sdk = KontentSmartLink.initialize({ ... });
 
@@ -296,7 +296,7 @@ It is possible to only update the affected place of the UI by re-fetching page d
 page. The following code sample shows how this could be implemented in a React application.
 
 ```ts
-import KontentSmartLink, { KontentSmartLinkEvent } from '@kentico/kontent-smart-link';
+import KontentSmartLink, { KontentSmartLinkEvent } from '@kontent-ai/smart-link';
 
 const PageContent: React.FC = () => {
   const [data, setData] = useState(null);
@@ -466,7 +466,7 @@ iframe messages instead of redirecting user to Kontent page. All message types a
 There may be some cases when you would want to put your page into another iframe (e.g. to simulate a mobile device
 resolution). But if you then load your nested iframe page inside Web Spotlight preview tab, it would act as if it wasn't
 inside Web Spotlight. This happens because the initialization message sent from SDK to Kontent gets lost in the parent
-iframe. You can use the following workaround to fix the issue: https://github.com/Kentico/kontent-smart-link/issues/16.
+iframe. You can use the following workaround to fix the issue: https://github.com/kontent-ai/smart-link/issues/16.
 
 ### Examples
 
@@ -478,7 +478,7 @@ iframe. You can use the following workaround to fix the issue: https://github.co
   <head>
     <title>Kontent Smart Link - HTML example</title>
     <script type="text/javascript"
-            src="https://cdn.jsdelivr.net/npm/@kentico/kontent-smart-link@2.0.0/dist/kontent-smart-link.umd.min.js"></script>
+            src="https://cdn.jsdelivr.net/npm/@kontent-ai/smart-link@2.0.0/dist/kontent-smart-link.umd.min.js"></script>
     <script type="text/javascript">
       KontentSmartLink.initializeOnLoad({ queryParam: "preview" });
     </script>
@@ -533,7 +533,7 @@ iframe. You can use the following workaround to fix the issue: https://github.co
 #### ES6
 
 ```js
-import KontentSmartLink from "@kentico/kontent-smart-link";
+import KontentSmartLink from "@kontent-ai/smart-link";
 
 // This is just an example of SDK initialization inside ES6 module.
 // HTML markup should still contain all necessary data-attributes.
@@ -554,7 +554,7 @@ once for the whole application using the `_app.jsx` file. Do not forget to `dest
 
 ```js
 // _app.jsx
-import KontentSmartLink from "@kentico/kontent-smart-link";
+import KontentSmartLink from "@kontent-ai/smart-link";
 
 const MyApp = ({
   Component,
@@ -627,7 +627,7 @@ to `destroy()` SDK for it to work properly.
 
 ```js
 // src/components/layout.jsx
-import KontentSmartLink from "@kentico/kontent-smart-link";
+import KontentSmartLink from "@kontent-ai/smart-link";
 
 export default function Layout({ children }) {
   useEffect(() => {

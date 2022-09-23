@@ -1,12 +1,12 @@
 {
-  "name": "@kentico/kontent-smart-link",
-  "version": "2.3.1",
+  "name": "@kontent-ai/smart-link",
+  "version": "3.0.0",
   "private": false,
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Kentico/kontent-smart-link.git"
+    "url": "https://github.com/kontent-ai/smart-link"
   },
-  "description": "Kontent Smart Link SDK allowing to automatically inject [smart links](https://docs.kontent.ai/tutorials/develop-apps/build-strong-foundation/set-up-editing-from-preview#a-using-smart-links) to Kentico Kontent according to manually specified [HTML data attributes](https://www.w3schools.com/tags/att_data-.asp) on your website. It also lets you connect your website with Web Spotlight.",
+  "description": "Kontent Smart Link SDK allowing to automatically inject [smart links](https://docs.kontent.ai/tutorials/develop-apps/build-strong-foundation/set-up-editing-from-preview#a-using-smart-links) to Kontent.ai according to manually specified [HTML data attributes](https://www.w3schools.com/tags/att_data-.asp) on your website. It also lets you connect your website with Web Spotlight.",
   "main": "./commonjs/index.js",
   "types": "./types/index.d.ts",
   "module": "./es/index.js",
@@ -56,18 +56,22 @@
     }
   },
   "keywords": [
-    "Kentico Kontent Javascript",
-    "Kentico Kontent Typescript",
-    "Kentico Kontent",
+    "Kontent Javascript",
     "Kontent Preview",
     "Kontent SDK",
-    "Kontent"
+    "Kontent Typescript",
+    "Kontent",
+    "Kontent.ai Javascript",
+    "Kontent.ai Preview",
+    "Kontent.ai SDK",
+    "Kontent.ai Typescript",
+    "Kontent.ai"
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Kentico/kontent-smart-link/issues"
+    "url": "https://github.com/kontent-ai/smart-link/issues"
   },
-  "homepage": "https://github.com/Kentico/kontent-smart-link#readme",
+  "homepage": "https://github.com/kontent-ai/smart-link#readme",
   "devDependencies": {
     "@babel/core": "7.12.3",
     "@storybook/addon-actions": "6.1.21",
