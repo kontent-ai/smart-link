@@ -18,7 +18,7 @@
     "types"
   ],
   "engines": {
-    "node": ">=16 <18"
+    "node": ">=18.2.0"
   },
   "scripts": {
     "build": "npm run build:commonjs && npm run build:umd && npm run build:es",
@@ -49,6 +49,9 @@
     "webpack:dev:watch": "npm run webpack:dev -- --watch",
     "webpack:prod": "webpack --mode production --config webpack.config.js --progress --color",
     "webpack:prod:watch": "npm run webpack:prod -- --watch"
+  },
+  "overrides": {
+    "chrome-remote-interface": "0.31.3"
   },
   "lint-staged": {
     "src/**/*.{js,ts,tsx}": [
