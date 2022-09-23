@@ -1,4 +1,4 @@
-# Kontent Smart Link SDK
+# Kontent.ai Smart Link SDK
 
 ![licence](https://img.shields.io/github/license/kontent-ai/smart-link)
 ![npm](https://img.shields.io/npm/v/@kontent-ai/smart-link)
@@ -8,11 +8,11 @@
 
 ###### [Usage](#usage) | [Contributing](https://github.com/kontent-ai/smart-link/blob/master/CONTRIBUTING.md) | [Troubleshooting](https://github.com/kontent-ai/smart-link/blob/master/TROUBLESHOOTING.md) | [Breaking changes](https://github.com/kontent-ai/smart-link/blob/master/BREAKING.md)
 
-> Kontent Smart Link SDK can be used to automatically inject smart links
+> Kontent.ai Smart Link SDK can be used to automatically inject smart links
 > to Kontent.ai according to manually specified [HTML data attributes](https://www.w3schools.com/tags/att_data-.asp)
 > on your website. It also lets you connect your website with Web Spotlight for faster editing and preview of your content.
 > 
-> :warning: Kontent Smart Link SDK is **a browser-only SDK**, which means that the Node.js environment is not currently supported. Make sure to always initialize
+> :warning: Kontent.ai Smart Link SDK is **a browser-only SDK**, which means that the Node.js environment is not currently supported. Make sure to always initialize
 > the Smart Link SDK in a browser context.
 
 ## Installation
@@ -54,48 +54,48 @@ https://cdn.jsdelivr.net/npm/@kontent-ai/smart-link@latest/dist/kontent-smart-li
 
 ## Usage
 
-Kontent Smart Link SDK parses manually specified [HTML data attributes](https://www.w3schools.com/tags/att_data-.asp) on
+Kontent.ai Smart Link SDK parses manually specified [HTML data attributes](https://www.w3schools.com/tags/att_data-.asp) on
 your webpage and automatically injects
 [smart links](https://kontent.ai/learn/tutorials/develop-apps/build-strong-foundation/set-up-editing-from-preview#a-automatically-create-edit-links-in-web-apps)
-to Kontent. Injecting smart links to Kontent means that all elements marked with special data attributes will
-become interactive (handle clicks/redirect to Kontent/navigate from the preview in Web Spotlight/etc.). The type of
+to Kontent.ai. Injecting smart links to Kontent.ai means that all elements marked with special data attributes will
+become interactive (handle clicks/redirect to Kontent.ai/navigate from the preview in Web Spotlight/etc.). The type of
 injected smart link depends on used data attributes, their hierarchy, and context (Web Spotlight).
 
 ### Data attributes
 
-Kontent Smart Link SDK highly depends on a set of manually specified data attributes in your HTML markup. That is why it
+Kontent.ai Smart Link SDK highly depends on a set of manually specified data attributes in your HTML markup. That is why it
 won't work properly without those attributes. **The SDK won't add the data attributes to your HTML, you must add them
-yourself so that SDK will then be able to use them as a source of data (e.g. Kontent project ID, element code name,
+yourself so that SDK will then be able to use them as a source of data (e.g. Kontent.ai project ID, element code name,
 etc.) when injecting the smart links.**
 
 #### Available data attributes
 
-|Attribute|Value|Description|
-|---------|:----------:|----------|
-| `data-kontent-project-id` | guid | Kontent project/environment ID. |
-| `data-kontent-language-codename` | string | Kontent language codename. |
-| `data-kontent-item-id` | guid | Content item ID. |
+|Attribute|Value| Description                                                                                                                                                 |
+|---------|:----------:|-------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `data-kontent-project-id` | guid | Kontent.ai project/environment ID.                                                                                                                          |
+| `data-kontent-language-codename` | string | Kontent.ai language codename.                                                                                                                               |
+| `data-kontent-item-id` | guid | Content item ID.                                                                                                                                            |
 | `data-kontent-component-id` |  guid | [Content component](https://kontent.ai/learn/tutorials/write-and-collaborate/structure-your-content/structure-your-content#a-create-single-use-content) ID. |
-| `data-kontent-element-codename` | string | Content type element codename. |
-| `data-kontent-add-button` | - | Specifies that node should have add-button rendered near it. |
-| `data-kontent-add-button-insert-position` | `start` &#124; `before` &#124; `after` &#124; `end` | Specifies the insert position of an item/content component added using add button. |
-| `data-kontent-add-button-render-position` | `bottom-start` &#124; `bottom` &#124; `bottom-end` &#124; `left-start` &#124; `left` &#124; `left-end` &#124; `top-start` &#124; `top` &#124; `top-end` &#124; `right-start` &#124; `right` &#124; `right-end` | Specifies visual location of add button. |
-| `data-kontent-disable-features` | `highlight` | Specifies that the selected node should not have highlight (which includes edit buttons). Useful when there are too many smart links on your page. |
+| `data-kontent-element-codename` | string | Content type element codename.                                                                                                                              |
+| `data-kontent-add-button` | - | Specifies that node should have add-button rendered near it.                                                                                                |
+| `data-kontent-add-button-insert-position` | `start` &#124; `before` &#124; `after` &#124; `end` | Specifies the insert position of an item/content component added using add button.                                                                          |
+| `data-kontent-add-button-render-position` | `bottom-start` &#124; `bottom` &#124; `bottom-end` &#124; `left-start` &#124; `left` &#124; `left-end` &#124; `top-start` &#124; `top` &#124; `top-end` &#124; `right-start` &#124; `right` &#124; `right-end` | Specifies visual location of add button.                                                                                                                    |
+| `data-kontent-disable-features` | `highlight` | Specifies that the selected node should not have highlight (which includes edit buttons). Useful when there are too many smart links on your page.          |
 
 #### Data attributes hierarchy
 
 Although it is possible to put all previously specified data attributes on the same DOM node, you don't have to do it.
 We recommend you set data attributes hierarchically so that you don't have to duplicate the same attributes.
 
-For example, your webpage probably represents one specific project in Kontent, which means that you can place
+For example, your webpage probably represents one specific project in Kontent.ai, which means that you can place
 `data-kontent-project-id` attribute on your `<body>` element or another wrapping DOM node so that all descendant nodes
 inherit this project ID. The same could be true for a language code name. If your page uses only 1 language variant at a
 time, you could place your `data-kontent-language-codename` attribute next to your `data-kontent-project-id` from a
 previous step. But remember, that since language variant is relevant to some specific
 project, `data-kontent-language-codename` attribute should always be on the same element as `data-kontent-project-id`
-attribute or on some of its descendants. After that, you can find all DOM nodes that represent Kontent items and
+attribute or on some of its descendants. After that, you can find all DOM nodes that represent Kontent.ai items and
 place `data-kontent-item-id` attribute on them. Then inside those nodes, you can find all descendants that represent
-some element of the Kontent item and put `data-kontent-element-codename`
+some element of the Kontent.ai item and put `data-kontent-element-codename`
 attribute on them. In the case of Rich Text elements and Linked Items elements, there could be other content items or
 content components inside them, which have their own elements and so on.
 
@@ -104,15 +104,15 @@ content components inside them, which have their own elements and so on.
 [Content component](https://kontent.ai/learn/tutorials/write-and-collaborate/structure-your-content/structure-your-content#a-create-single-use-content)
 is single-use content, that is also sometimes referred to as one-off, channel-specific, or non-reusable. Content
 components exist only within a specific rich text element in your content items and become their integral part. This
-means you won't find components in your list of items in Content Inventory in Kontent.
+means you won't find components in your list of items in Content Inventory in Kontent.ai.
 
 You should use `data-kontent-component-id` attribute to specify that something represents a content component in your
-HTML so that the SDK knows that this item has no separate page in the Kontent and must be opened in the context of its
+HTML so that the SDK knows that this item has no separate page in the Kontent.ai and must be opened in the context of its
 parent content item.
 
 ### Smart link types
 
-Currently, there are 4 types of smart links supported by Kontent Smart Link SDK. All of them require certain data
+Currently, there are 4 types of smart links supported by Kontent.ai Smart Link SDK. All of them require certain data
 attributes to be specified in HTML markup of your webpage. Please note, that most of those smart link types are only
 available and visible inside Web Spotlight preview iframe.
 
@@ -120,7 +120,7 @@ available and visible inside Web Spotlight preview iframe.
 
 Edit element button allows you to edit a specific element of a content item by clicking on it in preview. Inside Web
 Spotlight, this will lead to In-Context editor being opened, and the selected element will be scrolled into view.
-Outside Web Spotlight, you will be redirected to Kontent item editor.
+Outside Web Spotlight, you will be redirected to Kontent.ai item editor.
 
 **Data attributes:** `data-kontent-project-id` → `data-kontent-language-codename` → `data-kontent-item-id`
 → `data-kontent-component-id?` → `data-kontent-element-codename`.
@@ -173,14 +173,14 @@ id on the same node using `data-kontent-item-id` or `data-kontent-component-id` 
 
 ### SDK Initialization
 
-After all data attributes have been set, you can initialize Kontent Smart Link SDK on your website. You can use
+After all data attributes have been set, you can initialize Kontent.ai Smart Link SDK on your website. You can use
 `initialize` or `initializeOnLoad` method in order to do it. Both of the previously mentioned methods return an instance
 of initialized SDK (`initializeOnLoad` returns a Promise resolving to an instance). The main difference between the two
 methods is that the `initializedOnLoad` method will wait for the page to load before initializing the SDK. This can be
 useful when you want to initialize the SDK in the `head` section of your webpage when the page has not been fully loaded
 yet.
 
-Kontent Smart Link SDK uses multiple event listeners, timeouts, observers to track the position of the relevant
+Kontent.ai Smart Link SDK uses multiple event listeners, timeouts, observers to track the position of the relevant
 elements, so please always call `.destroy()` method to dispose all of those side effects before trying to initialize the
 SDK again (e.g. inside `useEffect` cleanup function) to avoid memory leaks.
 
@@ -429,7 +429,7 @@ on the client-side to update affected placed while waiting for the rebuild proce
 
 ### Using SDK inside and outside Web Spotlight
 
-When Kontent Smart Link SDK is used outside Web Spotlight, it listens to the query parameters in the URL to toggle smart
+When Kontent.ai Smart Link SDK is used outside Web Spotlight, it listens to the query parameters in the URL to toggle smart
 link injection. The name of the query parameter defaults to `ksl-enabled`, but can be changed using the `queryParam`
 configuration argument of the `initialize` or `initializeOnLoad` methods. Only the presence of the query parameter is
 checked and its value is ignored, so all the following options are valid: `?ksl-enabled=true`, `?ksl-enabled=false`
@@ -440,13 +440,13 @@ If you set the query parameter to a false value (null, ""), then the SDK will al
 If the SDK detects it is run inside an iframe at the beginning of the initialization process, it will try to connect to
 the Web Spotlight by sending an iframe message to the parent window. If Web Spotlight response is received, query
 parameter detection will be turned off and additional features (more in the smart link types section) will be enabled.
-Else the SDK will continue to work as if it was outside Web Spotlight (query parameters detection, redirects to Kontent,
+Else the SDK will continue to work as if it was outside Web Spotlight (query parameters detection, redirects to Kontent.ai,
 etc.)
 
 #### IFrame Communication
 
-When running inside Web Spotlight preview iframe, Kontent Smart Link SDK enables several additional features and sends
-iframe messages instead of redirecting user to Kontent page. All message types are listed below.
+When running inside Web Spotlight preview iframe, Kontent.ai Smart Link SDK enables several additional features and sends
+iframe messages instead of redirecting user to Kontent.ai page. All message types are listed below.
 
 |Message|Data|Origin|Description|
 |---|:---:|:---:|---|
@@ -465,7 +465,7 @@ iframe messages instead of redirecting user to Kontent page. All message types a
 
 There may be some cases when you would want to put your page into another iframe (e.g. to simulate a mobile device
 resolution). But if you then load your nested iframe page inside Web Spotlight preview tab, it would act as if it wasn't
-inside Web Spotlight. This happens because the initialization message sent from SDK to Kontent gets lost in the parent
+inside Web Spotlight. This happens because the initialization message sent from SDK to Kontent.ai gets lost in the parent
 iframe. You can use the following workaround to fix the issue: https://github.com/kontent-ai/smart-link/issues/16.
 
 ### Examples
@@ -476,7 +476,7 @@ iframe. You can use the following workaround to fix the issue: https://github.co
 
 <html>
   <head>
-    <title>Kontent Smart Link - HTML example</title>
+    <title>Kontent.ai Smart Link - HTML example</title>
     <script type="text/javascript"
             src="https://cdn.jsdelivr.net/npm/@kontent-ai/smart-link@2.0.0/dist/kontent-smart-link.umd.min.js"></script>
     <script type="text/javascript">
