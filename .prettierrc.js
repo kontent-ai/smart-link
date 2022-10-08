@@ -1,6 +1,6 @@
 module.exports = {
   endOfLine: 'crlf',
-  printWidth: 120,
+  printWidth: 140,
   semi: true,
   singleQuote: true,
   tabWidth: 2,

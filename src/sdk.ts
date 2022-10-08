@@ -9,7 +9,7 @@ import {
   ISDKInitializedMessageData,
   ISDKStatusMessageData,
 } from './lib/IFrameCommunicatorTypes';
-import { QueryParamPresenceWatcher } from './lib/QueryParamPresenceWatcher';
+import { IQueryParamWatcherService, QueryParamWatcherService } from './services/QueryParamWatcherService';
 import { defineAllRequiredWebComponents } from './web-components/components';
 import { ConfigurationManager, IConfigurationManager, IKSLPublicConfiguration } from './lib/ConfigurationManager';
 import { InvalidEnvironmentError, NotInitializedError } from './utils/errors';
@@ -31,7 +31,7 @@ type KontentSmartLinkEventMap = {
 
 class KontentSmartLinkSDK {
   private readonly configurationManager: IConfigurationManager;
-  private readonly queryParamPresenceWatcher: QueryParamPresenceWatcher;
+  private readonly queryParamWatcherService: IQueryParamWatcherService;
   private readonly iframeCommunicator: IFrameCommunicator;
   private readonly nodeSmartLinkProvider: NodeSmartLinkProvider;
   private readonly events: EventManager<KontentSmartLinkEventMap>;
@@ -41,7 +41,7 @@ class KontentSmartLinkSDK {
     this.configurationManager.update(configuration);
 
     this.events = new EventManager<KontentSmartLinkEventMap>();
-    this.queryParamPresenceWatcher = new QueryParamPresenceWatcher();
+    this.queryParamWatcherService = new QueryParamWatcherService();
     this.iframeCommunicator = new IFrameCommunicator();
 
     this.nodeSmartLinkProvider = new NodeSmartLinkProvider(this.iframeCommunicator);
@@ -60,7 +60,7 @@ class KontentSmartLinkSDK {
     Logger.setLogLevel(level);
 
     if (this.configurationManager.queryParam) {
-      this.queryParamPresenceWatcher.watch(this.configurationManager.queryParam, this.nodeSmartLinkProvider.toggle);
+      this.queryParamWatcherService.watch(this.configurationManager.queryParam, this.nodeSmartLinkProvider.toggle);
     } else {
       this.nodeSmartLinkProvider.enable();
     }
@@ -72,7 +72,7 @@ class KontentSmartLinkSDK {
 
   public destroy = (): void => {
     this.events.removeAllListeners();
-    this.queryParamPresenceWatcher.unwatchAll();
+    this.queryParamWatcherService.unwatchAll();
     this.iframeCommunicator.destroy();
     this.nodeSmartLinkProvider.destroy();
   };
@@ -82,8 +82,8 @@ class KontentSmartLinkSDK {
       if (!configuration.queryParam) {
         this.nodeSmartLinkProvider.enable();
       } else if (configuration.queryParam !== this.configurationManager.queryParam) {
-        this.queryParamPresenceWatcher.unwatchAll();
-        this.queryParamPresenceWatcher.watch(configuration.queryParam, this.nodeSmartLinkProvider.toggle);
+        this.queryParamWatcherService.unwatchAll();
+        this.queryParamWatcherService.watch(configuration.queryParam, this.nodeSmartLinkProvider.toggle);
       }
     }
 
@@ -127,7 +127,7 @@ class KontentSmartLinkSDK {
 
     this.iframeCommunicator.sendMessageWithResponse(IFrameMessageType.Initialized, messageData, () => {
       this.configurationManager.update({ isInsideWebSpotlight: true });
-      this.queryParamPresenceWatcher.unwatchAll();
+      this.queryParamWatcherService.unwatchAll();
       this.nodeSmartLinkProvider.disable();
 
       if (enabled) {
