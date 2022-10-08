@@ -1,8 +1,8 @@
-import { EventEmitter } from '../../src/utils/EventEmitter';
+import { IEventDescriptor, EventEmitter } from '../../src/utils/EventEmitter';
 
 type TestEventMap = {
-  readonly eventA: (result: string) => void;
-  readonly eventB: () => void;
+  readonly eventA: IEventDescriptor<string>;
+  readonly eventB: IEventDescriptor;
 };
 
 describe('EventEmitter', () => {
