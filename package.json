@@ -50,9 +50,6 @@
     "webpack:prod": "webpack --mode production --config webpack.config.js --progress --color",
     "webpack:prod:watch": "npm run webpack:prod -- --watch"
   },
-  "overrides": {
-    "chrome-remote-interface": "0.31.3"
-  },
   "lint-staged": {
     "src/**/*.{js,ts,tsx}": [
       "npm run lint:fix"
@@ -111,7 +108,7 @@
     "karma-typescript": "5.5.3",
     "karma-typescript-es6-transform": "5.5.3",
     "lint-staged": "13.0.3",
-    "loki": "0.30.3",
+    "loki": "0.31.2",
     "prettier": "2.7.1",
     "rimraf": "3.0.2",
     "ts-loader": "9.3.1",
