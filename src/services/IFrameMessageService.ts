@@ -1,9 +1,10 @@
 import { CleanUpFunction, IParentCommunicationAPI } from '../api/IParentCommunicationAPI';
 import { Deferred } from '../helpers/Deferred';
-import { ClientMessage, HostMessage } from '../models/messages/message';
 import { EventEmitter } from '../utils/EventEmitter';
 import { createUuid } from '../utils/createUuid';
 import { IMessageService, MessageServiceEventsMap } from './IMessageService';
+import { HostMessage } from '../models/messages/HostMessage';
+import { ClientMessage } from '../models/messages/ClientMessage';
 
 export class IFrameMessageService extends EventEmitter<MessageServiceEventsMap> implements IMessageService {
   private readonly promises: Map<string, Deferred<any>>;
@@ -44,6 +45,7 @@ export class IFrameMessageService extends EventEmitter<MessageServiceEventsMap> 
   public unlisten(): void {
     this.removeAllListeners();
     this.cleanUp?.();
+    this.cleanUp = null;
   }
 
   private onMessage(event: MessageEvent): void {

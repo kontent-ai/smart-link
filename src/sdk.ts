@@ -11,11 +11,12 @@ import {
 } from './lib/IFrameCommunicatorTypes';
 import { IQueryParamWatcherService, QueryParamWatcherService } from './services/QueryParamWatcherService';
 import { defineAllRequiredWebComponents } from './web-components/components';
-import { ConfigurationManager, IConfigurationManager, IKSLPublicConfiguration } from './lib/ConfigurationManager';
+import { ConfigurationManager, IConfigurationManager } from './lib/ConfigurationManager';
 import { InvalidEnvironmentError, NotInitializedError } from './utils/errors';
 import { Logger, LogLevel } from './lib/Logger';
 import { reload } from './utils/reload';
 import { Callback, EventHandler, EventManager } from './lib/EventManager';
+import { IKSLPublicConfiguration } from './models/configuration/KSLConfiguration';
 
 interface IKontentSmartLinkStoredSettings {
   readonly enabled: boolean;
@@ -95,17 +96,11 @@ class KontentSmartLinkSDK {
     this.configurationManager.update(configuration);
   };
 
-  public on = <TEvent extends keyof KontentSmartLinkEventMap>(
-    event: TEvent,
-    handler: KontentSmartLinkEventMap[TEvent]
-  ): void => {
+  public on = <TEvent extends keyof KontentSmartLinkEventMap>(event: TEvent, handler: KontentSmartLinkEventMap[TEvent]): void => {
     this.events.on(event, handler);
   };
 
-  public off = <TEvent extends keyof KontentSmartLinkEventMap>(
-    event: TEvent,
-    handler: KontentSmartLinkEventMap[TEvent]
-  ): void => {
+  public off = <TEvent extends keyof KontentSmartLinkEventMap>(event: TEvent, handler: KontentSmartLinkEventMap[TEvent]): void => {
     this.events.off(event, handler);
   };
 
@@ -201,10 +196,7 @@ class KontentSmartLink {
     }
   };
 
-  public on = <TEvent extends keyof KontentSmartLinkEventMap>(
-    event: TEvent,
-    handler: KontentSmartLinkEventMap[TEvent]
-  ): void => {
+  public on = <TEvent extends keyof KontentSmartLinkEventMap>(event: TEvent, handler: KontentSmartLinkEventMap[TEvent]): void => {
     if (!this.sdk) {
       throw NotInitializedError('KontentSmartLink is not initialized or has already been destroyed.');
     } else {
@@ -212,10 +204,7 @@ class KontentSmartLink {
     }
   };
 
-  public off = <TEvent extends keyof KontentSmartLinkEventMap>(
-    event: TEvent,
-    handler: KontentSmartLinkEventMap[TEvent]
-  ): void => {
+  public off = <TEvent extends keyof KontentSmartLinkEventMap>(event: TEvent, handler: KontentSmartLinkEventMap[TEvent]): void => {
     if (!this.sdk) {
       throw NotInitializedError('KontentSmartLink is not initialized or has already been destroyed.');
     } else {

@@ -1,13 +1,13 @@
 import { IEventDescriptor, IEventEmitter } from '../utils/EventEmitter';
 import {
-  ClientMessage,
   HostMessage,
-  HostMessageType,
   IAddButtonInitialClickResponseHostMessage,
   IReloadPreviewHostMessage,
   ISdkInitializedResponseHostMessage,
   ISdkStatusHostMessage,
-} from '../models/messages/message';
+} from '../models/messages/HostMessage';
+import { ClientMessage } from '../models/messages/ClientMessage';
+import { HostMessageType } from '../models/messages/MessageEnums';
 
 export type MessageServiceEventsMap = {
   readonly [HostMessageType.AddButtonInitialResponse]: IEventDescriptor<IAddButtonInitialClickResponseHostMessage>;
@@ -19,6 +19,8 @@ export type MessageServiceEventsMap = {
 export interface IMessageService extends IEventEmitter<MessageServiceEventsMap> {
   readonly listen: () => void;
   readonly sendMessage: (message: ClientMessage) => void;
-  readonly sendMessageWithResponse: <TRequest extends ClientMessage, TResponse extends HostMessage>(message: TRequest) => Promise<TResponse>;
+  readonly sendMessageWithResponse: <TRequest extends ClientMessage, TResponse extends HostMessage>(
+    message: TRequest
+  ) => Promise<TResponse>;
   readonly unlisten: () => void;
 }

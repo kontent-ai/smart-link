@@ -15,19 +15,19 @@ describe('IFrameMessageService', () => {
     iFrameMessageService = new IFrameMessageService(parentCommunicationAPI);
   });
 
-  describe('sendMessageWithResponse', () => {
-    it('should return promise and resolve it when response is received', () => {
-      iFrameMessageService.listen();
-    });
-
-    it('should return promise and reject it if sending fails', () => {});
-  });
-
-  describe('listen', () => {
-    it('should listen to messages only if listen was called', () => {});
-  });
-
-  describe('unlisten', () => {
-    it('should stop listening to messages after unlisten is called', () => {});
-  });
+  // describe('sendMessageWithResponse', () => {
+  //   it('should return promise and resolve it when response is received', () => {
+  //     iFrameMessageService.listen();
+  //   });
+  //
+  //   it('should return promise and reject it if sending fails', () => {});
+  // });
+  //
+  // describe('listen', () => {
+  //   it('should listen to messages only if listen was called', () => {});
+  // });
+  //
+  // describe('unlisten', () => {
+  //   it('should stop listening to messages after unlisten is called', () => {});
+  // });
 });
