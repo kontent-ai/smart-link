@@ -1,4 +1,4 @@
-import { createHtmlFixture } from '../test-helpers/createHtmlFixture';
+import { createHtmlFixture } from '../tools/createHtmlFixture';
 import { getRenderingRootForElement, getRenderingRootMetadata, getTotalScrollOffset } from '../../src/utils/node';
 
 describe('node.ts', () => {

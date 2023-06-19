@@ -1,8 +1,10 @@
 import { IParentCommunicationAPI } from '../../src/api/IParentCommunicationAPI';
 import { IFrameMessageService } from '../../src/services/IFrameMessageService';
+import { ClientMessageType } from '../../src/models/messages/MessageEnums';
+import { IEditButtonContentItemClickClientMessage } from '../../src/models/messages/EditButtonClientMessage';
 
 describe('IFrameMessageService', () => {
-  let iFrameMessageService: IFrameMessageService;
+  let messageService: IFrameMessageService;
   let parentCommunicationAPI: jasmine.SpyObj<IParentCommunicationAPI>;
 
   beforeEach(() => {
@@ -12,12 +14,26 @@ describe('IFrameMessageService', () => {
       'onMessageReceived',
     ]);
 
-    iFrameMessageService = new IFrameMessageService(parentCommunicationAPI);
+    messageService = new IFrameMessageService(parentCommunicationAPI);
+  });
+
+  describe('sendMessage', () => {
+    it('should send message to parent window', () => {
+      const tempMessage: IEditButtonContentItemClickClientMessage = {
+        type: ClientMessageType.EditContentItemClicked,
+        data: { projectId: '', languageCodename: '', itemId: '' },
+        metadata: { elementRect: new DOMRect() },
+      };
+
+      messageService.sendMessage(tempMessage);
+
+      expect(parentCommunicationAPI.postMessageToParent).toHaveBeenCalledWith(tempMessage);
+    });
   });
 
   // describe('sendMessageWithResponse', () => {
   //   it('should return promise and resolve it when response is received', () => {
-  //     iFrameMessageService.listen();
+  //     messageService.listen();
   //   });
   //
   //   it('should return promise and reject it if sending fails', () => {});

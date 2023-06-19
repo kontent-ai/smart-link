@@ -1,4 +1,4 @@
-import { createHtmlFixture } from '../test-helpers/createHtmlFixture';
+import { createHtmlFixture } from '../tools/createHtmlFixture';
 import { parseEditButtonDataAttributes, parseAddButtonDataAttributes } from '../../src/utils/dataAttributes';
 import { InsertPositionPlacement } from '../../src/lib/IFrameCommunicatorTypes';
 

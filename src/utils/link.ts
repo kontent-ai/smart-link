@@ -4,12 +4,7 @@ function buildItemLink(projectId: string, languageCodename: string, itemId: stri
   return `https://app.kontent.ai/goto/edit-item/project/${projectId}/variant-codename/${languageCodename}/item/${itemId}`;
 }
 
-export function buildElementLink(
-  projectId: string,
-  languageCodename: string,
-  itemId: string,
-  elementCodename: string
-): string {
+export function buildElementLink(projectId: string, languageCodename: string, itemId: string, elementCodename: string): string {
   return `${buildItemLink(projectId, languageCodename, itemId)}/element/${elementCodename}`;
 }
 
@@ -20,22 +15,12 @@ export function buildComponentElementLink(
   contentComponentId: string,
   componentElementCodename: string
 ): string {
-  return `${buildItemLink(
-    projectId,
-    languageCodename,
-    itemId
-  )}/component/${contentComponentId}/element/${componentElementCodename}`;
+  return `${buildItemLink(projectId, languageCodename, itemId)}/component/${contentComponentId}/element/${componentElementCodename}`;
 }
 
 export function buildKontentLink(data: IElementClickedMessageData): string {
   if (data.contentComponentId) {
-    return buildComponentElementLink(
-      data.projectId,
-      data.languageCodename,
-      data.itemId,
-      data.contentComponentId,
-      data.elementCodename
-    );
+    return buildComponentElementLink(data.projectId, data.languageCodename, data.itemId, data.contentComponentId, data.elementCodename);
   } else {
     return buildElementLink(data.projectId, data.languageCodename, data.itemId, data.elementCodename);
   }

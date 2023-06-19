@@ -4,12 +4,7 @@ import { IElementClickedMessageData } from '../../src/lib/IFrameCommunicatorType
 describe('link.ts', () => {
   describe('buildElementLink', () => {
     it('should produce smart link to element', () => {
-      const link = buildElementLink(
-        'ef221e15-36d1-437b-9e89-3283656bc70b',
-        'default',
-        'a5d955ae-a488-4ba7-af43-453c8bfe1c17',
-        'title'
-      );
+      const link = buildElementLink('ef221e15-36d1-437b-9e89-3283656bc70b', 'default', 'a5d955ae-a488-4ba7-af43-453c8bfe1c17', 'title');
 
       expect(link).toEqual(
         'https://app.kontent.ai/goto/edit-item/project/ef221e15-36d1-437b-9e89-3283656bc70b/variant-codename/default/item/a5d955ae-a488-4ba7-af43-453c8bfe1c17/element/title'

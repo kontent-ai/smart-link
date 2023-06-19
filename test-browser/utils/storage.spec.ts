@@ -1,5 +1,5 @@
 import { createStorage, IStorage } from '../../src/utils/storage';
-import { generateRandomString } from '../test-helpers/generateRandomString';
+import { generateRandomString } from '../tools/generateRandomString';
 
 interface IStoredObject {
   readonly value: string;

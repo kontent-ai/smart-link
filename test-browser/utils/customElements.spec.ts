@@ -5,7 +5,7 @@ import {
   shouldElementHaveAddButton,
   shouldElementHaveHighlight,
 } from '../../src/utils/customElements';
-import { createHtmlFixture } from '../test-helpers/createHtmlFixture';
+import { createHtmlFixture } from '../tools/createHtmlFixture';
 import { ConfigurationManager } from '../../src/lib/ConfigurationManager';
 import { DataAttribute, MetadataAttribute } from '../../src/utils/dataAttributes';
 

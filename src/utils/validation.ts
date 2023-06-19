@@ -36,9 +36,7 @@ export function validateContentItemClickEditMessageData(
   return errors.length === 0;
 }
 
-export function validateElementClickMessageData(
-  data: Partial<IElementClickedMessageData>
-): data is IElementClickedMessageData {
+export function validateElementClickMessageData(data: Partial<IElementClickedMessageData>): data is IElementClickedMessageData {
   if (!data.elementCodename) {
     Logger.error('Element codename is required to handle element click.');
     return false;
@@ -58,9 +56,7 @@ export function validateContentComponentClickMessageData(
   return validateContentItemClickEditMessageData(data);
 }
 
-export function validateAddInitialMessageData(
-  data: DeepPartial<IAddButtonInitialMessageData>
-): data is IAddButtonInitialMessageData {
+export function validateAddInitialMessageData(data: DeepPartial<IAddButtonInitialMessageData>): data is IAddButtonInitialMessageData {
   const errors: string[] = [];
 
   if (!data.projectId) {

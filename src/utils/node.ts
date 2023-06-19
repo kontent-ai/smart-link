@@ -1,6 +1,4 @@
-export function groupElementsByRenderingRoot(
-  elements: ReadonlySet<HTMLElement>
-): Map<HTMLElement | null, ReadonlySet<HTMLElement>> {
+export function groupElementsByRenderingRoot(elements: ReadonlySet<HTMLElement>): Map<HTMLElement | null, ReadonlySet<HTMLElement>> {
   const results = new Map();
 
   for (const element of elements) {
@@ -32,9 +30,7 @@ export function getRenderingRootForElement(element: HTMLElement): HTMLElement | 
     // do not use them as parents unless they are positioned. Otherwise, the highlighting might broke for the tables.
     const isNotTable = !['TD', 'TH', 'TABLE'].includes(parentElement.tagName);
 
-    return metadata.isPositioned || (metadata.isContentClipped && isNotTable)
-      ? parentElement
-      : getRenderingRootForElement(parentElement);
+    return metadata.isPositioned || (metadata.isContentClipped && isNotTable) ? parentElement : getRenderingRootForElement(parentElement);
   }
 
   return null;

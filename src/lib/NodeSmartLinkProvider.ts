@@ -18,10 +18,7 @@ import {
   validateContentItemClickEditMessageData,
   validateElementClickMessageData,
 } from '../utils/validation';
-import {
-  KSLAddButtonElementActionEvent,
-  KSLAddButtonElementInitialAsyncEvent,
-} from '../web-components/KSLAddButtonElement';
+import { KSLAddButtonElementActionEvent, KSLAddButtonElementInitialAsyncEvent } from '../web-components/KSLAddButtonElement';
 import { IFrameCommunicator } from './IFrameCommunicator';
 import { DeepPartial } from '../utils/dataAttributes';
 import { ConfigurationManager, IConfigurationManager } from './ConfigurationManager';
@@ -41,11 +38,7 @@ export class NodeSmartLinkProvider {
   private visibleElements = new Set<HTMLElement>();
 
   constructor(private readonly iframeCommunicator: IFrameCommunicator) {
-    if (
-      typeof window === 'undefined' ||
-      typeof MutationObserver === 'undefined' ||
-      typeof IntersectionObserver === 'undefined'
-    ) {
+    if (typeof window === 'undefined' || typeof MutationObserver === 'undefined' || typeof IntersectionObserver === 'undefined') {
       throw InvalidEnvironmentError('NodeSmartLinkProvider can only be initialized in a browser environment.');
     }
 
@@ -292,9 +285,7 @@ export class NodeSmartLinkProvider {
         }
       }
     } else {
-      Logger.warn(
-        'Some required attributes are not found or the edit button for this type of element is not yet supported.'
-      );
+      Logger.warn('Some required attributes are not found or the edit button for this type of element is not yet supported.');
     }
   };
 

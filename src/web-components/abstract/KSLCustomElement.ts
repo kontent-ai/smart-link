@@ -93,9 +93,7 @@ export abstract class KSLCustomElement extends HTMLElement {
    * @returns {HTMLTemplateElement}
    */
   protected static initializeTemplate(): HTMLTemplateElement {
-    throw NotImplementedError(
-      'KSLCustomElement: "initializeTemplate" method should be implemented for every component.'
-    );
+    throw NotImplementedError('KSLCustomElement: "initializeTemplate" method should be implemented for every component.');
   }
 
   /**

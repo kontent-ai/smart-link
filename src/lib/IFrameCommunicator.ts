@@ -21,14 +21,8 @@ export type IFrameMessageMap = {
   readonly [IFrameMessageType.Initialized]: EventHandler<ISDKInitializedMessageData, undefined, Callback>;
   readonly [IFrameMessageType.Status]: EventHandler<ISDKStatusMessageData>;
   readonly [IFrameMessageType.ElementClicked]: EventHandler<IElementClickedMessageData, IClickedMessageMetadata>;
-  readonly [IFrameMessageType.ContentItemClicked]: EventHandler<
-    IContentItemClickedMessageData,
-    IClickedMessageMetadata
-  >;
-  readonly [IFrameMessageType.ContentComponentClicked]: EventHandler<
-    IContentComponentClickedMessageData,
-    IClickedMessageMetadata
-  >;
+  readonly [IFrameMessageType.ContentItemClicked]: EventHandler<IContentItemClickedMessageData, IClickedMessageMetadata>;
+  readonly [IFrameMessageType.ContentComponentClicked]: EventHandler<IContentComponentClickedMessageData, IClickedMessageMetadata>;
   readonly [IFrameMessageType.AddInitial]: EventHandler<
     IAddButtonInitialMessageData,
     IClickedMessageMetadata,

@@ -37,7 +37,7 @@ describe('EventEmitter', () => {
     eventEmitter.removeAllListeners();
 
     eventEmitter.emit('eventA', 'result');
-    eventEmitter.emit('eventB');
+    eventEmitter.emit('eventB', undefined);
 
     expect(handlerA).toHaveBeenCalledTimes(0);
     expect(handlerB).toHaveBeenCalledTimes(0);

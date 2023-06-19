@@ -85,9 +85,7 @@ const getPopoverHtml = ({ elementType, isParentPublished, permissions }: IAddBut
     class="ksl-add-button__popover-button"
     type="${ButtonType.Quinary}"
     tooltip-position="${ElementPositionOffset.Top}"
-    tooltip-message="${
-      isParentPublished ? ContentIsPublishedTooltip : getCreateLinkedItemTooltip(canUserCreateLinkedItem)
-    }"
+    tooltip-message="${isParentPublished ? ContentIsPublishedTooltip : getCreateLinkedItemTooltip(canUserCreateLinkedItem)}"
     ${(isParentPublished || !canUserCreateLinkedItem) && 'disabled'}
     ${elementType !== AddButtonElementType.LinkedItems && 'hidden'}
   >
@@ -239,10 +237,7 @@ export class KSLAddButtonElement extends KSLPositionedElement {
     try {
       const eventData = { data, targetNode: this.targetRef };
 
-      const response: IAddButtonPermissionsServerModel = await this.dispatchAsyncEvent(
-        'ksl:add-button:initial',
-        eventData
-      );
+      const response: IAddButtonPermissionsServerModel = await this.dispatchAsyncEvent('ksl:add-button:initial', eventData);
 
       const { permissions } = response;
       const isUserMissingPermissions =
@@ -331,15 +326,9 @@ export class KSLAddButtonElement extends KSLPositionedElement {
       return;
     }
 
-    const createComponentButtonRef = this.popoverRef.querySelector(
-      `#${PopoverButtonId.CreateComponent}`
-    ) as KSLButtonElement;
-    const createLinkedItemButtonRef = this.popoverRef.querySelector(
-      `#${PopoverButtonId.CreateLinkedItem}`
-    ) as KSLButtonElement;
-    const insertLinkedItemButtonRef = this.popoverRef.querySelector(
-      `#${PopoverButtonId.InsertLinkedItem}`
-    ) as KSLButtonElement;
+    const createComponentButtonRef = this.popoverRef.querySelector(`#${PopoverButtonId.CreateComponent}`) as KSLButtonElement;
+    const createLinkedItemButtonRef = this.popoverRef.querySelector(`#${PopoverButtonId.CreateLinkedItem}`) as KSLButtonElement;
+    const insertLinkedItemButtonRef = this.popoverRef.querySelector(`#${PopoverButtonId.InsertLinkedItem}`) as KSLButtonElement;
 
     if (createComponentButtonRef && elementType === AddButtonElementType.RichText) {
       createComponentButtonRef.addEventListener('click', this.handleCreateComponentClick);
@@ -359,15 +348,9 @@ export class KSLAddButtonElement extends KSLPositionedElement {
       return;
     }
 
-    const createComponentButtonRef = this.popoverRef.querySelector(
-      `#${PopoverButtonId.CreateComponent}`
-    ) as KSLButtonElement;
-    const createLinkedItemButtonRef = this.popoverRef.querySelector(
-      `#${PopoverButtonId.CreateLinkedItem}`
-    ) as KSLButtonElement;
-    const insertLinkedItemButtonRef = this.popoverRef.querySelector(
-      `#${PopoverButtonId.InsertLinkedItem}`
-    ) as KSLButtonElement;
+    const createComponentButtonRef = this.popoverRef.querySelector(`#${PopoverButtonId.CreateComponent}`) as KSLButtonElement;
+    const createLinkedItemButtonRef = this.popoverRef.querySelector(`#${PopoverButtonId.CreateLinkedItem}`) as KSLButtonElement;
+    const insertLinkedItemButtonRef = this.popoverRef.querySelector(`#${PopoverButtonId.InsertLinkedItem}`) as KSLButtonElement;
 
     if (createComponentButtonRef) {
       createComponentButtonRef.removeEventListener('click', this.handleCreateComponentClick);

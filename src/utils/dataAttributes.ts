@@ -104,10 +104,7 @@ const fixedAddButtonParserPattern: DataAttributesParserPattern = [
   ...baseAddButtonParserPattern,
 ];
 
-export type EditButtonClickedData =
-  | IContentItemClickedMessageData
-  | IContentComponentClickedMessageData
-  | IElementClickedMessageData;
+export type EditButtonClickedData = IContentItemClickedMessageData | IContentComponentClickedMessageData | IElementClickedMessageData;
 
 export function parseEditButtonDataAttributes(target: HTMLElement): DeepPartial<EditButtonClickedData> {
   const type = getHighlightTypeForElement(target);
@@ -186,10 +183,7 @@ function getAddButtonInsertPosition(parsed: ReadonlyMap<ParserTokenKey, string>)
  * @param {HTMLElement} startFrom
  * @returns {ReadonlyMap<ParserTokenKey, string>}
  */
-function parseDataAttributes(
-  pattern: DataAttributesParserPattern,
-  startFrom: HTMLElement
-): ReadonlyMap<ParserTokenKey, string> {
+function parseDataAttributes(pattern: DataAttributesParserPattern, startFrom: HTMLElement): ReadonlyMap<ParserTokenKey, string> {
   const parsed = new Map();
 
   Logger.debugGroup('Parse data-attributes starting with ', startFrom);
@@ -276,10 +270,7 @@ function parseDataAttributes(
   return parsed;
 }
 
-function findDataAttribute(
-  element: HTMLElement,
-  dataAttributes: DataAttribute[]
-): [DataAttribute, string] | [null, null] {
+function findDataAttribute(element: HTMLElement, dataAttributes: DataAttribute[]): [DataAttribute, string] | [null, null] {
   for (const attribute of dataAttributes) {
     const value = element.getAttribute(attribute);
     if (value) {
