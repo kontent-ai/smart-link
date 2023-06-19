@@ -168,6 +168,7 @@ export class KSLButtonElement extends KSLCustomElementWithTooltip {
   public connectedCallback(): void {
     super.connectedCallback();
     this.addEventListener('click', this.handleClick, { capture: true });
+    this.addEventListener('pointerdown', (e: PointerEvent) => console.log(e));
   }
 
   public disconnectedCallback(): void {

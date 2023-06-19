@@ -1,12 +1,12 @@
 import { getElementAncestors } from './node';
 import {
   IAddButtonInitialMessageData,
-  IContentComponentClickedMessageData,
-  IContentItemClickedMessageData,
-  IElementClickedMessageData,
+  IEditButtonContentComponentClickedMessageData,
+  IEditButtonContentItemClickedMessageData,
+  IEditButtonElementClickedMessageData,
   InsertPosition,
   InsertPositionPlacement,
-} from '../lib/IFrameCommunicatorTypes';
+} from '../models/clientMessages';
 import { getHighlightTypeForElement, HighlightType } from './customElements';
 import { Logger } from '../lib/Logger';
 
@@ -105,9 +105,9 @@ const fixedAddButtonParserPattern: DataAttributesParserPattern = [
 ];
 
 export type EditButtonClickedData =
-  | IContentItemClickedMessageData
-  | IContentComponentClickedMessageData
-  | IElementClickedMessageData;
+  | IEditButtonElementClickedMessageData
+  | IEditButtonContentComponentClickedMessageData
+  | IEditButtonContentItemClickedMessageData;
 
 export function parseEditButtonDataAttributes(target: HTMLElement): DeepPartial<EditButtonClickedData> {
   const type = getHighlightTypeForElement(target);

@@ -1,5 +1,5 @@
 import { buildComponentElementLink, buildElementLink, buildKontentLink } from '../../src';
-import { IElementClickedMessageData } from '../../src/lib/IFrameCommunicatorTypes';
+import { IEditButtonElementClickedMessageData } from '../../types/models/clientMessages';
 
 describe('link.ts', () => {
   describe('buildElementLink', () => {
@@ -33,7 +33,7 @@ describe('link.ts', () => {
   });
 
   describe('buildKontentLink', () => {
-    let testData: IElementClickedMessageData;
+    let testData: IEditButtonElementClickedMessageData;
 
     beforeEach(() => {
       testData = {

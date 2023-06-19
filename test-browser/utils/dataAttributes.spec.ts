@@ -1,6 +1,6 @@
 import { createHtmlFixture } from '../test-helpers/createHtmlFixture';
 import { parseEditButtonDataAttributes, parseAddButtonDataAttributes } from '../../src/utils/dataAttributes';
-import { InsertPositionPlacement } from '../../src/lib/IFrameCommunicatorTypes';
+import { InsertPositionPlacement } from '../../src/models/clientMessages';
 
 describe('dataAttributes.ts', () => {
   const fixture = createHtmlFixture();

@@ -7,14 +7,12 @@ import { KSLContainerElement } from './KSLContainerElement';
 import { createTemplateForCustomElement } from '../utils/node';
 import { DeepPartial, MetadataAttribute, parseAddButtonDataAttributes } from '../utils/dataAttributes';
 import {
-  AddButtonAction,
   AddButtonElementType,
   AddButtonPermission,
   AddButtonPermissionCheckResult,
-  IAddActionMessageData,
-  IAddButtonInitialMessageData,
   IAddButtonPermissionsServerModel,
-} from '../lib/IFrameCommunicatorTypes';
+} from '../models/hostMessages';
+import { AddButtonAction, IAddButtonActionMessageData, IAddButtonInitialMessageData } from '../models/clientMessages';
 import { AsyncCustomEvent } from '../utils/events';
 import { Logger } from '../lib/Logger';
 import { BaseZIndex } from './constants/zIndex';
@@ -40,7 +38,7 @@ interface IKSLAddButtonElementInitialEventReason {
 }
 
 type KSLAddButtonElementInitialEventData = IKSLAddButtonElementEventData<IAddButtonInitialMessageData>;
-type KSLAddButtonElementActionEventData = IKSLAddButtonElementEventData<IAddActionMessageData>;
+type KSLAddButtonElementActionEventData = IKSLAddButtonElementEventData<IAddButtonActionMessageData>;
 
 export type KSLAddButtonElementActionEvent = CustomEvent<KSLAddButtonElementActionEventData>;
 export type KSLAddButtonElementInitialAsyncEvent = AsyncCustomEvent<

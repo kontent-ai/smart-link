@@ -1,4 +1,4 @@
-import { IElementClickedMessageData } from '../lib/IFrameCommunicatorTypes';
+import { IEditButtonElementClickedMessageData } from '../models/clientMessages';
 
 function buildItemLink(projectId: string, languageCodename: string, itemId: string): string {
   return `https://app.kontent.ai/goto/edit-item/project/${projectId}/variant-codename/${languageCodename}/item/${itemId}`;
@@ -27,7 +27,7 @@ export function buildComponentElementLink(
   )}/component/${contentComponentId}/element/${componentElementCodename}`;
 }
 
-export function buildKontentLink(data: IElementClickedMessageData): string {
+export function buildKontentLink(data: IEditButtonElementClickedMessageData): string {
   if (data.contentComponentId) {
     return buildComponentElementLink(
       data.projectId,

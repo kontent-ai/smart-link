@@ -1,12 +1,12 @@
-import {
-  IAddActionMessageData,
-  IAddButtonInitialMessageData,
-  IContentComponentClickedMessageData,
-  IContentItemClickedMessageData,
-  IElementClickedMessageData,
-} from '../lib/IFrameCommunicatorTypes';
 import { DeepPartial } from './dataAttributes';
 import { Logger } from '../lib/Logger';
+import {
+  IAddButtonActionMessageData,
+  IAddButtonInitialMessageData,
+  IEditButtonContentComponentClickedMessageData,
+  IEditButtonContentItemClickedMessageData,
+  IEditButtonElementClickedMessageData,
+} from '../models/clientMessages';
 
 function logErrors(errors: string[]): void {
   errors.forEach((error: string) => {
@@ -15,8 +15,8 @@ function logErrors(errors: string[]): void {
 }
 
 export function validateContentItemClickEditMessageData(
-  data: Partial<IContentItemClickedMessageData>
-): data is IContentItemClickedMessageData {
+  data: Partial<IEditButtonContentItemClickedMessageData>
+): data is IEditButtonContentItemClickedMessageData {
   const errors: string[] = [];
 
   if (!data.projectId) {
@@ -37,8 +37,8 @@ export function validateContentItemClickEditMessageData(
 }
 
 export function validateElementClickMessageData(
-  data: Partial<IElementClickedMessageData>
-): data is IElementClickedMessageData {
+  data: Partial<IEditButtonElementClickedMessageData>
+): data is IEditButtonElementClickedMessageData {
   if (!data.elementCodename) {
     Logger.error('Element codename is required to handle element click.');
     return false;
@@ -48,8 +48,8 @@ export function validateElementClickMessageData(
 }
 
 export function validateContentComponentClickMessageData(
-  data: Partial<IContentComponentClickedMessageData>
-): data is IContentComponentClickedMessageData {
+  data: Partial<IEditButtonContentComponentClickedMessageData>
+): data is IEditButtonContentComponentClickedMessageData {
   if (!data.contentComponentId) {
     Logger.error('Content component ID is required to handle element click.');
     return false;
@@ -88,7 +88,9 @@ export function validateAddInitialMessageData(
   return errors.length === 0;
 }
 
-export function validateAddActionMessageData(data: DeepPartial<IAddActionMessageData>): data is IAddActionMessageData {
+export function validateAddActionMessageData(
+  data: DeepPartial<IAddButtonActionMessageData>
+): data is IAddButtonActionMessageData {
   if (!data.action) {
     Logger.error('Action is required to handle add button click.');
     return false;
