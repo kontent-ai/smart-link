@@ -14,8 +14,8 @@ import {
 } from '../models/hostMessages';
 import { AddButtonAction, IAddButtonActionMessageData, IAddButtonInitialMessageData } from '../models/clientMessages';
 import { AsyncCustomEvent } from '../utils/events';
-import { Logger } from '../lib/Logger';
 import { BaseZIndex } from './constants/zIndex';
+import { ILogger } from '../helpers/Logger';
 
 const ContentIsPublishedTooltip = 'Content is published';
 const DefaultTooltipMessage = 'Insert...';
@@ -139,7 +139,7 @@ export class KSLAddButtonElement extends KSLPositionedElement {
   private readonly buttonRef: KSLButtonElement;
   private popoverRef: KSLPopoverElement | null = null;
 
-  constructor() {
+  constructor(private readonly logger: ILogger) {
     super();
 
     assert(this.shadowRoot, 'Shadow root must be available in "open" mode.');
@@ -264,7 +264,7 @@ export class KSLAddButtonElement extends KSLPositionedElement {
         this.showPopover(response);
       }
     } catch (reason) {
-      Logger.error(reason);
+      this.logger.error(reason);
 
       this.buttonRef.loading = false;
       this.buttonRef.disabled = true;

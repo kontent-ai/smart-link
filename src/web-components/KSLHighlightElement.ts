@@ -6,10 +6,10 @@ import { ElementPositionOffset, KSLPositionedElement } from './abstract/KSLPosit
 import { KSLContainerElement } from './KSLContainerElement';
 import { createTemplateForCustomElement } from '../utils/node';
 import { DeepPartial, EditButtonClickedData, parseEditButtonDataAttributes } from '../utils/dataAttributes';
-import { Logger } from '../lib/Logger';
 import { Colors } from './tokens/colors';
 import { Shadows } from './tokens/shadows';
 import { BaseZIndex } from './constants/zIndex';
+import { ILogger } from '../helpers/Logger';
 
 interface IKSLHighlightElementEventData {
   readonly data: DeepPartial<EditButtonClickedData>;
@@ -121,7 +121,7 @@ export class KSLHighlightElement extends KSLPositionedElement {
 
   private readonly editButtonRef: KSLButtonElement;
 
-  constructor() {
+  constructor(private readonly logger: ILogger) {
     super();
 
     assert(this.shadowRoot, 'Shadow root must be always accessible in "open" mode.');
@@ -183,7 +183,7 @@ export class KSLHighlightElement extends KSLPositionedElement {
     }
 
     if (!(this.offsetParent instanceof KSLContainerElement)) {
-      Logger.warn('KSLHighlightElement: should be located inside KSLContainerElement to be positioned properly.');
+      this.logger.warn('KSLHighlightElement: should be located inside KSLContainerElement to be positioned properly.');
     }
 
     const offsetParentRect = this.offsetParent.getBoundingClientRect();

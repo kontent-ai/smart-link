@@ -3,6 +3,7 @@ import { KSLContainerElement } from '../web-components/KSLContainerElement';
 import { KSLHighlightElement } from '../web-components/KSLHighlightElement';
 import { KSLAddButtonElement } from '../web-components/KSLAddButtonElement';
 import { shouldElementHaveHighlight, shouldElementHaveAddButton } from '../utils/customElements';
+import { ILogger } from '../helpers/Logger';
 
 export interface IRenderer {
   readonly destroy: () => void;
@@ -16,7 +17,7 @@ export class SmartLinkRenderer implements IRenderer {
   private highlightByElement: Map<HTMLElement, KSLHighlightElement>;
   private addButtonByElement: Map<HTMLElement, KSLAddButtonElement>;
 
-  constructor() {
+  constructor(private readonly logger: ILogger) {
     this.containerByRenderingRoot = new Map<HTMLElement, KSLContainerElement>();
     this.highlightByElement = new Map<HTMLElement, KSLHighlightElement>();
     this.addButtonByElement = new Map<HTMLElement, KSLAddButtonElement>();
@@ -144,7 +145,7 @@ export class SmartLinkRenderer implements IRenderer {
       return container;
     }
 
-    container = document.createElement(KSLContainerElement.is);
+    container = new KSLContainerElement(this.logger);
     root.appendChild(container);
     this.containerByRenderingRoot.set(root, container);
     return container;

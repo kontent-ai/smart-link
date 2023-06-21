@@ -4,7 +4,6 @@ import { QueryParamPresenceWatcher } from './lib/QueryParamPresenceWatcher';
 import { defineAllRequiredWebComponents } from './web-components/components';
 import { ConfigurationManager, IConfigurationManager, IKSLPublicConfiguration } from './lib/ConfigurationManager';
 import { InvalidEnvironmentError, NotInitializedError } from './utils/errors';
-import { Logger, LogLevel } from './lib/Logger';
 import { reload } from './utils/reload';
 import { IMessageService, MessageService } from './services/MessageService';
 import { IParentWindowCommunicationAPI, ParentWindowCommunicationAPI } from './helpers/ParentWindowCommunicationAPI';
@@ -17,6 +16,7 @@ import {
   ISdkStatusHostMessage,
 } from './models/hostMessages';
 import { EventDescriptor, EventEmitter, EventListener } from './helpers/EventEmitter';
+import { ILogger, Logger, LogLevel } from './helpers/Logger';
 
 interface IKontentSmartLinkStoredSettings {
   readonly enabled: boolean;
@@ -42,11 +42,13 @@ type DeprecateRefreshHandler = (
 
 class KontentSmartLinkSDK extends EventEmitter<KontentSmartLinkSDKEventsMap> {
   private readonly listenersCache = new WeakMap();
+
   private readonly parentWindowCommunicationAPI: IParentWindowCommunicationAPI;
   private readonly messageService: IMessageService;
   private readonly configurationManager: IConfigurationManager;
   private readonly queryParamPresenceWatcher: QueryParamPresenceWatcher;
   private readonly nodeSmartLinkProvider: NodeSmartLinkProvider;
+  private readonly logger: ILogger;
 
   constructor(configuration?: Partial<IKSLPublicConfiguration>) {
     super();
@@ -54,11 +56,14 @@ class KontentSmartLinkSDK extends EventEmitter<KontentSmartLinkSDKEventsMap> {
     this.configurationManager = ConfigurationManager.getInstance();
     this.configurationManager.update(configuration);
 
+    this.logger = new Logger();
+    this.logger.setLogLevel(this.configurationManager.debug ? LogLevel.Debug : LogLevel.Info);
+
     this.queryParamPresenceWatcher = new QueryParamPresenceWatcher();
 
     this.parentWindowCommunicationAPI = new ParentWindowCommunicationAPI(window);
     this.messageService = new MessageService(this.parentWindowCommunicationAPI);
-    this.nodeSmartLinkProvider = new NodeSmartLinkProvider(this.messageService);
+    this.nodeSmartLinkProvider = new NodeSmartLinkProvider(this.messageService, this.logger);
 
     this.handleRefreshMessage = this.handleRefreshMessage.bind(this);
     this.handleStatusMessage = this.handleStatusMessage.bind(this);
@@ -72,9 +77,6 @@ class KontentSmartLinkSDK extends EventEmitter<KontentSmartLinkSDKEventsMap> {
 
   public initialize = async (): Promise<void> => {
     await defineAllRequiredWebComponents();
-
-    const level = this.configurationManager.debug ? LogLevel.Debug : LogLevel.Info;
-    Logger.setLogLevel(level);
 
     if (this.configurationManager.queryParam) {
       this.queryParamPresenceWatcher.watch(this.configurationManager.queryParam, this.nodeSmartLinkProvider.toggle);
@@ -106,8 +108,7 @@ class KontentSmartLinkSDK extends EventEmitter<KontentSmartLinkSDKEventsMap> {
     }
 
     if (typeof configuration.debug !== 'undefined') {
-      const level = configuration.debug ? LogLevel.Debug : LogLevel.Info;
-      Logger.setLogLevel(level);
+      this.logger.setLogLevel(configuration.debug ? LogLevel.Debug : LogLevel.Info);
     }
 
     this.configurationManager.update(configuration);
@@ -172,7 +173,7 @@ class KontentSmartLinkSDK extends EventEmitter<KontentSmartLinkSDKEventsMap> {
    * @deprecated This function is deprecated, please use `addListener` instead.
    */
   public on(event: KontentSmartLinkEvent.Refresh, handler: DeprecateRefreshHandler): void {
-    Logger.warn('The `on` method is deprectated. Please use `addListener` instead.');
+    this.logger.warn('The `on` method is deprectated. Please use `addListener` instead.');
     const transformedHandler: EventListener<KontentSmartLinkSDKEventsMap[KontentSmartLinkEvent.Refresh]> = ({
       data,
       metadata,
@@ -189,7 +190,7 @@ class KontentSmartLinkSDK extends EventEmitter<KontentSmartLinkSDKEventsMap> {
    * @deprecated This function is deprecated, please use `removeListener` instead.
    */
   public off(event: KontentSmartLinkEvent.Refresh, handler: DeprecateRefreshHandler): void {
-    Logger.warn('The `off` method is deprectated. Please use `removeListener` instead.');
+    this.logger.warn('The `off` method is deprectated. Please use `removeListener` instead.');
     const transformedHandler = this.listenersCache.get(handler);
     this.removeListener(event, transformedHandler);
   }

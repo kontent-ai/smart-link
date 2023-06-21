@@ -19,7 +19,7 @@ declare global {
   }
 }
 
-const webComponents: ReadonlyArray<typeof KSLCustomElement> = [
+const webComponents = [
   KSLIconElement,
   KSLButtonElement,
   KSLAddButtonElement,

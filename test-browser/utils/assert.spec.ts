@@ -1,14 +1,19 @@
 import { assert } from '../../src/utils/assert';
-import { Logger } from '../../src/lib/Logger';
 
 describe('assert.ts', () => {
   it('should throw error if condition is falsy', () => {
-    spyOn(Logger, 'error');
+    spyOn(console, 'error');
 
     expect(() => {
-      assert(false, 'error-message');
+      assert(false, 'This should throw!');
     }).toThrowError();
 
-    expect(Logger.error).toHaveBeenCalled();
+    expect(console.error).toHaveBeenCalledWith(jasmine.any(Error));
+  });
+
+  it('should not throw if condition is truthy', () => {
+    expect(() => {
+      assert(true, 'This should not throw!');
+    }).not.toThrow();
   });
 });

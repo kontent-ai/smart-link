@@ -16,7 +16,6 @@ import {
 import { DeepPartial } from '../utils/dataAttributes';
 import { ConfigurationManager, IConfigurationManager } from './ConfigurationManager';
 import { buildKontentLink } from '../utils/link';
-import { Logger } from './Logger';
 import { InvalidEnvironmentError } from '../utils/errors';
 import { IMessageService } from '../services/MessageService';
 import {
@@ -28,6 +27,7 @@ import {
   ISmartLinkSdkMessageMetadata,
 } from '../models/clientMessages';
 import { AddButtonElementType, IAddButtonInitialClickResponseHostMessage } from '../models/hostMessages';
+import { ILogger } from '../helpers/Logger';
 
 export class NodeSmartLinkProvider {
   private readonly mutationObserver: MutationObserver;
@@ -40,7 +40,7 @@ export class NodeSmartLinkProvider {
   private observedElements = new Set<HTMLElement>();
   private visibleElements = new Set<HTMLElement>();
 
-  constructor(private readonly messageService: IMessageService) {
+  constructor(private readonly messageService: IMessageService, private readonly logger: ILogger) {
     if (
       typeof window === 'undefined' ||
       typeof MutationObserver === 'undefined' ||
@@ -52,7 +52,7 @@ export class NodeSmartLinkProvider {
     this.configurationManager = ConfigurationManager.getInstance();
     this.mutationObserver = new MutationObserver(this.onDomMutation);
     this.intersectionObserver = new IntersectionObserver(this.onElementVisibilityChange);
-    this.renderer = new SmartLinkRenderer();
+    this.renderer = new SmartLinkRenderer(this.logger);
   }
 
   public toggle = (force?: boolean): void => {
@@ -288,7 +288,7 @@ export class NodeSmartLinkProvider {
             metadata: messageMetadata,
           });
         } else {
-          Logger.warn('Edit buttons for content components are only functional inside Web Spotlight.');
+          this.logger.warn('Edit buttons for content components are only functional inside Web Spotlight.');
         }
       }
     } else if ('itemId' in messageData && messageData.itemId) {
@@ -300,11 +300,11 @@ export class NodeSmartLinkProvider {
             metadata: messageMetadata,
           });
         } else {
-          Logger.warn('Add buttons for content items are only functional inside Web Spotlight.');
+          this.logger.warn('Add buttons for content items are only functional inside Web Spotlight.');
         }
       }
     } else {
-      Logger.warn(
+      this.logger.warn(
         'Some required attributes are not found or the edit button for this type of element is not yet supported.'
       );
     }
@@ -342,7 +342,7 @@ export class NodeSmartLinkProvider {
 
         return onResolve(response.data);
       } else {
-        Logger.warn('Add buttons are only functional inside Web Spotlight.');
+        this.logger.warn('Add buttons are only functional inside Web Spotlight.');
         onReject({ message: 'Add buttons are only functional inside Web Spotlight' });
       }
     } else {
@@ -372,7 +372,7 @@ export class NodeSmartLinkProvider {
           metadata: messageMetadata,
         });
       } else {
-        Logger.warn('Add buttons are only functional inside Web Spotlight.');
+        this.logger.warn('Add buttons are only functional inside Web Spotlight.');
       }
     }
   };

@@ -1,3 +1,6 @@
+/**
+ * @deprecated
+ */
 export enum LogLevel {
   Debug = 1,
   Info,
@@ -5,6 +8,9 @@ export enum LogLevel {
   Error,
 }
 
+/**
+ * @deprecated
+ */
 export abstract class Logger {
   private static logLevel: LogLevel = LogLevel.Info;
 

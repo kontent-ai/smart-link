@@ -4,6 +4,7 @@ import { KSLHighlightElement } from './KSLHighlightElement';
 import { createTemplateForCustomElement, getRenderingRootMetadata, getTotalScrollOffset } from '../utils/node';
 import { IPositionable } from './abstract/KSLPositionedElement';
 import { BaseZIndex } from './constants/zIndex';
+import { ILogger } from '../helpers/Logger';
 
 const templateHTML = `
   <style>
@@ -34,6 +35,10 @@ export class KSLContainerElement extends KSLCustomElement implements IPositionab
 
   private _boundingClientRect: DOMRect | null = null;
 
+  constructor(private readonly logger: ILogger) {
+    super();
+  }
+
   public static initializeTemplate(): HTMLTemplateElement {
     return createTemplateForCustomElement(templateHTML);
   }
@@ -46,14 +51,14 @@ export class KSLContainerElement extends KSLCustomElement implements IPositionab
   }
 
   public createHighlightForElement = (element: HTMLElement): KSLHighlightElement => {
-    const highlight = document.createElement(KSLHighlightElement.is);
+    const highlight = new KSLHighlightElement(this.logger);
     highlight.attachTo(element);
     this.appendChild(highlight);
     return highlight;
   };
 
   public createAddButtonForElement = (element: HTMLElement): KSLAddButtonElement => {
-    const button = document.createElement(KSLAddButtonElement.is);
+    const button = new KSLAddButtonElement(this.logger);
     button.attachTo(element);
     this.appendChild(button);
     return button;
