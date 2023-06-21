@@ -6,7 +6,6 @@ import { ConfigurationManager, IConfigurationManager, IKSLPublicConfiguration } 
 import { InvalidEnvironmentError, NotInitializedError } from './utils/errors';
 import { Logger, LogLevel } from './lib/Logger';
 import { reload } from './utils/reload';
-import { Callback, EventHandler, EventManager } from './lib/EventManager';
 import { IMessageService, MessageService } from './services/MessageService';
 import { IParentWindowCommunicationAPI, ParentWindowCommunicationAPI } from './helpers/ParentWindowCommunicationAPI';
 import { ClientMessageType } from './models/clientMessages';
@@ -17,6 +16,7 @@ import {
   IReloadPreviewMessageMetadata,
   ISdkStatusHostMessage,
 } from './models/hostMessages';
+import { EventDescriptor, EventEmitter, EventListener } from './helpers/EventEmitter';
 
 interface IKontentSmartLinkStoredSettings {
   readonly enabled: boolean;
@@ -26,27 +26,34 @@ export enum KontentSmartLinkEvent {
   Refresh = 'refresh',
 }
 
-type KontentSmartLinkEventMap = {
-  readonly [KontentSmartLinkEvent.Refresh]: EventHandler<
-    IReloadPreviewMessageData,
-    IReloadPreviewMessageMetadata,
-    Callback
-  >;
+type KontentSmartLinkSDKEventsMap = {
+  readonly [KontentSmartLinkEvent.Refresh]: EventDescriptor<{
+    readonly data: IReloadPreviewMessageData;
+    readonly metadata: IReloadPreviewMessageMetadata;
+    readonly originalRefresh: () => void;
+  }>;
 };
 
-class KontentSmartLinkSDK {
+type DeprecateRefreshHandler = (
+  data: IReloadPreviewMessageData,
+  metadata: IReloadPreviewMessageMetadata,
+  callback: () => void
+) => void;
+
+class KontentSmartLinkSDK extends EventEmitter<KontentSmartLinkSDKEventsMap> {
+  private readonly listenersCache = new WeakMap();
   private readonly parentWindowCommunicationAPI: IParentWindowCommunicationAPI;
   private readonly messageService: IMessageService;
   private readonly configurationManager: IConfigurationManager;
   private readonly queryParamPresenceWatcher: QueryParamPresenceWatcher;
   private readonly nodeSmartLinkProvider: NodeSmartLinkProvider;
-  private readonly events: EventManager<KontentSmartLinkEventMap>;
 
   constructor(configuration?: Partial<IKSLPublicConfiguration>) {
+    super();
+
     this.configurationManager = ConfigurationManager.getInstance();
     this.configurationManager.update(configuration);
 
-    this.events = new EventManager<KontentSmartLinkEventMap>();
     this.queryParamPresenceWatcher = new QueryParamPresenceWatcher();
 
     this.parentWindowCommunicationAPI = new ParentWindowCommunicationAPI(window);
@@ -81,11 +88,11 @@ class KontentSmartLinkSDK {
   };
 
   public destroy = (): void => {
-    this.events.removeAllListeners();
     this.queryParamPresenceWatcher.unwatchAll();
     this.nodeSmartLinkProvider.destroy();
 
     this.messageService.unlisten();
+    this.removeAllListeners();
   };
 
   public updateConfiguration = (configuration: Partial<IKSLPublicConfiguration>): void => {
@@ -104,20 +111,6 @@ class KontentSmartLinkSDK {
     }
 
     this.configurationManager.update(configuration);
-  };
-
-  public on = <TEvent extends keyof KontentSmartLinkEventMap>(
-    event: TEvent,
-    handler: KontentSmartLinkEventMap[TEvent]
-  ): void => {
-    this.events.on(event, handler);
-  };
-
-  public off = <TEvent extends keyof KontentSmartLinkEventMap>(
-    event: TEvent,
-    handler: KontentSmartLinkEventMap[TEvent]
-  ): void => {
-    this.events.off(event, handler);
   };
 
   private initializeParentWindowCommunication = async (): Promise<void> => {
@@ -162,13 +155,43 @@ class KontentSmartLinkSDK {
   }
 
   private handleRefreshMessage(message: IReloadPreviewHostMessage): void {
-    const isCustomRefreshHandlerImplemented = this.events.hasEventListener(KontentSmartLinkEvent.Refresh);
+    const isCustomRefreshHandlerImplemented = this.hasListener(KontentSmartLinkEvent.Refresh);
 
     if (isCustomRefreshHandlerImplemented) {
-      this.events.emit(KontentSmartLinkEvent.Refresh, message.data, message.metadata, reload);
+      this.emit(KontentSmartLinkEvent.Refresh, {
+        data: message.data,
+        metadata: message.metadata,
+        originalRefresh: reload,
+      });
     } else {
       reload();
     }
+  }
+
+  /**
+   * @deprecated This function is deprecated, please use `addListener` instead.
+   */
+  public on(event: KontentSmartLinkEvent.Refresh, handler: DeprecateRefreshHandler): void {
+    Logger.warn('The `on` method is deprectated. Please use `addListener` instead.');
+    const transformedHandler: EventListener<KontentSmartLinkSDKEventsMap[KontentSmartLinkEvent.Refresh]> = ({
+      data,
+      metadata,
+      originalRefresh,
+    }) => {
+      handler(data, metadata, originalRefresh);
+    };
+
+    this.listenersCache.set(handler, transformedHandler);
+    this.addListener(event, transformedHandler);
+  }
+
+  /**
+   * @deprecated This function is deprecated, please use `removeListener` instead.
+   */
+  public off(event: KontentSmartLinkEvent.Refresh, handler: DeprecateRefreshHandler): void {
+    Logger.warn('The `off` method is deprectated. Please use `removeListener` instead.');
+    const transformedHandler = this.listenersCache.get(handler);
+    this.removeListener(event, transformedHandler);
   }
 }
 
@@ -213,10 +236,32 @@ class KontentSmartLink {
     }
   };
 
-  public on = <TEvent extends keyof KontentSmartLinkEventMap>(
-    event: TEvent,
-    handler: KontentSmartLinkEventMap[TEvent]
+  public addListener = <T extends keyof KontentSmartLinkSDKEventsMap>(
+    event: T,
+    listener: EventListener<KontentSmartLinkSDKEventsMap[T]>
   ): void => {
+    if (!this.sdk) {
+      throw NotInitializedError('KontentSmartLink is not initialized or has already been destroyed.');
+    } else {
+      this.sdk.addListener(event, listener);
+    }
+  };
+
+  public removeListener = <T extends keyof KontentSmartLinkSDKEventsMap>(
+    event: T,
+    listener: EventListener<KontentSmartLinkSDKEventsMap[T]>
+  ): void => {
+    if (!this.sdk) {
+      throw NotInitializedError('KontentSmartLink is not initialized or has already been destroyed.');
+    } else {
+      this.sdk.removeListener(event, listener);
+    }
+  };
+
+  /**
+   * @deprecated This function is deprecated, please use `addListener` instead.
+   */
+  public on = (event: KontentSmartLinkEvent.Refresh, handler: DeprecateRefreshHandler): void => {
     if (!this.sdk) {
       throw NotInitializedError('KontentSmartLink is not initialized or has already been destroyed.');
     } else {
@@ -224,10 +269,10 @@ class KontentSmartLink {
     }
   };
 
-  public off = <TEvent extends keyof KontentSmartLinkEventMap>(
-    event: TEvent,
-    handler: KontentSmartLinkEventMap[TEvent]
-  ): void => {
+  /**
+   * @deprecated This function is deprecated, please use `removeListener` instead.
+   */
+  public off = (event: KontentSmartLinkEvent.Refresh, handler: DeprecateRefreshHandler): void => {
     if (!this.sdk) {
       throw NotInitializedError('KontentSmartLink is not initialized or has already been destroyed.');
     } else {

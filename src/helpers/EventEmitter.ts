@@ -6,8 +6,8 @@ export type EventMap = {
   readonly [k: string]: EventDescriptor<any>;
 };
 
-export type EventPayload<T extends EventDescriptor> = T['payload'];
-export type EventListener<T extends EventDescriptor> = (payload: EventPayload<T>) => void;
+export type EventPayload<T extends EventDescriptor<unknown>> = T['payload'];
+export type EventListener<T extends EventDescriptor<unknown>> = (payload: EventPayload<T>) => void;
 
 export interface IEventEmitter<T extends EventMap> {
   addListener<E extends keyof T>(type: E, listener: EventListener<T[E]>): void;

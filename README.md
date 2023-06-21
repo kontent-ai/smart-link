@@ -70,17 +70,17 @@ etc.) when injecting the smart links.**
 
 #### Available data attributes
 
-|Attribute|Value| Description                                                                                                                                                 |
-|---------|:----------:|-------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `data-kontent-project-id` | guid | Kontent.ai project/environment ID.                                                                                                                          |
-| `data-kontent-language-codename` | string | Kontent.ai language codename.                                                                                                                               |
-| `data-kontent-item-id` | guid | Content item ID.                                                                                                                                            |
-| `data-kontent-component-id` |  guid | [Content component](https://kontent.ai/learn/tutorials/write-and-collaborate/structure-your-content/structure-your-content#a-create-single-use-content) ID. |
-| `data-kontent-element-codename` | string | Content type element codename.                                                                                                                              |
-| `data-kontent-add-button` | - | Specifies that node should have add-button rendered near it.                                                                                                |
-| `data-kontent-add-button-insert-position` | `start` &#124; `before` &#124; `after` &#124; `end` | Specifies the insert position of an item/content component added using add button.                                                                          |
+| Attribute                                 |                                                                                                     Value                                                                                                      | Description                                                                                                                                                 |
+|-------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|-------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `data-kontent-project-id`                 |                                                                                                      guid                                                                                                      | Kontent.ai project/environment ID.                                                                                                                          |
+| `data-kontent-language-codename`          |                                                                                                     string                                                                                                     | Kontent.ai language codename.                                                                                                                               |
+| `data-kontent-item-id`                    |                                                                                                      guid                                                                                                      | Content item ID.                                                                                                                                            |
+| `data-kontent-component-id`               |                                                                                                      guid                                                                                                      | [Content component](https://kontent.ai/learn/tutorials/write-and-collaborate/structure-your-content/structure-your-content#a-create-single-use-content) ID. |
+| `data-kontent-element-codename`           |                                                                                                     string                                                                                                     | Content type element codename.                                                                                                                              |
+| `data-kontent-add-button`                 |                                                                                                       -                                                                                                        | Specifies that node should have add-button rendered near it.                                                                                                |
+| `data-kontent-add-button-insert-position` |                                                                              `start` &#124; `before` &#124; `after` &#124; `end`                                                                               | Specifies the insert position of an item/content component added using add button.                                                                          |
 | `data-kontent-add-button-render-position` | `bottom-start` &#124; `bottom` &#124; `bottom-end` &#124; `left-start` &#124; `left` &#124; `left-end` &#124; `top-start` &#124; `top` &#124; `top-end` &#124; `right-start` &#124; `right` &#124; `right-end` | Specifies visual location of add button.                                                                                                                    |
-| `data-kontent-disable-features` | `highlight` | Specifies that the selected node should not have highlight (which includes edit buttons). Useful when there are too many smart links on your page.          |
+| `data-kontent-disable-features`           |                                                                                                  `highlight`                                                                                                   | Specifies that the selected node should not have highlight (which includes edit buttons). Useful when there are too many smart links on your page.          |
 
 #### Data attributes hierarchy
 
@@ -189,33 +189,33 @@ SDK again (e.g. inside `useEffect` cleanup function) to avoid memory leaks.
 Both initialization methods take an optional configuration argument, that you can use to configure the SDK. You can also
 use instance `setConfiguration` method to update configuration of initialized SDK.
 
-|Attribute|Default|Description|
-|---------|:-------:|-----------|
-|debug|false|When it's set to `true`, enables all debug logs. Can be useful to get more information about how the SDK works inside, but can affect performance.
-|defaultDataAttributes|```{ projectId: undefined, languageCodename: undefined }```|Default values for data attributes, which are only used when those data attributes are not found in DOM during data attributes parsing process. For now, only `projectId` and `languageCodename` attributes are supported. |
-|queryParam|`ksl-enabled`|Name of the query parameter that must be present in the URL to turn the smart link injection on. It is not necessary for query parameter to have a truthy value (just the presence of this query parameter is checked). If set to falsy value ('', null), the smart link injection will always be enabled. Query parameter is only used outside Web Spotlight.|
+| Attribute             |                          Default                            | Description                                                                                                                                                                                                                                                                                                                                                    |
+|-----------------------|:-----------------------------------------------------------:|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| debug                 |                            false                            | When it's set to `true`, enables all debug logs. Can be useful to get more information about how the SDK works inside, but can affect performance.                                                                                                                                                                                                             
+| defaultDataAttributes | ```{ projectId: undefined, languageCodename: undefined }``` | Default values for data attributes, which are only used when those data attributes are not found in DOM during data attributes parsing process. For now, only `projectId` and `languageCodename` attributes are supported.                                                                                                                                     |
+| queryParam            |                        `ksl-enabled`                        | Name of the query parameter that must be present in the URL to turn the smart link injection on. It is not necessary for query parameter to have a truthy value (just the presence of this query parameter is checked). If set to falsy value ('', null), the smart link injection will always be enabled. Query parameter is only used outside Web Spotlight. |
 
 ### Customization
 
 The following [custom CSS properties](https://developer.mozilla.org/en-US/docs/Web/CSS/--*) can be used to customize the
 visuals of the SDK output.
 
-|Custom property|Default|Description|
-|---|:---:|---|
-|--ksl-color-background-default|`rgba(255, 255, 255, 1)`|Default background color used in toolbar and popover.|
-|--ksl-color-background-default-disabled|`rgba(223, 223, 223, 1)`|Disabled background color for buttons inside toolbar and popover.|
-|--ksl-color-background-default-hover|`rgba(21, 21, 21, 0.1)`|Hover background color for buttons inside toolbar and popover.|
-|--ksl-color-background-default-selected|`rgba(255, 240, 239, 1)`|Selected background color for buttons inside toolbar and popover.|
-|--ksl-color-background-secondary|`rgba(20, 22, 25, 1)`|Secondary background color used in tooltips.|
-|--ksl-color-primary|`rgba(219, 60, 0, 1)`|Primary color used as a hover border color in highlights and as a background color in add buttons.|
-|--ksl-color-primary-hover|`rgba(149, 48, 0, 1)`|Primary color used as a hover background color in add buttons.|
-|--ksl-color-primary-transparent|`rgba(219, 60, 0, 0.5)`|Primary color with transparency used as a default border color in highlights.|
-|--ksl-color-text-default|`rgba(255, 255, 255, 1)`|Text color used on a default background (buttons inside toolbar and popover).|
-|--ksl-color-text-default-disabled|`rgba(140, 140, 140, 1)`|Disabled text color used on a default background.|
-|--ksl-color-text-secondary|`rgba(21, 21, 21, 1)`|Text color used inside tooltips and add buttons.|
-|--ksl-shadow-default|`0 8px 32px rgba(16, 33, 60, 0.24), 0 0 8px rgba(0, 0, 0, 0.03)`|Default shadow for toolbar.|
-|--ksl-shadow-primary|`0 8px 10px rgba(219, 60, 0, 0.2), 0 6px 20px rgba(219, 60, 0, 0.12), 0 8px 14px rgba(219, 60, 0, 0.14)`|Shadow for add buttons.|
-|--ksl-z-index|`9000`|Base value of z-index used for calculation of individual values for each ksl-element type|
+| Custom property                         |                                                 Default                                                  | Description                                                                                        |
+|-----------------------------------------|:--------------------------------------------------------------------------------------------------------:|----------------------------------------------------------------------------------------------------|
+| --ksl-color-background-default          |                                         `rgba(255, 255, 255, 1)`                                         | Default background color used in toolbar and popover.                                              |
+| --ksl-color-background-default-disabled |                                         `rgba(223, 223, 223, 1)`                                         | Disabled background color for buttons inside toolbar and popover.                                  |
+| --ksl-color-background-default-hover    |                                         `rgba(21, 21, 21, 0.1)`                                          | Hover background color for buttons inside toolbar and popover.                                     |
+| --ksl-color-background-default-selected |                                         `rgba(255, 240, 239, 1)`                                         | Selected background color for buttons inside toolbar and popover.                                  |
+| --ksl-color-background-secondary        |                                          `rgba(20, 22, 25, 1)`                                           | Secondary background color used in tooltips.                                                       |
+| --ksl-color-primary                     |                                          `rgba(219, 60, 0, 1)`                                           | Primary color used as a hover border color in highlights and as a background color in add buttons. |
+| --ksl-color-primary-hover               |                                          `rgba(149, 48, 0, 1)`                                           | Primary color used as a hover background color in add buttons.                                     |
+| --ksl-color-primary-transparent         |                                         `rgba(219, 60, 0, 0.5)`                                          | Primary color with transparency used as a default border color in highlights.                      |
+| --ksl-color-text-default                |                                         `rgba(255, 255, 255, 1)`                                         | Text color used on a default background (buttons inside toolbar and popover).                      |
+| --ksl-color-text-default-disabled       |                                         `rgba(140, 140, 140, 1)`                                         | Disabled text color used on a default background.                                                  |
+| --ksl-color-text-secondary              |                                          `rgba(21, 21, 21, 1)`                                           | Text color used inside tooltips and add buttons.                                                   |
+| --ksl-shadow-default                    |                     `0 8px 32px rgba(16, 33, 60, 0.24), 0 0 8px rgba(0, 0, 0, 0.03)`                     | Default shadow for toolbar.                                                                        |
+| --ksl-shadow-primary                    | `0 8px 10px rgba(219, 60, 0, 0.2), 0 6px 20px rgba(219, 60, 0, 0.12), 0 8px 14px rgba(219, 60, 0, 0.14)` | Shadow for add buttons.                                                                            |
+| --ksl-z-index                           |                                                  `9000`                                                  | Base value of z-index used for calculation of individual values for each ksl-element type          |
 
 For example, if you want to override all SDK colors and shadows for all SDK elements on the page, you can do it by
 changing the values of all available custom properties of a `:root` element in your CSS or inside a new `<style>` tag on
@@ -266,27 +266,27 @@ to refresh events received from Web Spotlight. If you register a custom refresh 
 default handler every time when refresh is triggered in Web Spotlight (both manually and automatically).
 
 You can implement a custom refresh handler using
-the `.on(KontentSmartLinkEvent.Refresh, (data, metadata, originalRefresh) => {})` method on the SDK instance:
+the `.addListener(KontentSmartLinkEvent.Refresh, ({ data, metadata, originalRefresh }) => {})` method on the SDK instance:
 
 ```ts
 import KontentSmartLink, { KontentSmartLinkEvent } from '@kontent-ai/smart-link';
 
 const sdk = KontentSmartLink.initialize({ ... });
 
-sdk.on(KontentSmartLinkEvent.Refresh, (data, metadata, originalRefresh) => {
+sdk.addListener(KontentSmartLinkEvent.Refresh, ({ data, metadata, originalRefresh }) => {
   // your custom refresh logic
 });
 ```
 
-A custom refresh handler takes three arguments:
+A custom refresh handler takes one argument:
 
-|Argument|Type|Description|
-|---|---|---|
-|Data| { projectId: string, languageCodename: string, updatedItemCodename: string } &#124; undefined | Information about updated item, that caused autorefresh. It is only available when refresh is triggered automatically. |
-|Metadata| { manualRefresh: boolean } | Manual refresh is set to `true` when the refresh is triggered by user. |
-|Original refresh| () => void | Default refresh handler.|
+| Argument             | Type                                                                                          | Description                                                                                                            |
+|----------------------|-----------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
+| arg.data             | { projectId: string, languageCodename: string, updatedItemCodename: string } &#124; undefined | Information about updated item, that caused autorefresh. It is only available when refresh is triggered automatically. |
+| arg.metadata         | { manualRefresh: boolean }                                                                    | Manual refresh is set to `true` when the refresh is triggered by user.                                                 |
+| arg.originalRefresh  | () => void                                                                                    | Default refresh handler.                                                                                               |
 
-You can then unregister the custom refresh handler using the `.off` method on the SDK instance.
+You can then unregister the custom refresh handler using the `.removeListener` method on the SDK instance.
 
 ##### Examples
 
@@ -306,7 +306,7 @@ const PageContent: React.FC = () => {
     const sdk = KontentSmartLink.initialize();
 
     // register custom refresh handler to avoid full refresh in some cases
-    sdk.on(KontentSmartLinkEvent.Refresh, (data: IRefreshMessageData, metadata: IRefreshMessageMetadata, originalRefresh: () => void) => {
+    sdk.addListener(KontentSmartLinkEvent.Refresh, ({ data, metadata, originalRefresh }) => {
       // if user triggered the refresh manually, just refresh the page
       if (metadata.manualRefresh) {
         originalRefresh();
@@ -411,7 +411,7 @@ useEffect(() => {
   });
 
   // custom refresh handler
-  plugin.on('refresh', (data, metadata, originalReload) => {
+  plugin.addListener('refresh', ({ data, metadata, originalReload }) => {
     // You can trigger the rebuild of the page, wait for it to finish and refresh the page after that.
     // Please consider displaying some sort of loader to your users, in case rebuild process takes time, to let them
     // know that the refresh is in progress.
@@ -448,18 +448,18 @@ etc.)
 When running inside Web Spotlight preview iframe, Kontent.ai Smart Link SDK enables several additional features and sends
 iframe messages instead of redirecting user to Kontent.ai page. All message types are listed below.
 
-|Message|Data|Origin|Description|
-|---|:---:|:---:|---|
-|kontent-smart-link:initialized|<code>{ projectId: string &#124; null, languageCodename: string &#124; null, enabled: boolean }</code>|SDK|This message is sent by the SDK when it is initialized.|
-|kontent-smart-link:initialized:response|-|Host|This message is sent by the host as a response to initialized message.|
-|kontent-smart-link:status|<code>{ enabled: boolean }</code>|Host|This message is used to toggle the SDK features.|
-|kontent-smart-link:element:clicked|<code>{ projectId: string, languageCodename: string, itemId: string, contentComponentId?: string, elementCodename: string }</code>|SDK|This message is sent by the SDK when element with `data-kontent-element-codename` attribute is clicked.|
-|kontent-smart-link:content-component:clicked|<code>{ projectId: string, languageCodename: string, itemId: string, contentComponentId: string }</code>|SDK|This message is sent by the SDK when element with `data-kontent-component-id` attribute is clicked.|
-|kontent-smart-link:content-item:clicked|<code>{ projectId: string, languageCodename: string, itemId: string }</code>|SDK|This message is sent by the SDK when element with `data-kontent-item-id` attribute is clicked.|
-|kontent-smart-link:add:initial|<code>{ projectId: string, languageCodename: string, itemId: string, contentComponentId?: string, elementCodename: string, insertPosition: { targetId?: string, placement: 'start' &#124; 'end' &#124; 'before' &#124; 'after', } }</code>|SDK|This message is sent by the SDK when add button is clicked.|
-|kontent-smart-link:add:initial:response|<code>{ elementType: 'LinkedItems' &#124; 'RichText' &#124; 'Unknown', isParentPublished: boolean, permissions: Map<string,string> }</code>|Host|This message is sent by the host as a response to initial add button click.|
-|kontent-smart-link:add:action|<code>{ projectId: string, languageCodename: string, itemId: string, contentComponentId?: string, elementCodename: string, action: string, insertPosition: { targetId?: string, placement: 'start' &#124; 'end' &#124; 'before' &#124; 'after', } }</code>|SDK|This message is sent by the SDK when add button action is clicked.|
-|kontent-smart-link:preview:refresh|<code>{ projectId: string, languageCodename: string, updatedItemCodename: string }</code> &#124; undefined|Host|This message is sent when preview has to be refreshed.|
+| Message                                      |                                                                                                                           Data                                                                                                                             | Origin  | Description                                                                                             |
+|----------------------------------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------:|---------------------------------------------------------------------------------------------------------|
+| kontent-smart-link:initialized               |                                                                           <code>{ projectId: string &#124; null, languageCodename: string &#124; null, enabled: boolean }</code>                                                                           |   SDK   | This message is sent by the SDK when it is initialized.                                                 |
+| kontent-smart-link:initialized:response      |                                                                                                                             -                                                                                                                              |  Host   | This message is sent by the host as a response to initialized message.                                  |
+| kontent-smart-link:status                    |                                                                                                             <code>{ enabled: boolean }</code>                                                                                                              |  Host   | This message is used to toggle the SDK features.                                                        |
+| kontent-smart-link:element:clicked           |                                                             <code>{ projectId: string, languageCodename: string, itemId: string, contentComponentId?: string, elementCodename: string }</code>                                                             |   SDK   | This message is sent by the SDK when element with `data-kontent-element-codename` attribute is clicked. |
+| kontent-smart-link:content-component:clicked |                                                                          <code>{ projectId: string, languageCodename: string, itemId: string, contentComponentId: string }</code>                                                                          |   SDK   | This message is sent by the SDK when element with `data-kontent-component-id` attribute is clicked.     |
+| kontent-smart-link:content-item:clicked      |                                                                                        <code>{ projectId: string, languageCodename: string, itemId: string }</code>                                                                                        |   SDK   | This message is sent by the SDK when element with `data-kontent-item-id` attribute is clicked.          |
+| kontent-smart-link:add:initial               |         <code>{ projectId: string, languageCodename: string, itemId: string, contentComponentId?: string, elementCodename: string, insertPosition: { targetId?: string, placement: 'start' &#124; 'end' &#124; 'before' &#124; 'after', } }</code>         |   SDK   | This message is sent by the SDK when add button is clicked.                                             |
+| kontent-smart-link:add:initial:response      |                                                        <code>{ elementType: 'LinkedItems' &#124; 'RichText' &#124; 'Unknown', isParentPublished: boolean, permissions: Map<string,string> }</code>                                                         |  Host   | This message is sent by the host as a response to initial add button click.                             |
+| kontent-smart-link:add:action                | <code>{ projectId: string, languageCodename: string, itemId: string, contentComponentId?: string, elementCodename: string, action: string, insertPosition: { targetId?: string, placement: 'start' &#124; 'end' &#124; 'before' &#124; 'after', } }</code> |   SDK   | This message is sent by the SDK when add button action is clicked.                                      |
+| kontent-smart-link:preview:refresh           |                                                                         <code>{ projectId: string, languageCodename: string, updatedItemCodename: string }</code> &#124; undefined                                                                         |  Host   | This message is sent when preview has to be refreshed.                                                  |
 
 #### Nested iframes
 
