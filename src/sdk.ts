@@ -1,6 +1,5 @@
 import { NodeSmartLinkProvider } from './lib/NodeSmartLinkProvider';
 import { createStorage, IStorage } from './utils/storage';
-import { QueryParamPresenceWatcher } from './lib/QueryParamPresenceWatcher';
 import { defineAllRequiredWebComponents } from './web-components/components';
 import { ConfigurationManager, IConfigurationManager, IKSLPublicConfiguration } from './lib/ConfigurationManager';
 import { InvalidEnvironmentError, NotInitializedError } from './utils/errors';
@@ -17,6 +16,7 @@ import {
 } from './models/hostMessages';
 import { EventDescriptor, EventEmitter, EventListener } from './helpers/EventEmitter';
 import { ILogger, Logger, LogLevel } from './helpers/Logger';
+import { QueryParamPresenceWatcher } from './helpers/QueryParamPresenceWatcher';
 
 interface IKontentSmartLinkStoredSettings {
   readonly enabled: boolean;
@@ -59,7 +59,7 @@ class KontentSmartLinkSDK extends EventEmitter<KontentSmartLinkSDKEventsMap> {
     this.logger = new Logger();
     this.logger.setLogLevel(this.configurationManager.debug ? LogLevel.Debug : LogLevel.Info);
 
-    this.queryParamPresenceWatcher = new QueryParamPresenceWatcher();
+    this.queryParamPresenceWatcher = new QueryParamPresenceWatcher(window);
 
     this.parentWindowCommunicationAPI = new ParentWindowCommunicationAPI(window);
     this.messageService = new MessageService(this.parentWindowCommunicationAPI);
