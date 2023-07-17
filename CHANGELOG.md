@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.0] - 2023-07-17
+
+### Added
+
+- Ability to get currently displayed preview URL from the iframe.
+- New iframe messages added to iframe communication.
+- New message handler.
+
 ## [3.0.0] - 2022-09-23
 
 - Package renamed to `@kontent-ai/smart-link`.

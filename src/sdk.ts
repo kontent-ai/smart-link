@@ -4,6 +4,7 @@ import { createStorage, IStorage } from './utils/storage';
 import { IFrameCommunicator } from './lib/IFrameCommunicator';
 import {
   IFrameMessageType,
+  IGetCurrentPreviewIFrameUrlMessageData,
   IRefreshMessageData,
   IRefreshMessageMetadata,
   ISDKInitializedMessageData,
@@ -122,6 +123,7 @@ class KontentSmartLinkSDK {
       projectId: this.configurationManager.defaultProjectId ?? null,
       supportedFeatures: {
         refreshHandler: true,
+        currentPreviewIFrameUrlHandler: true,
       },
     };
 
@@ -136,6 +138,10 @@ class KontentSmartLinkSDK {
 
       this.iframeCommunicator.addMessageListener(IFrameMessageType.Status, this.handleStatusMessage);
       this.iframeCommunicator.addMessageListener(IFrameMessageType.RefreshPreview, this.handleRefreshMessage);
+      this.iframeCommunicator.addMessageListener(
+        IFrameMessageType.GetCurrentIFrameUrl,
+        this.handleGetCurrentIFrameUrlMessage
+      );
     });
   };
 
@@ -157,6 +163,14 @@ class KontentSmartLinkSDK {
     } else {
       reload();
     }
+  };
+
+  private handleGetCurrentIFrameUrlMessage = (): void => {
+    const messageData: IGetCurrentPreviewIFrameUrlMessageData = {
+      previewUrl: window.self.location.href,
+    };
+
+    this.iframeCommunicator.sendMessage(IFrameMessageType.GetCurrentIFrameUrlResponse, messageData);
   };
 }
 

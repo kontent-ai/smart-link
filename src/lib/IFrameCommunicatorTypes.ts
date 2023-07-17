@@ -1,5 +1,6 @@
 interface ISDKSupportedFeatures {
   readonly refreshHandler: boolean;
+  readonly currentPreviewIFrameUrlHandler: boolean;
 }
 
 export interface ISDKInitializedMessageData {
@@ -43,6 +44,10 @@ export interface IRefreshMessageData {
 
 export interface IRefreshMessageMetadata {
   readonly manualRefresh: boolean;
+}
+
+export interface IGetCurrentPreviewIFrameUrlMessageData {
+  readonly previewUrl: string;
 }
 
 export enum InsertPositionPlacement {
@@ -117,6 +122,8 @@ export enum IFrameMessageType {
   AddInitial = 'kontent-smart-link:add:initial',
   AddAction = 'kontent-smart-link:add:action',
   RefreshPreview = 'kontent-smart-link:preview:refresh',
+  GetCurrentIFrameUrl = 'kontent-smart-link:preview:currentUrl',
+  GetCurrentIFrameUrlResponse = 'kontent-smart-link:preview:currentUrl:response',
 }
 
 export enum IFrameResponseType {
