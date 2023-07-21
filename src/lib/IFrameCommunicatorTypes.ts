@@ -1,6 +1,6 @@
 interface ISDKSupportedFeatures {
+  readonly previewIFrameCurrentUrlHandler: boolean;
   readonly refreshHandler: boolean;
-  readonly currentPreviewIFrameUrlHandler: boolean;
 }
 
 export interface ISDKInitializedMessageData {
@@ -46,7 +46,7 @@ export interface IRefreshMessageMetadata {
   readonly manualRefresh: boolean;
 }
 
-export interface IGetCurrentPreviewIFrameUrlMessageData {
+export interface IPreviewIFrameCurrentUrlMessageData {
   readonly previewUrl: string;
 }
 
@@ -122,8 +122,8 @@ export enum IFrameMessageType {
   AddInitial = 'kontent-smart-link:add:initial',
   AddAction = 'kontent-smart-link:add:action',
   RefreshPreview = 'kontent-smart-link:preview:refresh',
-  GetCurrentIFrameUrl = 'kontent-smart-link:preview:currentUrl',
-  GetCurrentIFrameUrlResponse = 'kontent-smart-link:preview:currentUrl:response',
+  PreviewIFrameCurrentUrl = 'kontent-smart-link:preview:currentUrl',
+  PreviewIFrameCurrentUrlResponse = 'kontent-smart-link:preview:currentUrl:response',
 }
 
 export enum IFrameResponseType {

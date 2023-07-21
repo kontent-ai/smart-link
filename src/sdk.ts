@@ -4,7 +4,7 @@ import { createStorage, IStorage } from './utils/storage';
 import { IFrameCommunicator } from './lib/IFrameCommunicator';
 import {
   IFrameMessageType,
-  IGetCurrentPreviewIFrameUrlMessageData,
+  IPreviewIFrameCurrentUrlMessageData,
   IRefreshMessageData,
   IRefreshMessageMetadata,
   ISDKInitializedMessageData,
@@ -122,8 +122,8 @@ class KontentSmartLinkSDK {
       languageCodename: this.configurationManager.defaultLanguageCodename ?? null,
       projectId: this.configurationManager.defaultProjectId ?? null,
       supportedFeatures: {
+        previewIFrameCurrentUrlHandler: true,
         refreshHandler: true,
-        currentPreviewIFrameUrlHandler: true,
       },
     };
 
@@ -139,8 +139,8 @@ class KontentSmartLinkSDK {
       this.iframeCommunicator.addMessageListener(IFrameMessageType.Status, this.handleStatusMessage);
       this.iframeCommunicator.addMessageListener(IFrameMessageType.RefreshPreview, this.handleRefreshMessage);
       this.iframeCommunicator.addMessageListener(
-        IFrameMessageType.GetCurrentIFrameUrl,
-        this.handleGetCurrentIFrameUrlMessage
+        IFrameMessageType.PreviewIFrameCurrentUrl,
+        this.handlePreviewIFrameCurrentUrlRequestMessage
       );
     });
   };
@@ -165,12 +165,12 @@ class KontentSmartLinkSDK {
     }
   };
 
-  private handleGetCurrentIFrameUrlMessage = (): void => {
-    const messageData: IGetCurrentPreviewIFrameUrlMessageData = {
-      previewUrl: window.self.location.href,
+  private handlePreviewIFrameCurrentUrlRequestMessage = (): void => {
+    const messageData: IPreviewIFrameCurrentUrlMessageData = {
+      previewUrl: window.location.href,
     };
 
-    this.iframeCommunicator.sendMessage(IFrameMessageType.GetCurrentIFrameUrlResponse, messageData);
+    this.iframeCommunicator.sendMessage(IFrameMessageType.PreviewIFrameCurrentUrlResponse, messageData);
   };
 }
 
