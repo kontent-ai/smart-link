@@ -122,8 +122,8 @@ export enum IFrameMessageType {
   AddInitial = 'kontent-smart-link:add:initial',
   AddAction = 'kontent-smart-link:add:action',
   RefreshPreview = 'kontent-smart-link:preview:refresh',
-  PreviewIFrameCurrentUrl = 'kontent-smart-link:preview:currentUrl',
-  PreviewIFrameCurrentUrlResponse = 'kontent-smart-link:preview:currentUrl:response',
+  PreviewIFrameCurrentUrl = 'kontent-smart-link:preview:current-url',
+  PreviewIFrameCurrentUrlResponse = 'kontent-smart-link:preview:current-url:response',
 }
 
 export enum IFrameResponseType {
