@@ -9,6 +9,7 @@ import {
   IContentItemClickedMessageData,
   IElementClickedMessageData,
   IFrameMessageType,
+  IPreviewIFrameCurrentUrlMessageData,
   IRefreshMessageData,
   IRefreshMessageMetadata,
   ISDKInitializedMessageData,
@@ -36,6 +37,8 @@ export type IFrameMessageMap = {
   >;
   readonly [IFrameMessageType.AddAction]: EventHandler<IAddActionMessageData, IClickedMessageMetadata>;
   readonly [IFrameMessageType.RefreshPreview]: EventHandler<IRefreshMessageData, IRefreshMessageMetadata>;
+  readonly [IFrameMessageType.PreviewIFrameCurrentUrl]: EventHandler;
+  readonly [IFrameMessageType.PreviewIFrameCurrentUrlResponse]: EventHandler<IPreviewIFrameCurrentUrlMessageData>;
 };
 
 export interface IFrameMessage<TMessageType extends keyof IFrameMessageMap> {
