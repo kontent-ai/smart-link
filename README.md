@@ -458,8 +458,10 @@ iframe messages instead of redirecting user to Kontent.ai page. All message type
 |kontent-smart-link:content-item:clicked|<code>{ projectId: string, languageCodename: string, itemId: string }</code>|SDK|This message is sent by the SDK when element with `data-kontent-item-id` attribute is clicked.|
 |kontent-smart-link:add:initial|<code>{ projectId: string, languageCodename: string, itemId: string, contentComponentId?: string, elementCodename: string, insertPosition: { targetId?: string, placement: 'start' &#124; 'end' &#124; 'before' &#124; 'after', } }</code>|SDK|This message is sent by the SDK when add button is clicked.|
 |kontent-smart-link:add:initial:response|<code>{ elementType: 'LinkedItems' &#124; 'RichText' &#124; 'Unknown', isParentPublished: boolean, permissions: Map<string,string> }</code>|Host|This message is sent by the host as a response to initial add button click.|
-|kontent-smart-link:add:action|<code>{ projectId: string, languageCodename: string, itemId: string, contentComponentId?: string, elementCodename: string, action: string, insertPosition: { targetId?: string, placement: 'start' &#124; 'end' &#124; 'before' &#124; 'after', } }</code>|SDK|This message is sent by the SDK when add button action is clicked.|
+|kontent-smart-link:add:action|<code>{ projectId: string, languageCodename: string, itemId: string, contentComponentId?: string, elementCodename: string, action: string, insertPosition: { targetId?: string, placement: 'start' &#124; 'end' &#124; 'before' &#124; 'after', } }</code> |SDK|This message is sent by the SDK when add button action is clicked.|
 |kontent-smart-link:preview:refresh|<code>{ projectId: string, languageCodename: string, updatedItemCodename: string }</code> &#124; undefined|Host|This message is sent when preview has to be refreshed.|
+|kontent-smart-link:preview:current-url|-|Host|This message is sent by host as a request to get URL of current iframe.|
+|kontent-smart-link:preview:current-url:response|<code>{ previewUrl: string }</code>|SDK|This message is sent by SDK as a response on the `kontent-smart-link:preview:current-url` message.|
 
 #### Nested iframes
 
