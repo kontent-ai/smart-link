@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.0] - 2023-08-15
+
 ### Added
 
 - Ability to get currently displayed preview URL from the iframe.
@@ -141,7 +143,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public release of SDK
 
-[unreleased]: https://github.com/kontent-ai/smart-link/compare/v3.0.0...HEAD
+[unreleased]: https://github.com/kontent-ai/smart-link/compare/v3.1.0...HEAD
+[3.0.0]: https://github.com/kontent-ai/smart-link/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/kontent-ai/smart-link/compare/v2.3.1...v3.0.0
 [2.3.1]: https://github.com/kontent-ai/smart-link/compare/v2.3.0...v2.3.1
 [2.3.0]: https://github.com/kontent-ai/smart-link/compare/v2.2.1...v2.3.0
