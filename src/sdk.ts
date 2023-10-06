@@ -9,6 +9,7 @@ import {
   IRefreshMessageMetadata,
   ISDKInitializedMessageData,
   ISDKStatusMessageData,
+  IUpdateMessageData,
 } from './lib/IFrameCommunicatorTypes';
 import { QueryParamPresenceWatcher } from './lib/QueryParamPresenceWatcher';
 import { defineAllRequiredWebComponents } from './web-components/components';
@@ -24,10 +25,12 @@ interface IKontentSmartLinkStoredSettings {
 
 export enum KontentSmartLinkEvent {
   Refresh = 'refresh',
+  Update = 'update',
 }
 
 type KontentSmartLinkEventMap = {
   readonly [KontentSmartLinkEvent.Refresh]: EventHandler<IRefreshMessageData, IRefreshMessageMetadata, Callback>;
+  readonly [KontentSmartLinkEvent.Update]: EventHandler<IUpdateMessageData>;
 };
 
 class KontentSmartLinkSDK {
@@ -138,6 +141,7 @@ class KontentSmartLinkSDK {
 
       this.iframeCommunicator.addMessageListener(IFrameMessageType.Status, this.handleStatusMessage);
       this.iframeCommunicator.addMessageListener(IFrameMessageType.RefreshPreview, this.handleRefreshMessage);
+      this.iframeCommunicator.addMessageListener(IFrameMessageType.UpdatePreview, this.handleUpdateMessage);
       this.iframeCommunicator.addMessageListener(
         IFrameMessageType.PreviewIFrameCurrentUrl,
         this.handlePreviewIFrameCurrentUrlRequestMessage
@@ -163,6 +167,10 @@ class KontentSmartLinkSDK {
     } else {
       reload();
     }
+  };
+
+  private handleUpdateMessage = (data: IUpdateMessageData): void => {
+    this.events.emit(KontentSmartLinkEvent.Update, data, undefined, undefined);
   };
 
   private handlePreviewIFrameCurrentUrlRequestMessage = (): void => {

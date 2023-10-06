@@ -14,6 +14,7 @@ import {
   IRefreshMessageMetadata,
   ISDKInitializedMessageData,
   ISDKStatusMessageData,
+  IUpdateMessageData,
 } from './IFrameCommunicatorTypes';
 import { createUuid } from '../utils/createUuid';
 import { InvalidEnvironmentError } from '../utils/errors';
@@ -37,6 +38,7 @@ export type IFrameMessageMap = {
   >;
   readonly [IFrameMessageType.AddAction]: EventHandler<IAddActionMessageData, IClickedMessageMetadata>;
   readonly [IFrameMessageType.RefreshPreview]: EventHandler<IRefreshMessageData, IRefreshMessageMetadata>;
+  readonly [IFrameMessageType.UpdatePreview]: EventHandler<IUpdateMessageData>;
   readonly [IFrameMessageType.PreviewIFrameCurrentUrl]: EventHandler;
   readonly [IFrameMessageType.PreviewIFrameCurrentUrlResponse]: EventHandler<IPreviewIFrameCurrentUrlMessageData>;
 };
