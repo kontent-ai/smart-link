@@ -46,6 +46,25 @@ export interface IRefreshMessageMetadata {
   readonly manualRefresh: boolean;
 }
 
+export interface IUpdateReference<T extends string = string> {
+  readonly id: T;
+  readonly codename: T;
+}
+
+export interface IUpdateMessageElement {
+  readonly element: IUpdateReference;
+  readonly type: string;
+  // The data props must match the props from the Delivery API for the given element type
+  readonly data: Readonly<Record<string, any>>;
+}
+
+export interface IUpdateMessageData {
+  readonly projectId: string;
+  readonly variant: IUpdateReference;
+  readonly item: IUpdateReference;
+  readonly elements: ReadonlyArray<IUpdateMessageElement>;
+}
+
 export interface IPreviewIFrameCurrentUrlMessageData {
   readonly previewUrl: string;
 }
@@ -122,6 +141,7 @@ export enum IFrameMessageType {
   AddInitial = 'kontent-smart-link:add:initial',
   AddAction = 'kontent-smart-link:add:action',
   RefreshPreview = 'kontent-smart-link:preview:refresh',
+  UpdatePreview = 'kontent-smart-link:preview:update',
   PreviewIFrameCurrentUrl = 'kontent-smart-link:preview:current-url',
   PreviewIFrameCurrentUrlResponse = 'kontent-smart-link:preview:current-url:response',
 }
