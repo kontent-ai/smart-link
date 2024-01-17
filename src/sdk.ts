@@ -127,6 +127,7 @@ class KontentSmartLinkSDK {
       supportedFeatures: {
         previewIFrameCurrentUrlHandler: true,
         refreshHandler: true,
+        updateHandler: true,
       },
     };
 
