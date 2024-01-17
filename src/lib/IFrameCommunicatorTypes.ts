@@ -1,6 +1,9 @@
+import { ElementUpdateData } from '../models';
+
 interface ISDKSupportedFeatures {
   readonly previewIFrameCurrentUrlHandler: boolean;
   readonly refreshHandler: boolean;
+  readonly updateHandler: boolean;
 }
 
 export interface ISDKInitializedMessageData {
@@ -51,12 +54,9 @@ export interface IUpdateReference<T extends string = string> {
   readonly codename: T;
 }
 
-export interface IUpdateMessageElement {
+export type IUpdateMessageElement = ElementUpdateData & {
   readonly element: IUpdateReference;
-  readonly type: string;
-  // The data props must match the props from the Delivery API for the given element type
-  readonly data: Readonly<Record<string, any>>;
-}
+};
 
 export interface IUpdateMessageData {
   readonly projectId: string;
