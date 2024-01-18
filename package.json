@@ -30,7 +30,7 @@
     "clean": "rimraf commonjs dist es types",
     "dev": "concurrently \"npm run build:commonjs:watch\" \"npm run build:umd:watch\" \"npm run build:es:watch\"",
     "i": "npm install --legacy-peer-deps",
-    "lint": "eslint {src,test-browser,.storybook}/**/*.{js,ts,tsx}",
+    "lint": "eslint \"{src,test-browser,.storybook}/**/*.{js,ts,tsx}\"",
     "lint:fix": "npm run lint -- --fix",
     "prepare": "npm run clean && npm run build && husky install",
     "storybook": "start-storybook -p 6006",
