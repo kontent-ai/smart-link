@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Dependency on @kontent-ai/delivery-sdk for types.
+- New iframe message ("update") added to iframe communication.
+- Support for custom real-time feedback handler implementation.
+
 ## [3.1.0] - 2023-08-15
 
 ### Added
