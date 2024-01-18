@@ -426,6 +426,65 @@ useEffect(() => {
 For even better experience, you can combine the previous two methods and re-fetch content from Delivery Preview API
 on the client-side to update affected placed while waiting for the rebuild process to finish.
 
+### Real-time feedback in Web Spotlight
+
+> :warning: **Warning:** This feature is in early access meaning that the API is subject to change.
+
+Starting from version 3.2.0-next.0, Smart Link SDK support real-time feedback in Web Spotlight. If your preview website 
+uses the supported SDK version, Kontent.ai will send the updated elements to your website via the iframe communication 
+right after you update them in the in-context editor. 
+
+**Please note, that your preview website won't update automatically, and it is up to you to decide how to handle this new event in your application.**
+
+#### Setting up real-time feedback in your app
+
+```ts
+import KontentSmartLink, { KontentSmartLinkEvent  } from '@kontent-ai/smart-link';
+
+const sdk = KontentSmartLink.initialize({ ... });
+
+sdk.on(KontentSmartLink.Update, (data: IUpdateMessageData) => {
+  // update the state of your app with the new data here
+});
+```
+
+#### Data contract
+
+The update event handler receive data of type IUpdateMessageData which contains all necessary information about the element
+changed by user in the Kontent.ai app.
+
+```ts
+interface IUpdateMessageData {
+  projectId: string;
+  variant: {
+    id: string;
+    codename: string;
+  };
+  item: {
+    id: string;
+    codename: string;
+  };
+  elements: ReadonlyArray<{
+    element: {
+      id: string;
+      codename: string;
+    };
+    type: ElementType,
+    data: Omit<Element, 'type' | 'name'>
+  }>;
+}
+```
+
+You can find [ElementType](https://github.com/kontent-ai/delivery-sdk-js/blob/v14.6.0/lib/elements/element-type.ts) and [Element](https://github.com/kontent-ai/delivery-sdk-js/blob/v14.6.0/lib/elements/elements.ts) definition in @kontent-ai/delivery-sdk repository.
+
+#### Current limitations
+
+Since the real-time feedback feature is currently in early access, there are some limitations:
+- Kontent.ai doesn't notify SDK about the changes in a linked item element or a subpages element.
+- Kontent.ai doesn't notify SDK about the changes in a rich-text element if:
+  - this rich-text element contains a linked item or a content component
+  - this rich-text element contains a link to a linked item with a URL slug.
+
 ### Using SDK inside and outside Web Spotlight
 
 When Kontent.ai Smart Link SDK is used outside Web Spotlight, it listens to the query parameters in the URL to toggle smart
