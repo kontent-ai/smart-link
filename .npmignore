@@ -8,6 +8,9 @@
 !/dist/**
 !/es/**
 !/types/**
+!/src/**
 !package.json
 !.npmignore
 !README.md
+!LICENSE.md
+!CHANGELOG.md
