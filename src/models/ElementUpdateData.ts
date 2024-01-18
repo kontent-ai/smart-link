@@ -1,36 +1,27 @@
 import { Elements } from '@kontent-ai/delivery-sdk';
-import { ElementType as DeliverElementType } from '@kontent-ai/delivery-sdk/dist/cjs/elements/element-type';
+import { ElementType } from '@kontent-ai/delivery-sdk/dist/cjs/elements/element-type';
 
-type ElementUpdateDataTemplate<TElement, TType extends DeliverElementType> = {
+type ElementUpdateDataTemplate<TElement, TType extends ElementType> = {
   readonly type: TType;
   readonly data: Omit<TElement, 'type' | 'name'>;
 };
 
-export type AssetElementUpdateData = ElementUpdateDataTemplate<Elements.AssetsElement, DeliverElementType.Asset>;
-export type CustomElementUpdateData = ElementUpdateDataTemplate<Elements.CustomElement<any>, DeliverElementType.Custom>;
-export type DatetimeElementUpdateData = ElementUpdateDataTemplate<
-  Elements.DateTimeElement,
-  DeliverElementType.DateTime
->;
+export type AssetElementUpdateData = ElementUpdateDataTemplate<Elements.AssetsElement, ElementType.Asset>;
+export type CustomElementUpdateData = ElementUpdateDataTemplate<Elements.CustomElement<any>, ElementType.Custom>;
+export type DatetimeElementUpdateData = ElementUpdateDataTemplate<Elements.DateTimeElement, ElementType.DateTime>;
 export type LinkedItemsElementUpdateData = ElementUpdateDataTemplate<
   Elements.LinkedItemsElement,
-  DeliverElementType.ModularContent
+  ElementType.ModularContent
 >;
 export type MultipleChoiceElementUpdateData = ElementUpdateDataTemplate<
   Elements.MultipleChoiceElement,
-  DeliverElementType.MultipleChoice
+  ElementType.MultipleChoice
 >;
-export type NumberElementUpdateData = ElementUpdateDataTemplate<Elements.NumberElement, DeliverElementType.Number>;
-export type RichTextElementUpdateData = ElementUpdateDataTemplate<
-  Elements.RichTextElement,
-  DeliverElementType.RichText
->;
-export type TaxonomyElementUpdateData = ElementUpdateDataTemplate<
-  Elements.TaxonomyElement,
-  DeliverElementType.Taxonomy
->;
-export type TextElementUpdateData = ElementUpdateDataTemplate<Elements.TextElement, DeliverElementType.Text>;
-export type UrlSlugElementUpdateData = ElementUpdateDataTemplate<Elements.UrlSlugElement, DeliverElementType.UrlSlug>;
+export type NumberElementUpdateData = ElementUpdateDataTemplate<Elements.NumberElement, ElementType.Number>;
+export type RichTextElementUpdateData = ElementUpdateDataTemplate<Elements.RichTextElement, ElementType.RichText>;
+export type TaxonomyElementUpdateData = ElementUpdateDataTemplate<Elements.TaxonomyElement, ElementType.Taxonomy>;
+export type TextElementUpdateData = ElementUpdateDataTemplate<Elements.TextElement, ElementType.Text>;
+export type UrlSlugElementUpdateData = ElementUpdateDataTemplate<Elements.UrlSlugElement, ElementType.UrlSlug>;
 
 export type ElementUpdateData =
   | AssetElementUpdateData
