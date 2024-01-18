@@ -17,9 +17,6 @@
     "es",
     "types"
   ],
-  "engines": {
-    "node": ">=18.2.0"
-  },
   "scripts": {
     "build": "npm run build:commonjs && npm run build:umd && npm run build:es",
     "build:commonjs": "tsc -m commonjs --outDir commonjs --p tsconfig.json",
