@@ -32,7 +32,7 @@
     "i": "npm install --legacy-peer-deps",
     "lint": "eslint \"{src,test-browser,.storybook}/**/*.{js,ts,tsx}\"",
     "lint:fix": "npm run lint -- --fix",
-    "prepare": "npm run clean && npm run build && husky install",
+    "prepare": "npm run clean && npm run build",
     "storybook": "start-storybook -p 6006",
     "storybook:build": "build-storybook",
     "test:unit": "karma start karma.conf.js",
@@ -45,16 +45,6 @@
     "webpack:dev:watch": "npm run webpack:dev -- --watch",
     "webpack:prod": "webpack --mode production --config webpack.config.js --progress --color",
     "webpack:prod:watch": "npm run webpack:prod -- --watch"
-  },
-  "lint-staged": {
-    "src/**/*.{js,ts,tsx}": [
-      "npm run lint:fix"
-    ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
   },
   "keywords": [
     "Kontent Javascript",
@@ -93,7 +83,6 @@
     "eslint-plugin-prettier": "4.2.1",
     "eslint-plugin-storybook": "^0.6.4",
     "fork-ts-checker-webpack-plugin": "7.2.13",
-    "husky": "^8.0.1",
     "jasmine-core": "4.3.0",
     "karma": "6.4.0",
     "karma-chrome-launcher": "3.1.1",
@@ -103,7 +92,6 @@
     "karma-jasmine-html-reporter": "2.0.0",
     "karma-typescript": "5.5.3",
     "karma-typescript-es6-transform": "5.5.3",
-    "lint-staged": "13.0.3",
     "loki": "0.31.2",
     "prettier": "2.7.1",
     "rimraf": "3.0.2",
