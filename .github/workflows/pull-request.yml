@@ -7,16 +7,12 @@ jobs:
     name: Static analysis
     runs-on: windows-latest
 
-    strategy:
-      matrix:
-        node-version: [ 18.x ]
-
     steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+      - uses: actions/checkout@v3
+      - name: Use Node.js from .nvmrc file
+        uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version-file: ".nvmrc"
       - name: Install dependencies
         run: npm run ci -- --ignore-scripts
       - name: Run ESLint
@@ -28,16 +24,12 @@ jobs:
     name: Unit tests
     runs-on: windows-latest
 
-    strategy:
-      matrix:
-        node-version: [ 18.x ]
-
     steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+      - uses: actions/checkout@v3
+      - name: Use Node.js from .nvmrc file
+        uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version-file: ".nvmrc"
       - name: Use latest stable Chrome
         uses: browser-actions/setup-chrome@latest
         with:
@@ -51,16 +43,12 @@ jobs:
     name: Visual tests
     runs-on: windows-latest
 
-    strategy:
-      matrix:
-        node-version: [ 18.x ]
-
     steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+      - uses: actions/checkout@v3
+      - name: Use Node.js from .nvmrc file
+        uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version-file: ".nvmrc"
       - name: Use latest stable Chrome
         uses: browser-actions/setup-chrome@latest
         with:
@@ -73,7 +61,7 @@ jobs:
         run: npm run test:visual:ci
       - name: Save visual regression tests artifacts (on failure)
         if: ${{ failure() }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: .loki
           path: .loki/
