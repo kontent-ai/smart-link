@@ -132,6 +132,9 @@ export interface IAddButtonPermissionsServerModel {
   readonly permissions: ReadonlyMap<AddButtonPermission, AddButtonPermissionCheckResult>;
 }
 
+/**
+ * @deprecated Please use HostMessageType and ClientMessageType instead
+ */
 export enum IFrameMessageType {
   ElementClicked = 'kontent-smart-link:element:clicked',
   ContentItemClicked = 'kontent-smart-link:content-item:clicked',
