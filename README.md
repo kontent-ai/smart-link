@@ -733,9 +733,9 @@ Visual regression tests use the built version of SDK, so before running them mak
 last change you made. You can this using the `npm run build` command or using the `npm run dev` command to start build
 in a watch mode.
 
-Please note that the reference screenshots for visual regression tests are created on the `windows-latest` environment,
+Please note that the reference screenshots for visual regression tests are created on the `ubuntu-latest` environment,
 which is utilized in our GitHub Action workflow for visual tests. It means tests could (and probably will) fail on
-another OS. In case the visual regression tests fail during a pull request, and you need to update reference screenshots,
+Windows. In case the visual regression tests fail during a pull request, and you need to update reference screenshots,
 you can locate the new screenshots in the failed GitHub Action run. Navigate to the Artifacts section (`.loki/current`)
 of the failed run to find the updated screenshots.
 
