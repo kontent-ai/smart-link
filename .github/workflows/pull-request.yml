@@ -41,7 +41,7 @@ jobs:
 
   visual-regression:
     name: Visual tests
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
