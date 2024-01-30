@@ -427,17 +427,17 @@ useEffect(() => {
 For even better experience, you can combine the previous two methods and re-fetch content from Delivery Preview API
 on the client-side to update affected placed while waiting for the rebuild process to finish.
 
-### Real-time feedback in Web Spotlight
+### Live preview in Web Spotlight
 
 > :warning: **Warning:** This feature is in early access meaning that the API is subject to change.
 
-Starting from version 3.2.0-next.0, Smart Link SDK support real-time feedback in Web Spotlight. If your preview website 
+Starting from version 3.2.0-next.0, Smart Link SDK support live preview in Web Spotlight. If your preview website 
 uses the supported SDK version, Kontent.ai will send the updated elements to your website via the iframe communication 
 right after you update them in the in-context editor. 
 
 **Please note, that your preview website won't update automatically, and it is up to you to decide how to handle this new event in your application.**
 
-#### Setting up real-time feedback in your app
+#### Setting up live preview in your app
 
 ```ts
 import KontentSmartLink, { KontentSmartLinkEvent  } from '@kontent-ai/smart-link';
@@ -480,7 +480,7 @@ You can find [ElementType](https://github.com/kontent-ai/delivery-sdk-js/blob/v1
 
 #### Current limitations
 
-Since the real-time feedback feature is currently in early access, there are some limitations:
+Since the live preview feature is currently in early access, there are some limitations:
 - Kontent.ai doesn't notify SDK about the changes in a linked item element or a subpages element.
 - Kontent.ai doesn't notify SDK about the changes in a rich-text element if:
   - this rich-text element contains a linked item or a content component
