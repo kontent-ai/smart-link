@@ -7,3 +7,4 @@ commonjs/
 coverage/
 storybook-static/
 debug.log
+.DS_Store
