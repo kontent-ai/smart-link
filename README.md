@@ -18,27 +18,35 @@ environment is not currently supported. Make sure to always initialize the Smart
 
 ## Table of Contents
 
-- [Features](#features)
-- [Installation](#installation)
-- [Usage](#usage)
-    - [Quickstart](#quickstart)
-    - [Data attributes](#data-attributes)
-    - [Smart links](#smart-links)
-    - [SDK initialization](#sdk-initialization)
-        - [Configuration](#configuration)
-        - [Customization](#customization)
-    - [Preview autorefresh](#preview-autorefresh-in-web-spotlight)
-    - [Live preview](#live-preview-in-web-spotlight)
-    - [Using SDK inside and outside Web Spotlight](#using-sdk-inside-and-outside-web-spotlight)
-    - [Examples](#examples)
-        - [HTML & UMD](#html--umd--cdn)
-        - [ES6](#es6)
-        - [React](#react)
-        - [Next.js](#nextjs)
-        - [Gatsby](#gatsby)
-- [Breaking changes](#breaking-changes)
-- [Feedback & Contribution](#feedback--contribution)
-    - [Tests](#tests)
+* [Features](#features)
+* [Installation](#installation)
+* [Usage](#usage)
+    * [Quickstart](#quickstart)
+    * [Data attributes](#data-attributes)
+    * [Smart links](#smart-links)
+    * [SDK initialization](#sdk-initialization)
+        * [Configuration](#configuration)
+        * [Customization](#customization)
+    * [Preview autorefresh in Web Spotlight](#preview-autorefresh-in-web-spotlight)
+    * [Live preview in Web Spotlight](#live-preview-in-web-spotlight)
+    * [Outside Web Spotlight](#outside-web-spotlight)
+    * [Inside Web Spotlight](#inside-web-spotlight)
+* [Examples](#examples)
+    * [HTML & UMD & CDN](#html--umd--cdn)
+    * [ES6](#es6)
+    * [React](#react)
+        * [Creating the SmartLink context](#creating-the-smartlink-context)
+        * [Optimizing content updates in React with custom refresh logic](#optimizing-content-updates-in-react-with-custom-refresh-logic)
+        * [Triggering SSG rebuilds with custom refresh logic](#triggering-ssg-rebuilds-with-custom-refresh-logic)
+        * [Live Preview in Your Application](#live-preview-in-your-application)
+* [Known issues](#known-issues)
+    * [Nested iframes](#nested-iframes)
+    * [SameSite cookie in Next.js app](#samesite-cookie-in-nextjs-app)
+* [Tests](#tests)
+    * [Unit tests](#unit-tests)
+    * [Visual regression tests](#visual-regression-tests)
+* [Breaking changes](#breaking-changes)
+* [Feedback & Contribution](#feedback--contribution)
 
 ## Features
 
@@ -192,6 +200,7 @@ This smart link enables direct editing of a content item's specific element with
 `data-kontent-component-id?` (optional), and `data-kontent-element-codename`.
 
 ```html
+
 <div data-kontent-project-id='00000000-0000-0000-0000-000000000000' data-kontent-language-codename='default'>
   <section data-kontent-item-id='00000000-0000-0000-0000-000000000000'>
     <div data-kontent-element-codename='codename'>Content</div>
@@ -210,6 +219,7 @@ and brings the component into view.
 and `data-kontent-component-id`.
 
 ```html
+
 <div data-kontent-project-id='00000000-0000-0000-0000-000000000000' data-kontent-language-codename='default'>
   <section data-kontent-item-id='00000000-0000-0000-0000-000000000000'>
     <div data-kontent-component-id='00000000-0000-0000-0000-000000000000'>
@@ -229,6 +239,7 @@ This smart link enables the editing of entire content items through a preview cl
 **Data attributes:** `data-kontent-project-id`, `data-kontent-language-codename`, and `data-kontent-item-id`.
 
 ```html
+
 <div data-kontent-project-id='00000000-0000-0000-0000-000000000000' data-kontent-language-codename='default'>
   <section data-kontent-item-id='00000000-0000-0000-0000-000000000000'>
     <div>Article</div>
@@ -250,11 +261,12 @@ Fixed add content smart link positions new content at predetermined points of
 the target rich-text or linked items (`start` or `end`).
 
 **Data attributes:** `data-kontent-project-id`, `data-kontent-language-codename`, `data-kontent-item-id`,
-`data-kontent-component-id?` (optional), 
+`data-kontent-component-id?` (optional),
 `data-kontent-element-codename` (codename of the rich-text or linked items element),
 `data-kontent-add-button`, `data-kontent-add-button-render-position?`, `data-kontent-add-button-insert-position=start|end`.
 
 ```html
+
 <div data-kontent-project-id='00000000-0000-0000-0000-000000000000' data-kontent-language-codename='default'>
   <section data-kontent-item-id='00000000-0000-0000-0000-000000000000'>
     <div
@@ -273,17 +285,18 @@ the target rich-text or linked items (`start` or `end`).
 
 Relative add content smart link allows new content to be placed relative to existing elements (`before` or `after`).
 For example, you can insert a new content component before or after the existing content component in rich-text element.
-To turn add content smart link into a relative one, you need to set `data-kontent-insert-position` 
-to `before` or `after` and provide target id on the same node 
+To turn add content smart link into a relative one, you need to set `data-kontent-insert-position`
+to `before` or `after` and provide target id on the same node
 using `data-kontent-item-id` or `data-kontent-component-id` attribute.
 
 **Data attributes:** `data-kontent-project-id`, `data-kontent-language-codename`, `data-kontent-item-id`,
-`data-kontent-component-id?` (optional), 
+`data-kontent-component-id?` (optional),
 `data-kontent-element-codename` (codename of the rich-text or linked items element),
 `data-kontent-item-id|data-kontent-component-id` (target item), `data-kontent-add-button`,
 `data-kontent-add-button-render-position?`, `data-kontent-add-button-insert-position=before|after`.
 
 ```html
+
 <div data-kontent-project-id='00000000-0000-0000-0000-000000000000' data-kontent-language-codename='default'>
   <section data-kontent-item-id='00000000-0000-0000-0000-000000000000'>
     <div data-kontent-element-codename='rich-text-element-codename'>
@@ -305,13 +318,13 @@ To activate the Kontent.ai Smart Link SDK on your website, you need to initializ
 data attributes. The SDK offers two methods for initialization:
 
 - `initialize`: Instantly initializes the SDK, making it ready to use. This method is ideal when your webpage
-    is fully loaded or when SDK initialization occurs after the document's `DOMContentLoaded` event.
+  is fully loaded or when SDK initialization occurs after the document's `DOMContentLoaded` event.
     ```ts
     const instance = KontentSmartLink.initialize({ queryParam: "preview" });
     ```
 - `initializeOnLoad`: Delays SDK initialization until the entire page has loaded. This approach is particularly useful
-    for including the SDK in the `<head>` of your webpage, ensuring that all page elements are fully loaded before
-    initialization begins.
+  for including the SDK in the `<head>` of your webpage, ensuring that all page elements are fully loaded before
+  initialization begins.
     ```ts
     KontentSmartLink.initializeOnLoad().then(instance => {
       // SDK is fully initialized and ready to use
@@ -320,6 +333,7 @@ data attributes. The SDK offers two methods for initialization:
 
 Both methods return an SDK instance, with `initializeOnLoad` returning a promise that resolves to an instance.
 It is important to manage this instance appropriately:
+
 - **Accessing the SDK instance:** Store the returned instance if you need to access SDK methods after initialization.
 - **Resource management:** The SDK leverages event listeners, timeouts, and observers to function properly. To prevent
   memory leaks or unintended behavior always invoke the `.destroy()` method on the SDK instance before re-initializing
@@ -386,225 +400,97 @@ These styles can be applied globally using the :root selector or scoped to speci
 }
 ```
 
-<--- WIP: STOPPED HERE --->
 ### Preview autorefresh in Web Spotlight
 
-When working with the in-context editor in Web Spotlight, it is good to keep the content of your preview fresh without
-having to refresh it manually after every change. Starting from version 2.2.0, the Smart Link SDK supports the preview
-autorefresh feature in Web Spotlight.
+Maintaining an up-to-date preview is essential when editing content in Web Spotlight using the in-context editor.
+The Kontent.ai Smart Link SDK introduces a preview autorefresh feature from version 2.2.0 onwards, ensuring your preview
+automatically updates after your changes are saved without manual refreshes.
 
-For your web apps to support the preview autorefresh feature, make sure that your preview environment:
+#### Prerequisites for autorefresh
 
-1. Uses the latest version of the Smart Link SDK.
-2. Has the `X-KC-Wait-For-Loading-New-Content` header set to `true` when fetching data from Delivery Preview API.
+To enable autorefresh in your preview web app, ensure:
 
-If both previously mentioned conditions are met, Web Spotlight will wait for your changes to be ready via the Delivery
-Preview API, and after that, the preview will be refreshed automatically.
+1. **SDK Version:** Your application is using the latest version of the Smart Link SDK.
+2. **API Header:** The `X-KC-Wait-For-Loading-New-Content` header is set to `true` for requests to the Delivery
+   Preview API.
 
-#### Implementing custom refresh handler
+With these conditions met, Web Spotlight automatically refreshes the preview once your changes are ready on Delivery
+Preview API, streamlining the editing process.
 
-In some cases, simply refreshing the page might not be enough. For example, if you use a static site generator for your
-preview, you need to trigger the rebuild of the page before refreshing it. Or maybe you don't want to refresh the entire
-page when a single item has been updated and would rather re-render only the affected place in the UI. In some cases,
-simply refreshing the preview page after the change in Web Spotlight is not enough.
+#### Advanced: Implementing a custom refresh handler
 
-That's why the Smart Link SDK supports the custom refresh handler, which allows you to specify how your web page reacts
-to refresh events received from Web Spotlight. If you register a custom refresh handler, it will be called instead of a
-default handler every time when refresh is triggered in Web Spotlight (both manually and automatically).
+There are scenarios where a full page refresh may not be ideal, such as when using a static site generator or when
+aiming to update only a portion of the page. To accommodate diverse needs, the Smart Link SDK offers the capability
+to define a custom refresh handler.
 
-You can implement a custom refresh handler using
-the `.on(KontentSmartLinkEvent.Refresh, (data, metadata, originalRefresh) => {})` method on the SDK instance:
+This custom handler overrides the default refresh behavior, allowing for tailored refresh logic based on your
+specific requirements. Implement it as follows:
 
 ```ts
-import KontentSmartLink, { KontentSmartLinkEvent } from '@kontent-ai/smart-link';
+import { IRefreshMessageData } from './IFrameCommunicatorTypes';
 
-const sdk = KontentSmartLink.initialize({ ... });
+const sdk = KontentSmartLink.initialize();
 
 sdk.on(KontentSmartLinkEvent.Refresh, (data, metadata, originalRefresh) => {
-  // your custom refresh logic
+  // Implement your custom refresh logic here
 });
 ```
 
-A custom refresh handler takes three arguments:
+You can then unregister the custom handler using the `.off` method.
 
-| Argument         | Type                                                                                          | Description                                                                                                            |
-|------------------|-----------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
-| Data             | { projectId: string, languageCodename: string, updatedItemCodename: string } &#124; undefined | Information about updated item, that caused autorefresh. It is only available when refresh is triggered automatically. |
-| Metadata         | { manualRefresh: boolean }                                                                    | Manual refresh is set to `true` when the refresh is triggered by user.                                                 |
-| Original refresh | () => void                                                                                    | Default refresh handler.                                                                                               |
+For more complex example, check the [Examples](#examples) section.
 
-You can then unregister the custom refresh handler using the `.off` method on the SDK instance.
+##### Parameters for the custom refresh handler
 
-##### Examples
-
-###### Re-fetching item data without fully refreshing in React
-
-It is possible to only update the affected place of the UI by re-fetching page data instead of refreshing the whole
-page. The following code sample shows how this could be implemented in a React application.
-
-```ts
-import KontentSmartLink, { KontentSmartLinkEvent } from '@kontent-ai/smart-link';
-
-const PageContent: React.FC = () => {
-  const [data, setData] = useState(null);
-  const fetchData = useCallback((projectId, languageCodename, itemCodename) => {...
-  }, []);
-
-  useEffect(() => {
-    const sdk = KontentSmartLink.initialize();
-
-    // register custom refresh handler to avoid full refresh in some cases
-    sdk.on(KontentSmartLinkEvent.Refresh, (data: IRefreshMessageData, metadata: IRefreshMessageMetadata, originalRefresh: () => void) => {
-      // if user triggered the refresh manually, just refresh the page
-      if (metadata.manualRefresh) {
-        originalRefresh();
-      } else {
-        // refetch data for the updated item, instead of refreshing the whole page
-        const { projectId, languageCodename, updatedItemCodename } = data;
-        fetchData(projectId, languageCodename, updatedItemCodename);
-      }
-    });
-
-    return () => {
-      sdk.destroy();
-    };
-  }, [fetchData]);
-
-  return (
-...)
-  ;
-};
-```
-
-###### Sending request to rebuild the SSG page before refreshing it (Netlify + Gatsby)
-
-When using static site generators, you have to rebuild your website in order to apply your changes. The following
-example shows how this could be done using a custom refresh handler. In this example, we used Gatsby deployed to
-Netlify, but the solution for other SSG frameworks should be similar.
-
-The `deploy-status` function is a custom Netlify function used to get the status of the last deploy, so that we can
-check if the deployment is finished and the page can be refreshed.
-
-```ts
-// ./.netlify/functions/deploy-status.js
-import fetch from 'node-fetch';
-
-const siteId = process.env.NETLIFY_SITE_ID;
-const token = process.env.NETLIFY_TOKEN;
-
-const handler = async event => {
-  try {
-    const endpoint = `https://api.netlify.com/api/v1/sites/${siteId}/deploys`;
-    const result = await fetch(endpoint, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    const data = await result.json();
-
-    // first entry is last deploy
-    const deploy = {
-      state: data[0].state,
-    };
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify(deploy),
-    };
-  } catch (error) {
-    return { statusCode: 500, body: error.toString() };
-  }
-}
-
-module.exports = { handler };
-```
-
-We trigger rebuild process inside our custom refresh handler and wait for the deployment process to finish.
-After that the page can be refreshed using the `originalRefresh` callback.
-
-```ts
-// inside a component used as a wrapper for all pages
-
-// This function triggers the build hook defined on Netlify, which
-// starts deployment process on Netlify. This is required to get new data
-// to preview.
-//
-// This is just the PoC. In a real app, we need to kill the previous active deploy, before
-// starting a new one.
-const triggerRebuildOnNetlifyAndWaitForDeploy = useCallback(() => {
-  fetch('https://api.netlify.com/build_hooks/{HOOK_ID}?trigger_title=autorefresh', {
-    method: 'POST',
-  }).then(() => {
-    async function checkDeployStatus() {
-      // 'deploy-status' is a custom Netlify function that returns status of the last deploy
-      const buildReq = await fetch('/.netlify/functions/deploy-status');
-      const buildData = await buildReq.json();
-
-      // display a loader to users to let them know rebuild is in progress
-      setRebuildInProgress(buildData.state !== 'ready');
-
-      if (buildData.state === 'ready') {
-        resolve();
-      } else {
-        setTimeout(checkDeployStatus, 3000);
-      }
-    }
-
-    checkDeployStatus();
-  })
-}, []);
-
-useEffect(() => {
-  const plugin = KontentSmartLink.initialize({
-    queryParam: 'preview-mode',
-  });
-
-  // custom refresh handler
-  plugin.on('refresh', (data, metadata, originalReload) => {
-    // You can trigger the rebuild of the page, wait for it to finish and refresh the page after that.
-    // Please consider displaying some sort of loader to your users, in case rebuild process takes time, to let them
-    // know that the refresh is in progress.
-    triggerRebuildOnNetlifyAndWaitForDeploy().then(originalReload)
-  });
-
-  return () => {
-    plugin.destroy();
-  }
-}, [triggerRebuildOnNetlifyAndWaitForDeploy]);
-```
-
-For even better experience, you can combine the previous two methods and re-fetch content from Delivery Preview API
-on the client-side to update affected placed while waiting for the rebuild process to finish.
+| Argument         | Type                                                                                          | Description                                                                                                                 |
+|------------------|-----------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
+| Data             | { projectId: string, languageCodename: string, updatedItemCodename: string } &#124; undefined | Provides details on the updated item that caused autorefresh. It is only available when refresh is triggered automatically. |
+| Metadata         | { manualRefresh: boolean }                                                                    | Manual refresh is set to `true` when the refresh was user-initiated.                                                        |
+| Original refresh | () => void                                                                                    | The SDK's default refresh function.                                                                                         |
 
 ### Live preview in Web Spotlight
 
-> :warning: **Warning:** This feature is in early access meaning that the API is subject to change.
+> :warning: **Important:** This feature is currently in early access, which means the API may undergo changes.
 
-Starting from version 3.2.0-next.0, Smart Link SDK support live preview in Web Spotlight. If your preview website
-uses the supported SDK version, Kontent.ai will send the updated elements to your website via the iframe communication
-right after you update them in the in-context editor.
+As of version 3.2.0-next.0, the Kontent.ai Smart Link SDK introduces support for live preview within Web Spotlight.
+This feature enahnces the content editing experience by providing real-time updates within your preview environment
+through iframe communication immediately after edits are made in the in-context editor.
 
-**Please note, that your preview website won't update automatically, and it is up to you to decide how to handle this
-new event in your application.**
+**Note:** The live preview requires manual integration to function. Your preview website will not automatically
+update with changes; it is your responsibility to implement how these updates are processed and displayed in your
+application.
 
-#### Setting up live preview in your app
+#### Current limitations
+
+Please be aware of the current limitations with live preview:
+
+- Changes to linked item element or subpage element are not communicated through live preview.
+- Rich-text elements containing linked items, content components, or links to linked items with a URL slug do not
+  trigger update notifications.
+
+#### Implementing live preview in your application
+
+To set up live preview, listen for update events from the SDK. These events are triggered after content is
+edited in Kontent.ai, providing you with the updated data:
 
 ```ts
 import KontentSmartLink, { KontentSmartLinkEvent } from '@kontent-ai/smart-link';
 
+// Initialize the SDK
 const sdk = KontentSmartLink.initialize({ ... });
 
+// Listen for updates and apply them to your application
 sdk.on(KontentSmartLink.Update, (data: IUpdateMessageData) => {
-  // update the state of your app with the new data here
+  // Use this data to update your application state or UI as needed
 });
 ```
 
+For more complex example, check the [Examples](#examples) section.
+
 #### Data contract
 
-The update event handler receive data of type IUpdateMessageData which contains all necessary information about the
-element
-changed by user in the Kontent.ai app.
+The `Update` event delivers data of type `IUpdateMessageData`, containing detailed information about the updated
+content elements:
 
 ```ts
 interface IUpdateMessageData {
@@ -632,38 +518,41 @@ You can find [ElementType](https://github.com/kontent-ai/delivery-sdk-js/blob/v1
 and [Element](https://github.com/kontent-ai/delivery-sdk-js/blob/v14.6.0/lib/elements/elements.ts) definition in
 @kontent-ai/delivery-sdk repository.
 
-#### Current limitations
+#### Combining autorefresh and live preview
 
-Since the live preview feature is currently in early access, there are some limitations:
+While autorefresh ensures that content updates are accurately reflected post-save, live preview offers the advantage
+of immediate visual feedback before changes are saved. To maximize content management efficiency, we recommend using
+live preview for instant editing feedback and relying on autorefresh to confirm that all changes are correctly saved
+and displayed. This combination provides a seamless editing experience, allowing content editors to preview changes
+in real-time and ensuring that the final content displayed is up-to-date with the Delivery Preview API.
 
-- Kontent.ai doesn't notify SDK about the changes in a linked item element or a subpages element.
-- Kontent.ai doesn't notify SDK about the changes in a rich-text element if:
-    - this rich-text element contains a linked item or a content component
-    - this rich-text element contains a link to a linked item with a URL slug.
+### Outside Web Spotlight
 
-### Using SDK inside and outside Web Spotlight
+When used outside of Web Spotlight, the SDK leverages URL query parameters to manage the activation of smart links.
+By default, it looks for the `ksl-enabled` parameter in the webpage URL. However, this parameter can be customized
+using the `queryParam` option during SDK initialization.
 
-When Kontent.ai Smart Link SDK is used outside Web Spotlight, it listens to the query parameters in the URL to toggle
-smart
-link injection. The name of the query parameter defaults to `ksl-enabled`, but can be changed using the `queryParam`
-configuration argument of the `initialize` or `initializeOnLoad` methods. Only the presence of the query parameter is
-checked and its value is ignored, so all the following options are valid: `?ksl-enabled=true`, `?ksl-enabled=false`
-, `?ksl-enabled`, etc.
+The SDK only checks for the presence of this query parameter, disregarding its value. As such, any of the following
+configurations are considered valid:
 
-If you set the query parameter to a false value (null, ""), then the SDK will always be enabled.
+- `?ksl-enabled=true`
+- `?ksl-enabled=false`
+- `?ksl-enabled`
 
-If the SDK detects it is run inside an iframe at the beginning of the initialization process, it will try to connect to
-the Web Spotlight by sending an iframe message to the parent window. If Web Spotlight response is received, query
-parameter detection will be turned off and additional features (more in the smart link types section) will be enabled.
-Else the SDK will continue to work as if it was outside Web Spotlight (query parameters detection, redirects to
-Kontent.ai,
-etc.)
+The features that could be used outside of Web Spotlight are limited.
+For detailed information about the types of smart links that are supported in this context,
+please refer to the [Smart Links](#smart-links) section.
 
-#### IFrame Communication
+### Inside Web Spotlight
 
-When running inside Web Spotlight preview iframe, Kontent.ai Smart Link SDK enables several additional features and
-sends
-iframe messages instead of redirecting user to Kontent.ai page. All message types are listed below.
+If the SDK detects that it is run inside an iframe, it attempts to connect to Web Spotlight through iframe messages
+early during initialization. Upon successful communication with Web Spotlight, the SDK disables query parameter
+reliance and activates additional functionalities designed for in-context editing and preview.
+
+#### Iframe communication
+
+The SDK and Web Spotlight exchange a series of messages for various interactions, from initialization to content
+editing and refresh requests. All message types are listed below.
 
 | Message                                         |                                                                                                                            Data                                                                                                                            | Origin | Description                                                                                             |
 |-------------------------------------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:------:|---------------------------------------------------------------------------------------------------------|
@@ -679,85 +568,93 @@ iframe messages instead of redirecting user to Kontent.ai page. All message type
 | kontent-smart-link:preview:refresh              |                                                                         <code>{ projectId: string, languageCodename: string, updatedItemCodename: string }</code> &#124; undefined                                                                         |  Host  | This message is sent when preview has to be refreshed.                                                  |
 | kontent-smart-link:preview:current-url          |                                                                                                                             -                                                                                                                              |  Host  | This message is sent by host as a request to get URL of current iframe.                                 |
 | kontent-smart-link:preview:current-url:response |                                                                                                            <code>{ previewUrl: string }</code>                                                                                                             |  SDK   | This message is sent by SDK as a response on the `kontent-smart-link:preview:current-url` message.      |
+| kontent-smart-link:preview:update               |                                                                                                              [Data contract](#data-contract)                                                                                                               |  Host  | This message is sent by host when an element value has been changed in the in-context editor.           |
 
-#### Nested iframes
+<--- WIP: STOPPED HERE --->
 
-There may be some cases when you would want to put your page into another iframe (e.g. to simulate a mobile device
-resolution). But if you then load your nested iframe page inside Web Spotlight preview tab, it would act as if it wasn't
-inside Web Spotlight. This happens because the initialization message sent from SDK to Kontent.ai gets lost in the
-parent
-iframe. You can use the following workaround to fix the issue: https://github.com/kontent-ai/smart-link/issues/16.
+## Examples
 
-### Examples
+### HTML & UMD & CDN
 
-#### HTML & UMD & CDN
+This example demonstrates how to quickly integrate the Kontent.ai Smart Link SDK into a webpage using a CDN. It's
+ideal for static sites or projects without a build process, allowing you to enhance your preview with smart link
+capabilities using straightforward HTML and JavaScript.
 
 ```html
 
 <html>
-<head>
-  <title>Kontent.ai Smart Link - HTML example</title>
-  <script type='text/javascript'
-          src='https://cdn.jsdelivr.net/npm/@kontent-ai/smart-link@2.0.0/dist/kontent-smart-link.umd.min.js'></script>
-  <script type='text/javascript'>
-    KontentSmartLink.initializeOnLoad({ queryParam: "preview" });
-  </script>
-</head>
-<body data-kontent-project-id='1d50a0f7-9033-48f3-a96e-7771c73f9683' data-kontent-language-codename='en-US'>
-<nav class='navigation' data-kontent-item-id='6ea11626-336d-47e5-9f35-2d44fa1ad6d6'>
-  <img class='navigation__logo' data-kontent-element-codename='logo' />
-  <ul
-    class='navigation__list'
-    data-kontent-element-codename='navigation'
-    data-kontent-add-button
-    data-kontent-render-position='left'
-    data-kontent-insert-position='start'
-  >
-    <li class='navigation__list-item' data-kontent-component-id='036acd8f-5e6d-4023-b0f8-a4b8e0b573b1'>
-      <span data-kontent-element-codename='title'>Home</span>
-    </li>
-    <li class='navigation__list-item' data-kontent-component-id='f539f1bc-9dc4-4df5-8876-dbb1de5ae6eb'>
-      <span data-kontent-element-codename='title'>About us</span>
-    </li>
-  </ul>
-</nav>
-<div
-  class='page'
-  data-kontent-item-id='af858748-f48a-4169-9b35-b10c9d3984ef'
-  data-kontent-element-codename='page_content'
->
-  <div
-    class='section'
-    data-kontent-component-id='51a90561-9084-4d32-9e34-80da7c88c202'
-    data-kontent-add-button
-    data-kontent-add-button-render-position='bottom'
-    data-kontent-add-button-insert-position='after'
-  >
-    <img class='home__banner' data-kontent-element-codename='image' />
-    <h1 data-kontent-element-codename='title'>Home page</h1>
-  </div>
-  <div
-    class='section'
-    data-kontent-component-id='23e657d2-e4ce-4878-a77d-365db46c956d'
-    data-kontent-add-button
-    data-kontent-add-button-render-position='bottom'
-    data-kontent-add-button-insert-position='after'
-  >
-    <p data-kontent-element-codename='text'>...</p>
-  </div>
-</div>
-</body>
+  <head>
+    <title>Kontent.ai Smart Link - HTML example</title>
+    <!-- Include the SDK from a CDN -->
+    <script type='text/javascript'
+            src='https://cdn.jsdelivr.net/npm/@kontent-ai/smart-link@3.1.0/dist/kontent-smart-link.umd.min.js'></script>
+    <script type='text/javascript'>
+      // Initialize the SDK upon page load
+      KontentSmartLink.initializeOnLoad({ queryParam: 'preview' });
+    </script>
+  </head>
+  <body data-kontent-project-id='1d50a0f7-9033-48f3-a96e-7771c73f9683' data-kontent-language-codename='en-US'>
+    <!-- Example content with data attributes for smart link injection -->
+    <nav class='navigation' data-kontent-item-id='6ea11626-336d-47e5-9f35-2d44fa1ad6d6'>
+      <img class='navigation__logo' data-kontent-element-codename='logo' />
+      <ul
+        class='navigation__list'
+        data-kontent-element-codename='navigation'
+        data-kontent-add-button
+        data-kontent-render-position='left'
+        data-kontent-insert-position='start'
+      >
+        <li class='navigation__list-item' data-kontent-component-id='036acd8f-5e6d-4023-b0f8-a4b8e0b573b1'>
+          <span data-kontent-element-codename='title'>Home</span>
+        </li>
+        <li class='navigation__list-item' data-kontent-component-id='f539f1bc-9dc4-4df5-8876-dbb1de5ae6eb'>
+          <span data-kontent-element-codename='title'>About us</span>
+        </li>
+      </ul>
+    </nav>
+    <div
+      class='page'
+      data-kontent-item-id='af858748-f48a-4169-9b35-b10c9d3984ef'
+      data-kontent-element-codename='page_content'
+    >
+      <div
+        class='section'
+        data-kontent-component-id='51a90561-9084-4d32-9e34-80da7c88c202'
+        data-kontent-add-button
+        data-kontent-add-button-render-position='bottom'
+        data-kontent-add-button-insert-position='after'
+      >
+        <img class='home__banner' data-kontent-element-codename='image' />
+        <h1 data-kontent-element-codename='title'>Home page</h1>
+      </div>
+      <div
+        class='section'
+        data-kontent-component-id='23e657d2-e4ce-4878-a77d-365db46c956d'
+        data-kontent-add-button
+        data-kontent-add-button-render-position='bottom'
+        data-kontent-add-button-insert-position='after'
+      >
+        <p data-kontent-element-codename='text'>...</p>
+      </div>
+    </div>
+  </body>
 </html>
 ```
 
-#### ES6
+**Note:** Make sure to replace `@3.1.0` with the latest SDK version for improved features and fixes.
+
+### ES6
+
+For projects using modern JavaScript frameworks or build systems, this example illustrates how to import and initialize
+the Kontent.ai Smart Link SDK within an ES6 module. This approach is well-suited for applications built with tools
+like Webpack, Rollup, or when working within SPA frameworks like React, Vue, or Angular.
 
 ```js
-import KontentSmartLink from "@kontent-ai/smart-link";
+import KontentSmartLink, { KontentSmartLinkEvent } from "@kontent-ai/smart-link";
 
 // This is just an example of SDK initialization inside ES6 module.
 // HTML markup should still contain all necessary data-attributes.
-const kontentSmartLink = KontentSmartLink.initializeOnLoad({
+const kontentSmartLink = KontentSmartLink.initialize({
   debug: true,
   defaultDataAttributes: {
     projectId: "1d50a0f7-9033-48f3-a96e-7771c73f9683",
@@ -765,26 +662,38 @@ const kontentSmartLink = KontentSmartLink.initializeOnLoad({
   },
   queryParam: "ksl-preview"
 });
+
+kontentSmartLink.on(KontentSmartLinkEvent.Update, (data) => {
+  // Update content of the page using data
+});
 ```
+
+**Tip:** Adjust `defaultDataAttributes` according to your Kontent.ai project's ID and language codename.
 
 ### React
 
-In a React project, we recommend creating a context for storing reference to Kontent.ai Smart Link SDK instance. You can
-then wrap your app with that provider.
+In a React application, we recommend utilizing React's Context API to create a centralized store for the SDK instance,
+ensuring easy access and management of smart links within your component tree. This advanced example demonstrates
+setting up a SmartLinkContext to provide a Kontent.ai Smart Link SDK instance throughout your React application.
 
-#### SmartLink context
+#### Creating the SmartLink context
 
 ```tsx
 // src/contexts/SmartLink.tsx
-import React, { PropsWithChildren, useEffect } from 'react';
-import KontentSmartLink from '@kontent-ai/smart-link';
+import React, { PropsWithChildren, useContext, useState, useMemo, useEffect } from 'react';
+import KontentSmartLink, { KontentSmartLinkEvent } from '@kontent-ai/smart-link';
+import {
+  IRefreshMessageData,
+  IRefreshMessageMetadata,
+  IUpdateMessageData,
+} from '@kontent-ai/smart-link/types/lib/IFrameCommunicatorTypes';
 
 interface SmartLinkContextValue {
   readonly smartLink?: KontentSmartLink | null;
 }
 
 const defaultContextValue: SmartLinkContextValue = {
-  smartLink: undefined
+  smartLink: undefined,
 };
 
 const SmartLinkContext = createContext<SmartLinkContextValue>(defaultContextValue);
@@ -794,15 +703,16 @@ export const SmartLinkProvider: React.FC<PropsWithChildren> = ({ children }) => 
 
   useEffect(() => {
     const instance = KontentSmartLink.initialize({
-      queryParam: "preview",
+      queryParam: 'preview',
       defaultDataAttributes: {
-        projectId: "",
-        languageCodename: "default"
-      }
+        projectId: 'your-project-id', // Replace 'your-project-id' with your actual project ID
+        languageCodename: 'your-language-codename', // Replace 'your-language-codename' with your actual language codename
+      },
     });
 
     setSmartLink(instance);
 
+    // Cleanup on component unmount
     return () => instance.destroy();
   }, []);
 
@@ -812,79 +722,261 @@ export const SmartLinkProvider: React.FC<PropsWithChildren> = ({ children }) => 
     <SmartLinkContext.Provider>
       {children}
     </SmartLinkContext.Provider>
-  )
-}
+  );
+};
 
-// TODO: add useRefresh
-export const useRefresh = (): KontentSmartLink | null => {
+// Custom hook for easy access to the SmartLink instance
+export const useSmartLink = (): KontentSmartLink | null => {
   const { smartLink } = useContext(SmartLinkContext);
 
   if (typeof smartLink === 'undefined') {
-    throw new Error("You need to place SmartLinkProvider to one of the parent components to use useSmartLink.");
+    throw new Error('You need to place SmartLinkProvider to one of the parent components to use useSmartLink.');
   }
 
   return smartLink;
-}
+};
 
+// Custom hook for easy setup of a custom refresh handler
+export const useCustomRefresh = (callback: (data: IRefreshMessageData, metadata: IRefreshMessageMetadata, originalRefresh: () => void) => void): void => {
+  const smartLink = useSmartLink();
+
+  useEffect(() => {
+    if (smartLink) {
+      smartLink.on(KontentSmartLinkEvent.Refresh, callback);
+
+      return smartLink.off(KontentSmartLinkEvent.Refresh, callback);
+    }
+
+    return;
+  }, [smartLink, callback]);
+};
+
+// Custom hook for easy access of live preview
+export const useLivePreview = (callback: (data: IUpdateMessageData) => void): void => {
+  const smartLink = useSmartLink();
+
+  useEffect(() => {
+    if (smartLink) {
+      smartLink.on(KontentSmartLinkEvent.Update, callback);
+
+      return smartLink.off(KontentSmartLinkEvent.Update, callback);
+    }
+
+    return;
+  }, [smartLink, callback]);
+};
+```
+
+Using the SmartLink provider in your app:
+
+```tsx
 // src/App.tsx
+import React from 'react';
+import { SmartLinkProvider } from './contexts/SmartLink';
 
 const App: React.FC = () => {
   return (
     <SmartLinkProvider>
-      ...
+      {/* Your app components go here, now with smart link support */}
     </SmartLinkProvider>
   );
 };
 ```
 
-#### Next.js
+#### Optimizing content updates in React with custom refresh logic
 
-In order to use the SDK with the Next.js framework you can either initialize it separately on each page or initialize it
-once for the whole application using the `_app.jsx` file. Do not forget to `destroy()` SDK for it to work properly.
+Using the custom refresh handler and the `useCustomRefresh` hook we defined in the previous example. It is possible
+to only update a small portion of the UI without reloading the entire page when your changes are available on
+Delivery Preview API.
+
+The following example showcases an efficient approach to handling such content updates within a React application.
+
+```tsx
+import React, { useState, useCallback, useContext } from 'react';
+import { useCustomRefresh } from '../context/SmartLink'; // Ensure correct import path
+import { IRefreshMessageData, IRefreshMessageMetadata } from '@kontent-ai/smart-link/types/lib/IFrameCommunicatorTypes';
+
+const YourComponent: React.FC = () => {
+  const [data, setData] = useState(null);
+  const fetchData = useCallback((projectId, languageCodename, itemCodename) => {
+    // Your data fetching logic here using a delivery-sdk or request to Delivery API endpoint
+  }, []);
+
+  // Define the custom refresh logic.
+  const onRefresh = useCallback((data: IRefreshMessageData, metadata: IRefreshMessageMetadata, originalRefresh: () => void) => {
+    // Check if the refresh was triggered manually and perform a full refresh if so.
+    if (metadata.manualRefresh) {
+      originalRefresh();
+    } else {
+      // For automatic refreshes, refetch data for the updated item only.
+      const { projectId, languageCodename, updatedItemCodename } = data;
+      fetchData(projectId, languageCodename, updatedItemCodename);
+    }
+  }, [fetchData]);
+
+  // Use the custom refresh hook with the defined logic.
+  useCustomRefresh(onRefresh);
+
+  return <div>{data}</div>;
+};
+```
+
+#### Triggering SSG rebuilds with custom refresh logic
+
+For websites built with static site generators, applying content updates typically requires triggering
+a rebuild of the site. The following example shows how you can initiate a rebuild with
+the custom refresh handler, ensuring that your site reflects the latest content changes.
+
+This example uses Gatsby deployed to Netlify, but the solution for other SSG
+frameworks should be similar.
+
+The following Netlify serverless function, `deploy-status`, checks the status of the latest deployment, enabling
+your application to wait for a rebuild to complete before refreshing the content.
 
 ```js
-// _app.jsx
-import KontentSmartLink from "@kontent-ai/smart-link";
+// ./.netlify/functions/deploy-status.js
+import fetch from 'node-fetch';
 
-const MyApp = ({
-                 Component,
-                 pageProps
-               }) => {
-  useEffect(() => {
-    // This is just an example of SDK initialization inside ES6 module.
-    // HTML markup should still contain all necessary data-attributes (e.g. PageSection component).
-    const kontentSmartLink = KontentSmartLink.initialize({
-      defaultDataAttributes: {
-        projectId: "1d50a0f7-9033-48f3-a96e-7771c73f9683",
-        languageCodename: "default",
-      },
-      queryParam: "preview-mode"
-    });
+// Environment variables for Netlify site ID and access token
+const siteId = process.env.NETLIFY_SITE_ID;
+const token = process.env.NETLIFY_TOKEN;
 
-    return () => {
-      kontentSmartLink.destroy();
-    };
-  });
+// Handler to check the status of the last deployment
+const handler = async event => {
+  try {
+    const endpoint = `https://api.netlify.com/api/v1/sites/${siteId}/deploys`;
+    const result = await fetch(endpoint, { headers: { Authorization: `Bearer ${token}` } });
+    const data = await result.json();
 
-  return (
-    <PageSection>
-      <Component {...pageProps} />
-    </PageSection>
-  );
+    // Assuming the first entry is the latest deployment
+    const deploy = { state: data[0].state };
+
+    return { statusCode: 200, body: JSON.stringify(deploy) };
+  } catch (error) {
+    return { statusCode: 500, body: error.toString() };
+  }
 };
 
-const PageSection = (props) => {
+module.exports = { handler };
+```
+
+We can then trigger the rebuild process inside our custom refresh handler and wait for the deployment process to finish.
+After that the page can be refreshed using the `originalRefresh` callback.
+
+```tsx
+import React, { useCallback, useEffect } from 'react';
+import { useCustomRefresh } from '../context/SmartLinkContext'; // Adjust the import path as needed
+
+const triggerRebuildOnNetlifyAndWaitForDeploy = useCallback(() => {
+  // Trigger the Netlify build hook
+  fetch('https://api.netlify.com/build_hooks/YOUR_BUILD_HOOK_ID?trigger_title=autorefresh', { method: 'POST' })
+    .then(async () => {
+      // Check the deployment status repeatedly until it's 'ready'
+      const checkDeployStatus = async () => {
+        const response = await fetch('/.netlify/functions/deploy-status');
+        const { state } = await response.json();
+        if (state !== 'ready') {
+          setTimeout(checkDeployStatus, 3000); // Check again after 3 seconds
+        }
+      };
+
+      await checkDeployStatus();
+    });
+}, []);
+
+const PageWithAutoRefresh = () => {
+  useCustomRefresh((data, metadata, originalRefresh) => {
+    if (!metadata.manualRefresh) {
+      triggerRebuildOnNetlifyAndWaitForDeploy().then(originalRefresh);
+    } else {
+      originalRefresh();
+    }
+  });
+
+  // Page content goes here
+  return <div>Page Content</div>;
+};
+
+export default PageWithAutoRefresh;
+```
+
+#### Live Preview in Your Application
+
+Using the `useLivePreview` hook we defined in the previous example, you can enhance your application with real-time
+content updates during the editing process. This hook listens for live update messages from the Kontent.ai Smart Link
+SDK and applies those updates directly to the content item being displayed.
+
+This example demonstrates setting up a `useLivePreview` hook within a React component to dynamically update content
+items as changes are made in the in-context editor.
+
+```tsx
+import React, { useState, useCallback, useEffect } from 'react';
+import { useLivePreview } from '../contexts/SmartLinkContext'; // Adjust the import path as needed
+import { IContentItem } from '@kontent-ai/delivery-sdk/lib/models/item-models';
+import { IUpdateMessageData } from '@kontent-ai/smart-link/types/lib/IFrameCommunicatorTypes';
+
+// Function to update content item elements with live preview data
+const updateContentItemElements = (item: IContentItem, data: IUpdateMessageData) => {
+  return data.elements.reduce((acc, el) => {
+    const { element, ...rest } = el;
+    acc[element.codename] = { ...acc[element.codename], ...rest.data };
+    return acc;
+  }, item?.elements ?? {});
+};
+
+const useContentItem = (codename: string) => {
+  const [item, setItem] = useState<IContentItem | null>(null);
+  // Assume useDeliveryClient is a custom hook to obtain a configured delivery client instance
+  const deliveryClient = useDeliveryClient();
+
+  const handleLiveUpdate = useCallback((data: IUpdateMessageData) => {
+    if (item && data.item.codename === codename) {
+      const updatedElements = updateContentItemElements(item, data);
+      setItem({ ...item, elements: updatedElements });
+    }
+  }, [codename, item]);
+
+  useEffect(() => {
+    const fetchItem = async () => {
+      // Fetch the content item initially and upon codename changes
+      const response = await deliveryClient.item<IContentItem>(codename).toPromise();
+      setItem(response.item);
+    };
+    fetchItem();
+  }, [codename, deliveryClient]);
+
+  useLivePreview(handleLiveUpdate);
+
+  return item;
+};
+
+// Example component using the useContentItem hook
+export const ContentItemComponent = ({ codename }) => {
+  const item = useContentItem(codename);
+
+  // Render logic for the content item
   return (
-    <div data-kontent-item-id="3fdbc5a0-13e6-4516-82c3-50bf4db43644">
-      <div data-kontent-element-codename="page_section__content">
-        {props.children}
-      </div>
+    <div>
+      {/* Render your content item here */}
+      <h2>{item?.name}</h2>
+      {/* More render logic */}
     </div>
   );
 };
 ```
 
-Additionally, you may encounter an issue with `SameSite` cookies not being set correctly. This can be solved by
+## Known issues
+
+### Nested iframes
+
+In scenarios where your content is displayed within nested iframes (e.g. to simulate different device resolutions, or
+to handle redirects to the right preview website based on the item), the SDK's initialization messages may not reach
+the top-level Web Spotlight iframe directly, affecting functionality. To address this, follow the guidance provided
+in [this issue](https://github.com/kontent-ai/smart-link/issues/16).
+
+### SameSite cookie in Next.js app
+
+Next.js developers may encounter an issue with `SameSite` cookies not being set correctly. This can be solved by
 utilizing the code snippet below in
 your [API route handling preview](https://nextjs.org/docs/advanced-features/preview-mode) file to replace `SameSite=Lax`
 to `SameSite=None; Secure;` right after `res.setPreviewData` call.
@@ -903,6 +995,7 @@ const setCookieSameSite = (res, value) => {
     updatedCookies
   );
 };
+
 export default function handler(req, res) {
   // ...
   res.setPreviewData({})
@@ -913,56 +1006,15 @@ export default function handler(req, res) {
 }
 ```
 
-### Gatsby
+## Tests
 
-You can either initialize the SDK on every page or use a layout to initialize the SDK while using Gatsby. Do not forget
-to `destroy()` SDK for it to work properly.
-
-```js
-// src/components/layout.jsx
-import KontentSmartLink from "@kontent-ai/smart-link";
-
-export default function Layout({ children }) {
-  useEffect(() => {
-    // This is just an example of SDK initialization inside ES6 module.
-    // HTML markup should still contain all necessary data-attributes (e.g. .layout element).
-    const kontentSmartLink = KontentSmartLink.initialize({
-      queryParam: "enable-ksl-sdk"
-    });
-    return () => {
-      kontentSmartLink.destroy();
-    };
-  });
-
-  return (
-    <div
-      class="layout"
-      data-kontent-project-id="1d50a0f7-9033-48f3-a96e-7771c73f9683"
-      data-kontent-language-codename="en-US"
-    >
-      {children}
-    </div>
-  );
-}
-```
-
-## Breaking changes
-
-All breaking changes can be found in [a separate markdown file](BREAKING.md).
-
-## Feedback & Contribution
-
-Feedback & Contributions are welcomed. Feel free to take/start an issue & submit PR.
-
-### Tests
-
-#### Unit tests
+### Unit tests
 
 Since this SDK highly depends on browser APIs, the unit tests are run by Karma test runner (+ Jasmine) inside Chrome
 browser. To run all tests in a watch mode you can use the `npm run test:unit` command. To run all tests only once you
 can use the `npm run test:unit:ci` command. All unit tests are located in the `test-browser` folder.
 
-#### Visual regression tests
+### Visual regression tests
 
 Visual regression testing is implemented using Storybook and Loki. Each story in Storybook represents a test case, which
 is then used by Loki to generate screenshots. In order to run visual regression tests you need to start Storybook using
@@ -978,4 +1030,12 @@ which is utilized in our GitHub Action workflow for visual tests. It means tests
 Windows. In case the visual regression tests fail during a pull request, and you need to update reference screenshots,
 you can locate the new screenshots in the failed GitHub Action run. Navigate to the Artifacts section (`.loki/current`)
 of the failed run to find the updated screenshots.
+
+## Breaking changes
+
+All breaking changes can be found in [a separate markdown file](BREAKING.md).
+
+## Feedback & Contribution
+
+Feedback & Contributions are welcomed. Feel free to take/start an issue & submit PR.
 
