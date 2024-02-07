@@ -570,8 +570,6 @@ editing and refresh requests. All message types are listed below.
 | kontent-smart-link:preview:current-url:response |                                                                                                            <code>{ previewUrl: string }</code>                                                                                                             |  SDK   | This message is sent by SDK as a response on the `kontent-smart-link:preview:current-url` message.      |
 | kontent-smart-link:preview:update               |                                                                                                              [Data contract](#data-contract)                                                                                                               |  Host  | This message is sent by host when an element value has been changed in the in-context editor.           |
 
-<--- WIP: STOPPED HERE --->
-
 ## Examples
 
 ### HTML & UMD & CDN
