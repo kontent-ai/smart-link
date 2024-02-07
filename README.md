@@ -4,9 +4,8 @@
 ![npm](https://img.shields.io/npm/v/@kontent-ai/smart-link)
 ![downloads](https://img.shields.io/npm/dt/@kontent-ai/smart-link)
 ![jsdelivr](https://img.shields.io/jsdelivr/npm/hm/@kontent-ai/smart-link)
-![snyk](https://img.shields.io/snyk/vulnerabilities/github/kontent-ai/smart-link)
 
-###### [Usage](#usage) | [Contributing](https://github.com/kontent-ai/.github/blob/main/CONTRIBUTING.md) | [Troubleshooting](https://github.com/kontent-ai/smart-link/blob/master/TROUBLESHOOTING.md) | [Breaking changes](https://github.com/kontent-ai/smart-link/blob/master/BREAKING.md)
+###### [Usage](#usage) | [Contributing](https://github.com/kontent-ai/.github/blob/main/CONTRIBUTING.md) | [Troubleshooting](https://github.com/kontent-ai/smart-link/blob/master/TROUBLESHOOTING.md) | [Breaking changes](https://github.com/kontent-ai/smart-link/blob/master/BREAKING.md) | [Prerelease (@next)](https://github.com/kontent-ai/smart-link/blob/next)
 
 > Kontent.ai Smart Link SDK can be used to automatically inject smart links
 > to Kontent.ai according to manually specified [HTML data attributes](https://www.w3schools.com/tags/att_data-.asp)
