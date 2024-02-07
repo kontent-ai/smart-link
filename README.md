@@ -5,7 +5,7 @@
 ![downloads](https://img.shields.io/npm/dt/@kontent-ai/smart-link)
 ![jsdelivr](https://img.shields.io/jsdelivr/npm/hm/@kontent-ai/smart-link)
 
-###### [Usage](#usage) | [Contributing](https://github.com/kontent-ai/.github/blob/main/CONTRIBUTING.md) | [Troubleshooting](https://github.com/kontent-ai/smart-link/blob/master/TROUBLESHOOTING.md) | [Breaking changes](https://github.com/kontent-ai/smart-link/blob/master/BREAKING.md)
+###### [Usage](#usage) | [Contributing](https://github.com/kontent-ai/.github/blob/main/CONTRIBUTING.md) | [Troubleshooting](https://github.com/kontent-ai/smart-link/blob/master/TROUBLESHOOTING.md) | [Breaking changes](https://github.com/kontent-ai/smart-link/blob/master/BREAKING.md) | [Prerelease (@next)](https://github.com/kontent-ai/smart-link/tree/next)
 
 Kontent.ai Smart Link SDK simplifies and enhances the process of editing and managing web content
 in [Web Spotlight](https://kontent.ai/features/webspotlight/) by embedding "smart links" into your web pages.
