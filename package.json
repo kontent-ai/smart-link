@@ -70,7 +70,7 @@
     "@storybook/addon-links": "6.5.10",
     "@storybook/addon-queryparams": "6.2.9",
     "@storybook/builder-webpack5": "^6.5.10",
-    "@storybook/html": "^6.5.10",
+    "@storybook/html": "^7.6.10",
     "@storybook/manager-webpack5": "^6.5.10",
     "@storybook/preset-typescript": "3.0.0",
     "@types/jasmine": "4.0.3",
