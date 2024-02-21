@@ -92,7 +92,7 @@
     "karma-jasmine-html-reporter": "2.0.0",
     "karma-typescript": "5.5.3",
     "karma-typescript-es6-transform": "5.5.3",
-    "loki": "0.31.2",
+    "loki": "0.34.0",
     "prettier": "2.7.1",
     "rimraf": "3.0.2",
     "ts-loader": "9.3.1",
