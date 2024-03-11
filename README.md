@@ -450,23 +450,13 @@ For more complex example, check the [Examples](#examples) section.
 
 ### Live preview in Web Spotlight
 
-> :warning: **Important:** This feature is currently in early access, which means the API may undergo changes.
-
-As of version 3.2.0-next.0, the Kontent.ai Smart Link SDK introduces support for live preview within Web Spotlight.
-This feature enahnces the content editing experience by providing real-time updates within your preview environment
+As of version 3.2.0, the Kontent.ai Smart Link SDK introduces support for live preview within Web Spotlight.
+This feature enhances the content editing experience by providing real-time updates within your preview environment
 through iframe communication immediately after edits are made in the in-context editor.
 
 **Note:** The live preview requires manual integration to function. Your preview website will not automatically
 update with changes; it is your responsibility to implement how these updates are processed and displayed in your
 application.
-
-#### Current limitations
-
-Please be aware of the current limitations with live preview:
-
-- Changes to linked item element or subpage element are not communicated through live preview.
-- Rich-text elements containing linked items, content components, or links to linked items with a URL slug do not
-  trigger update notifications.
 
 #### Implementing live preview in your application
 
@@ -517,6 +507,15 @@ interface IUpdateMessageData {
 You can find [ElementType](https://github.com/kontent-ai/delivery-sdk-js/blob/v14.6.0/lib/elements/element-type.ts)
 and [Element](https://github.com/kontent-ai/delivery-sdk-js/blob/v14.6.0/lib/elements/elements.ts) definition in
 @kontent-ai/delivery-sdk repository.
+
+##### Modular content in live preview
+
+Live preview updates for content items that include linked items only provide the codenames of these linked items.
+To fully update your application with changes to these linked items, you may need to fetch their full details from the
+Delivery Preview API after receiving the live update message. This ensures that all parts of your content are up-to-date.
+
+Content components within rich text elements, however, are directly included in the live update messages. This means
+changes to these components are immediately reflected in the live preview, without needing additional fetches.
 
 #### Combining autorefresh and live preview
 
@@ -585,10 +584,22 @@ capabilities using straightforward HTML and JavaScript.
     <title>Kontent.ai Smart Link - HTML example</title>
     <!-- Include the SDK from a CDN -->
     <script type='text/javascript'
-            src='https://cdn.jsdelivr.net/npm/@kontent-ai/smart-link@3.1.0/dist/kontent-smart-link.umd.min.js'></script>
+            src='https://cdn.jsdelivr.net/npm/@kontent-ai/smart-link@3.2.0/dist/kontent-smart-link.umd.min.js'></script>
     <script type='text/javascript'>
       // Initialize the SDK upon page load
-      KontentSmartLink.initializeOnLoad({ queryParam: 'preview' });
+      KontentSmartLink.initializeOnLoad({ queryParam: 'preview' }).then((sdk) => {
+        // NOTE: this is just an example of what your live preview implementation may look like
+        sdk.on("update", (data) => {
+          data.elements.forEach((i) => {
+            const codename = i.element.codename;
+            const domElement = document.querySelector(`[data-kontent-element-codename=${codename}]`);
+            
+            if (domElement) {
+              domElement.innerHTML = i.data.value;
+            }
+          });
+        });
+      });
     </script>
   </head>
   <body data-kontent-project-id='1d50a0f7-9033-48f3-a96e-7771c73f9683' data-kontent-language-codename='en-US'>
@@ -639,7 +650,7 @@ capabilities using straightforward HTML and JavaScript.
 </html>
 ```
 
-**Note:** Make sure to replace `@3.1.0` with the latest SDK version for improved features and fixes.
+**Note:** Make sure to replace `@3.2.0` with the latest SDK version for improved features and fixes.
 
 ### ES6
 
