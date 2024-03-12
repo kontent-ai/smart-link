@@ -7,20 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [3.2.0-next.1] - 2024-02-08
-
-### Changed
-
-- Better documentation for smart-link SDK
-- More complex examples of SDK usage
-
-## [3.2.0-next.0] - 2024-01-24
+## [3.2.0] - 2024-03-12
 
 ### Added
 
 - Dependency on @kontent-ai/delivery-sdk for types.
 - New iframe message ("update") added to iframe communication.
 - Support for a custom live preview handler implementation.
+
+### Changed
+
+- Better documentation for smart-link SDK
+- More complex examples of SDK usage
 
 ## [3.1.0] - 2023-08-15
 
@@ -158,9 +156,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public release of SDK
 
-[unreleased]: https://github.com/kontent-ai/smart-link/compare/v3.2.0-next.1...HEAD
-[3.2.0-next.1]: https://github.com/kontent-ai/smart-link/compare/v3.2.0-next.0...v3.2.0-next.1
-[3.2.0-next.0]: https://github.com/kontent-ai/smart-link/compare/v3.1.0...v3.2.0-next.0
+[unreleased]: https://github.com/kontent-ai/smart-link/compare/v3.2.0...HEAD
+[3.2.0]: https://github.com/kontent-ai/smart-link/compare/v3.1.0...v3.2.0
 [3.1.0]: https://github.com/kontent-ai/smart-link/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/kontent-ai/smart-link/compare/v2.3.1...v3.0.0
 [2.3.1]: https://github.com/kontent-ai/smart-link/compare/v2.3.0...v2.3.1
