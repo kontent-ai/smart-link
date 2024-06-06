@@ -461,17 +461,24 @@ application.
 #### Implementing live preview in your application
 
 To set up live preview, listen for update events from the SDK. These events are triggered after content is
-edited in Kontent.ai, providing you with the updated data:
+edited in Kontent.ai, providing you with the updated data. 
+In a typical application, you would fetch the data from the Delivery API and store them in memory.
+When the SDK triggers an update event, you would then update the stored items in memory to display the latest content.
+To easily apply the updates on you items, you can use `applyUpdateOnItem` or `applyUpdateOnItemAndLoadLinkedItems` functions from the SDK.
 
 ```ts
-import KontentSmartLink, { KontentSmartLinkEvent } from '@kontent-ai/smart-link';
+import KontentSmartLink, { KontentSmartLinkEvent, applyUpdateOnItem, applyUpdateOnItemAndLoadLinkedItems } from '@kontent-ai/smart-link';
 
 // Initialize the SDK
 const sdk = KontentSmartLink.initialize({ ... });
 
 // Listen for updates and apply them to your application
 sdk.on(KontentSmartLink.Update, (data: IUpdateMessageData) => {
-  // Use this data to update your application state or UI as needed
+  // Use this data to update your application state or UI as needed e.g.:
+  setItems((items) => items.map(item => applyUpdateOnItem(item, data)));
+  // or
+  Promise.all(items.map(item => applyUpdateOnItemAndLoadLinkedItems(item, data, fetchItemsFromDeliveryApi)))
+    .then(setItems);
 });
 ```
 
@@ -513,6 +520,8 @@ and [Element](https://github.com/kontent-ai/delivery-sdk-js/blob/v14.6.0/lib/ele
 Live preview updates for content items that include linked items only provide the codenames of these linked items.
 To fully update your application with changes to these linked items, you may need to fetch their full details from the
 Delivery Preview API after receiving the live update message. This ensures that all parts of your content are up-to-date.
+You can use the `applyUpdateOnItemAndLoadLinkedItems` function to simplify this process.
+The function uses the provided loader to load any items added in the update message and applies the update to the item.
 
 Content components within rich text elements, however, are directly included in the live update messages. This means
 changes to these components are immediately reflected in the live preview, without needing additional fetches.
@@ -924,15 +933,6 @@ import { useLivePreview } from '../contexts/SmartLinkContext'; // Adjust the imp
 import { IContentItem } from '@kontent-ai/delivery-sdk/lib/models/item-models';
 import { IUpdateMessageData } from '@kontent-ai/smart-link/types/lib/IFrameCommunicatorTypes';
 
-// Function to update content item elements with live preview data
-const updateContentItemElements = (item: IContentItem, data: IUpdateMessageData) => {
-  return data.elements.reduce((acc, el) => {
-    const { element, ...rest } = el;
-    acc[element.codename] = { ...acc[element.codename], ...rest.data };
-    return acc;
-  }, item?.elements ?? {});
-};
-
 const useContentItem = (codename: string) => {
   const [item, setItem] = useState<IContentItem | null>(null);
   // Assume useDeliveryClient is a custom hook to obtain a configured delivery client instance
@@ -940,18 +940,18 @@ const useContentItem = (codename: string) => {
 
   const handleLiveUpdate = useCallback((data: IUpdateMessageData) => {
     if (item && data.item.codename === codename) {
-      const updatedElements = updateContentItemElements(item, data);
-      setItem({ ...item, elements: updatedElements });
+      setItem(applyUpdateOnItem(item, data));
+      // or use applyUpdateOnItemAndLoadLinkedItems to load added linked items
+      applyUpdateOnItemAndLoadLinkedItems(item, data, codenamesToFetch => deliveryClient.items(codenamesToFetch).toAllPromise())
+        .then(setItem);
     }
   }, [codename, item]);
 
   useEffect(() => {
-    const fetchItem = async () => {
-      // Fetch the content item initially and upon codename changes
-      const response = await deliveryClient.item<IContentItem>(codename).toPromise();
-      setItem(response.item);
-    };
-    fetchItem();
+    // Fetch the content item initially and upon codename changes
+    deliveryClient.item<IContentItem>(codename)
+      .toPromise()
+      .then(res => setItem(res.item));
   }, [codename, deliveryClient]);
 
   useLivePreview(handleLiveUpdate);
