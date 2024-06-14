@@ -43,7 +43,9 @@ export const applyUpdateOnItemAndLoadLinkedItems = <Elements extends IContentIte
 const applyUpdateOnItemOptionallyAsync = <Elements extends IContentItemElements>(
   item: IContentItem<Elements>,
   update: InternalUpdateMessage,
-  resolveElementCodename: (codename: string) => string
+  resolveElementCodename: (codename: string) => string,
+  updatedItem: IContentItem<Elements> | null = null,
+  processedItemsPath: ReadonlyArray<string> = []
 ): OptionallyAsync<IContentItem<Elements>> => {
   const shouldApplyOnThisItem =
     item.system.codename === update.item.codename && item.system.language === update.variant.codename;
@@ -55,6 +57,8 @@ const applyUpdateOnItemOptionallyAsync = <Elements extends IContentItemElements>
       codename: resolveElementCodename(u.element.codename),
     },
   }));
+
+  const newUpdatedItem = !updatedItem && shouldApplyOnThisItem ? { ...item } : updatedItem; // We will mutate its elements to new values before returning. This is necesary to preserve cyclic dependencies between items without infinite recursion.
 
   const updatedElements = mergeOptionalAsyncs(
     Object.entries(item.elements).map(([elementCodename, element]) => {
@@ -72,7 +76,22 @@ const applyUpdateOnItemOptionallyAsync = <Elements extends IContentItemElements>
 
         return applyOnOptionallyAsync(
           mergeOptionalAsyncs(
-            typedItemElement.linkedItems.map((i) => applyUpdateOnItemOptionallyAsync(i, update, resolveElementCodename))
+            typedItemElement.linkedItems.map((i) => {
+              if (updatedItem?.system.codename === i.system.codename) {
+                // we closed the cycle and on the updated item and need to connect to the new item
+                return createOptionallyAsync(() => updatedItem);
+              }
+              return closesCycleWithoutUpdate(
+                processedItemsPath,
+                i.system.codename,
+                updatedItem?.system.codename ?? null
+              )
+                ? createOptionallyAsync(() => i) // we found a cycle that doesn't need any update so we just ignore it
+                : applyUpdateOnItemOptionallyAsync(i, update, resolveElementCodename, newUpdatedItem, [
+                    ...processedItemsPath,
+                    i.system.codename,
+                  ]);
+            })
           ),
           (linkedItems) => {
             return linkedItems.some((newItem, index) => newItem !== typedItemElement.linkedItems[index])
@@ -86,11 +105,22 @@ const applyUpdateOnItemOptionallyAsync = <Elements extends IContentItemElements>
     })
   );
 
-  return applyOnOptionallyAsync(updatedElements, (newElements) =>
-    newElements.some(([codename, newEl]) => item.elements[codename] !== newEl)
+  return applyOnOptionallyAsync(updatedElements, (newElements) => {
+    if (newUpdatedItem?.system.codename === item.system.codename) {
+      newUpdatedItem.elements = Object.fromEntries(newElements) as Elements;
+      return newUpdatedItem;
+    }
+
+    return newElements.some(([codename, newEl]) => item.elements[codename] !== newEl)
       ? { ...item, elements: Object.fromEntries(newElements) as Elements }
-      : item
-  );
+      : item;
+  });
+};
+
+const closesCycleWithoutUpdate = (path: ReadonlyArray<string>, nextItem: string, updatedItem: string | null) => {
+  const cycleStartIndex = path.indexOf(nextItem);
+
+  return cycleStartIndex !== -1 && (!updatedItem || cycleStartIndex > path.indexOf(updatedItem));
 };
 
 const applyUpdateOnElement = (
