@@ -411,6 +411,110 @@ const system: IContentItem['system'] = {
         item.elements.component.linkedItems[0].elements.inner
       );
     });
+
+    it('Does not cycle infinitely on circular references where the cycle contains the updated item', async () => {
+      type ElementsType = {
+        el: Elements.LinkedItemsElement;
+        el2?: Elements.TextElement;
+      };
+
+      const item: IContentItem<ElementsType> = {
+        system,
+        elements: {
+          el: {
+            type: ElementType.ModularContent,
+            name: 'linked items element',
+            value: ['item2'],
+            linkedItems: [],
+          } as Elements.LinkedItemsElement,
+          el2: {
+            type: ElementType.Text,
+            name: 'text element',
+            value: 'original value',
+          },
+        },
+      };
+
+      const item2: IContentItem<ElementsType> = {
+        system: { ...system, id: 'd5b7e5c2-5c4d-4e3f-8d2b-7f5f2e3e6f5b', codename: 'item2' },
+        elements: {
+          el: {
+            type: ElementType.ModularContent,
+            name: 'linked items element',
+            value: [system.codename],
+            linkedItems: [item],
+          } as Elements.LinkedItemsElement,
+        },
+      };
+
+      item.elements.el.linkedItems = [item2];
+
+      const update: IUpdateMessageData = {
+        item: { id: item.system.id, codename: item.system.codename },
+        variant: { id: '87767c98-3d1d-490f-bd19-e0157157d087', codename: item.system.language },
+        projectId: '5f53475c-de51-4cef-b373-463d56919cec',
+        elements: [
+          {
+            type: ElementType.Text,
+            element: { id: '467dc8c1-4fcb-4adc-a5fc-049d17ee1386', codename: 'el2' },
+            data: { value: 'new value' },
+          },
+        ],
+      };
+
+      const result = await callTestFnc(item, update);
+
+      expect(result.elements.el.linkedItems[0].system.codename).toBe(item2.system.codename);
+      expect(result.elements.el2).toEqual({ ...item.elements.el2, value: 'new value' } as Elements.TextElement);
+    });
+    it('Does not cycle infinitely on circular references where the cycle does not contain the updated item', async () => {
+      type ElementsType = {
+        el: Elements.LinkedItemsElement;
+      };
+
+      const item: IContentItem<ElementsType> = {
+        system,
+        elements: {
+          el: {
+            type: ElementType.ModularContent,
+            name: 'linked items element',
+            value: ['item2'],
+            linkedItems: [],
+          } as Elements.LinkedItemsElement,
+        },
+      };
+
+      const item2: IContentItem<ElementsType> = {
+        system: { ...system, id: 'd5b7e5c2-5c4d-4e3f-8d2b-7f5f2e3e6f5b', codename: 'item2' },
+        elements: {
+          el: {
+            type: ElementType.ModularContent,
+            name: 'linked items element',
+            value: [system.codename],
+            linkedItems: [item],
+          } as Elements.LinkedItemsElement,
+        },
+      };
+
+      item.elements.el.linkedItems = [item2];
+
+      const update: IUpdateMessageData = {
+        item: { id: 'f5b69805-f059-4038-883a-ad2d31bc92f5', codename: 'non-existing-item' },
+        variant: { id: '87767c98-3d1d-490f-bd19-e0157157d087', codename: 'some-language' },
+        projectId: '5f53475c-de51-4cef-b373-463d56919cec',
+        elements: [
+          {
+            type: ElementType.Text,
+            element: { id: '467dc8c1-4fcb-4adc-a5fc-049d17ee1386', codename: 'el' },
+            data: { value: 'new value' },
+          },
+        ],
+      };
+
+      const result = await callTestFnc(item, update);
+
+      expect(result).toBe(item);
+    });
   });
 });
 
