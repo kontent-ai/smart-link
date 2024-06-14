@@ -189,7 +189,13 @@ const applyRichTextElement = (
   }
 
   const withItems = applyOnOptionallyAsync(
-    updateLinkedItems(update.data.linkedItemCodenames, element.linkedItems),
+    updateLinkedItems(
+      update.data.linkedItemCodenames,
+      update.data.linkedItems
+        .filter((i) => !element.linkedItems.find((u) => u.system.codename === i.system.codename))
+        .map(applyCodenameResolver(resolveCodenames))
+        .concat(element.linkedItems)
+    ),
     (linkedItems) => ({
       ...element,
       value: update.data.value,
@@ -292,11 +298,10 @@ const updateComponents = (
   mergeOptionalAsyncs(
     oldItems.map((item) => {
       const newItem = newItems.find((i) => i.system.codename === item.system.codename);
-      if (!newItem) {
-        return createOptionallyAsync(() => item);
-      }
 
-      return applyUpdateOnItemOptionallyAsync(item, convertItemToUpdate(newItem), resolveCodenames);
+      return newItem
+        ? applyUpdateOnItemOptionallyAsync(item, convertItemToUpdate(newItem), resolveCodenames)
+        : createOptionallyAsync(() => item);
     })
   );
 
@@ -382,3 +387,27 @@ const convertItemToUpdate = (item: IContentItem): InternalUpdateMessage => ({
     }
   }),
 });
+
+const applyCodenameResolver =
+  (resolver: (codename: string) => string) =>
+  (item: IContentItem): IContentItem => ({
+    ...item,
+    elements: Object.fromEntries(
+      Object.entries(item.elements).map(([codename, element]) => {
+        switch (element.type) {
+          case ElementType.ModularContent:
+          case ElementType.RichText:
+            type Element = Elements.LinkedItemsElement | Elements.RichTextElement;
+            return [
+              resolver(codename),
+              {
+                ...element,
+                linkedItems: (element as Element).linkedItems.map(applyCodenameResolver(resolver)),
+              },
+            ];
+          default:
+            return [resolver(codename), element];
+        }
+      })
+    ),
+  });
