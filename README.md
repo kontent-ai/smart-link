@@ -472,8 +472,10 @@ import KontentSmartLink, { KontentSmartLinkEvent, applyUpdateOnItem, applyUpdate
 // Initialize the SDK
 const sdk = KontentSmartLink.initialize({ ... });
 
+const fetchItemsFromDeliveryApi = (itemCodenames: ReadonlyArray<string>) => client.items().inFilter(system.codename, items).toAllPromise().then(res => res.data.items);
+
 // Listen for updates and apply them to your application
-sdk.on(KontentSmartLink.Update, (data: IUpdateMessageData) => {
+sdk.on(KontentSmartLinkEvent.Update, (data: IUpdateMessageData) => {
   // Use this data to update your application state or UI as needed e.g.:
   setItems((items) => items.map(item => applyUpdateOnItem(item, data)));
   // or
