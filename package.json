@@ -103,6 +103,6 @@
     "webpack-merge": "5.8.0"
   },
   "dependencies": {
-    "@kontent-ai/delivery-sdk": "^14.9.0"
+    "@kontent-ai/delivery-sdk": "^14.10.0"
   }
 }
