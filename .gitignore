@@ -8,3 +8,6 @@ coverage/
 storybook-static/
 debug.log
 .DS_Store
+
+
+stats.json
