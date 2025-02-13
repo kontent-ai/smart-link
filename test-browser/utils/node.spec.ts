@@ -1,5 +1,6 @@
 import { createHtmlFixture } from '../test-helpers/createHtmlFixture';
 import { getRenderingRootForElement, getRenderingRootMetadata, getTotalScrollOffset } from '../../src/utils/node';
+import { describe, expect, it } from 'vitest';
 
 describe('node.ts', () => {
   describe('getRenderingRootForElement', () => {
