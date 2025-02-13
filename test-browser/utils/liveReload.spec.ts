@@ -1,6 +1,7 @@
 import { Elements, ElementType, IContentItem, IContentItemElements } from '@kontent-ai/delivery-sdk';
 import { IUpdateMessageData } from '../../src/lib/IFrameCommunicatorTypes';
 import { applyUpdateOnItem, applyUpdateOnItemAndLoadLinkedItems } from '../../src/utils/liveReload';
+import { describe, expect, it } from 'vitest';
 
 const system: IContentItem['system'] = {
   id: '70105014-c767-45b6-9393-31bef0952bce',
