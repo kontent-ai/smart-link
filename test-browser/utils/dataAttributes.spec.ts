@@ -1,6 +1,11 @@
 import { createHtmlFixture } from '../test-helpers/createHtmlFixture';
-import { parseEditButtonDataAttributes, parseAddButtonDataAttributes } from '../../src/utils/dataAttributes';
+import {
+  parseEditButtonDataAttributes,
+  parseAddButtonDataAttributes,
+  MetadataAttribute,
+} from '../../src/utils/dataAttributes';
 import { InsertPositionPlacement } from '../../src/lib/IFrameCommunicatorTypes';
+import { describe, it, expect } from 'vitest';
 
 describe('dataAttributes.ts', () => {
   const fixture = createHtmlFixture();
@@ -21,6 +26,8 @@ describe('dataAttributes.ts', () => {
         </div>
     `);
       // </editor-fold>
+
+      expect(MetadataAttribute.DisableFeatures).toBeDefined();
 
       const target = fixture.querySelector('[data-kontent-element-codename]') as HTMLElement;
       const expected = {

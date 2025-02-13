@@ -1,3 +1,4 @@
+import { describe, it, expect, afterEach } from 'vitest';
 import { QueryParamPresenceWatcher } from '../../src/lib/QueryParamPresenceWatcher';
 
 describe('QueryParamPresenceWatcher.ts', () => {
@@ -44,15 +45,16 @@ describe('QueryParamPresenceWatcher.ts', () => {
       queryParamPresenceWatcher = null;
     });
 
-    it('should trigger callback if query param changes', (done: DoneFn) => {
-      setQueryStringWithoutReload('?testData');
+    it('should trigger callback if query param changes', () =>
+      new Promise<void>((done) => {
+        setQueryStringWithoutReload('?testData');
 
-      queryParamPresenceWatcher = new QueryParamPresenceWatcher();
+        queryParamPresenceWatcher = new QueryParamPresenceWatcher();
 
-      queryParamPresenceWatcher.watch('testData', (isPresent: boolean) => {
-        expect(isPresent).toBe(true);
-        done();
-      });
-    });
+        queryParamPresenceWatcher.watch('testData', (isPresent: boolean) => {
+          expect(isPresent).toBe(true);
+          done();
+        });
+      }));
   });
 });

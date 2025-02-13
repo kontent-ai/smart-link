@@ -1,13 +1,17 @@
 import {
   getAugmentableDescendants,
-  getHighlightTypeForElement,
-  HighlightType,
   shouldElementHaveAddButton,
   shouldElementHaveHighlight,
 } from '../../src/utils/customElements';
 import { createHtmlFixture } from '../test-helpers/createHtmlFixture';
 import { ConfigurationManager } from '../../src/lib/ConfigurationManager';
-import { DataAttribute, MetadataAttribute } from '../../src/utils/dataAttributes';
+import {
+  DataAttribute,
+  getHighlightTypeForElement,
+  HighlightType,
+  MetadataAttribute,
+} from '../../src/utils/dataAttributes';
+import { describe, it, expect } from 'vitest';
 
 describe('customElements.ts', () => {
   describe('getAugmentableDescendants', () => {

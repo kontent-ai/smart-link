@@ -1,4 +1,5 @@
-import KontentSmartLink from '../src';
+import { expect, it, describe, beforeEach, afterEach } from 'vitest';
+import { KontentSmartLink } from '../src';
 
 describe('plugin.ts', () => {
   describe('PluginWrapper', () => {

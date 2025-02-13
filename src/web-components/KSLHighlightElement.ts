@@ -1,11 +1,16 @@
 import { ButtonType, KSLButtonElement } from './KSLButtonElement';
 import { IconName } from './KSLIconElement';
 import { assert } from '../utils/assert';
-import { getHighlightTypeForElement, HighlightType } from '../utils/customElements';
 import { ElementPositionOffset, KSLPositionedElement } from './abstract/KSLPositionedElement';
 import { KSLContainerElement } from './KSLContainerElement';
 import { createTemplateForCustomElement } from '../utils/node';
-import { DeepPartial, EditButtonClickedData, parseEditButtonDataAttributes } from '../utils/dataAttributes';
+import {
+  DeepPartial,
+  EditButtonClickedData,
+  getHighlightTypeForElement,
+  HighlightType,
+  parseEditButtonDataAttributes,
+} from '../utils/dataAttributes';
 import { Logger } from '../lib/Logger';
 import { Colors } from './tokens/colors';
 import { Shadows } from './tokens/shadows';
