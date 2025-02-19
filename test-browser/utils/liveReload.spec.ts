@@ -613,6 +613,43 @@ describe('applyUpdateOnItemAndLoadLinkedItems', () => {
       linkedItems: [addedItemRichText],
     } as Elements.RichTextElement);
   });
+
+  it('returns a Promise and updates text elements when no linked items are present', async () => {
+    const originalValue = 'some value';
+    const updatedValue = 'some other value';
+    const item: IContentItem = {
+      system,
+      elements: {
+        text: {
+          type: ElementType.Text,
+          name: 'text element',
+          value: originalValue,
+        },
+      },
+    };
+    const update: IUpdateMessageData = {
+      item: { id: item.system.id, codename: item.system.codename },
+      projectId: 'b281f613-2628-4700-88d0-2dc84d2cdfd1',
+      variant: { id: 'b6c2f05d-5491-4387-9d4c-c9b70e660114', codename: item.system.language },
+      elements: [
+        {
+          type: ElementType.Text,
+          element: { id: '2e8a2e80-75fe-4ba8-a2ff-d7aa48c0a6d4', codename: 'text' },
+          data: { value: updatedValue },
+        },
+      ],
+    };
+
+    const resultPromise = applyUpdateOnItemAndLoadLinkedItems(item, update, () =>
+      delay(1).then(() => Promise.resolve([]))
+    );
+
+    expect(resultPromise).toBeInstanceOf(Promise);
+
+    const result = await resultPromise;
+    expect(result.elements.text.value).toBe(updatedValue);
+    expect(result.system).toEqual(item.system);
+  });
 });
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
