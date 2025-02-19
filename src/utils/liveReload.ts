@@ -38,7 +38,9 @@ export const applyUpdateOnItemAndLoadLinkedItems = <Elements extends IContentIte
   fetchItems: (itemCodenames: ReadonlyArray<string>) => Promise<ReadonlyArray<IContentItem>>,
   resolveElementCodename: (codename: string) => string = defaultCodenameResolver
 ): Promise<IContentItem<Elements>> =>
-  evaluateOptionallyAsync(applyUpdateOnItemOptionallyAsync(item, update, resolveElementCodename), fetchItems);
+  Promise.resolve(
+    evaluateOptionallyAsync(applyUpdateOnItemOptionallyAsync(item, update, resolveElementCodename), fetchItems)
+  );
 
 const applyUpdateOnItemOptionallyAsync = <Elements extends IContentItemElements>(
   item: IContentItem<Elements>,
