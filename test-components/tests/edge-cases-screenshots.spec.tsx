@@ -1,9 +1,9 @@
 import { expect } from '@playwright/experimental-ct-react';
 import React from 'react';
-import { test } from '../../helpers/withQueryTest';
-import { SeparateNodeAddition } from '../../components/edge-cases/SeparateNodeAddition';
-import { SmartLinkInitializer } from '../../components/SmartLinkInitializer';
-import { LongElement } from '../../components/edge-cases/LongElement';
+import { test } from '../helpers/withQueryTest';
+import { SeparateNodeAddition } from '../components/edge-cases/SeparateNodeAddition';
+import { SmartLinkInitializer } from '../components/SmartLinkInitializer';
+import { LongElement } from '../components/edge-cases/LongElement';
 
 (
   [
