@@ -3,6 +3,7 @@ import React from 'react';
 import { test } from '../helpers/withQueryTest';
 import { SmartLinkInitializer } from '../components/SmartLinkInitializer';
 import { SmartLinkOnTable } from '../components/table/SmartLinkOnTable';
+import { DefaultSdkConfigurationWithWs } from '../components/config';
 
 (
   [
@@ -21,7 +22,9 @@ import { SmartLinkOnTable } from '../components/table/SmartLinkOnTable';
   ] as const
 ).forEach(([name, component, screenshotName]) => {
   test(name, async ({ mount }) => {
-    const mountedComponent = await mount(<SmartLinkInitializer>{component}</SmartLinkInitializer>);
+    const mountedComponent = await mount(
+      <SmartLinkInitializer configuration={DefaultSdkConfigurationWithWs}>{component}</SmartLinkInitializer>
+    );
     await expect(mountedComponent).toHaveScreenshot(screenshotName);
   });
 });

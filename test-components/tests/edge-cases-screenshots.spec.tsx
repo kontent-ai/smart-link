@@ -4,6 +4,7 @@ import { test } from '../helpers/withQueryTest';
 import { SeparateNodeAddition } from '../components/edge-cases/SeparateNodeAddition';
 import { SmartLinkInitializer } from '../components/SmartLinkInitializer';
 import { LongElement } from '../components/edge-cases/LongElement';
+import { DefaultSdkConfigurationWithWs } from '../components/config';
 
 (
   [
@@ -12,7 +13,9 @@ import { LongElement } from '../components/edge-cases/LongElement';
   ] as const
 ).forEach(([name, component, screenshotName]) => {
   test(name, async ({ mount }) => {
-    const mountedComponent = await mount(<SmartLinkInitializer>{component}</SmartLinkInitializer>);
+    const mountedComponent = await mount(
+      <SmartLinkInitializer configuration={DefaultSdkConfigurationWithWs}>{component}</SmartLinkInitializer>
+    );
     await expect(mountedComponent).toHaveScreenshot(screenshotName);
   });
 });

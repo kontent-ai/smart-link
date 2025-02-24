@@ -1,16 +1,20 @@
 import { PropsWithChildren, useEffect } from 'react';
 import { KontentSmartLink } from '../../es';
-import { DefaultSdkConfigurationWithoutWs } from './config';
+import { SdkConfiguration } from './config';
 import React from 'react';
 
-export const SmartLinkInitializer: React.FC<PropsWithChildren> = ({ children }) => {
+type SmartLinkInitializerProps = PropsWithChildren<{
+  configuration: SdkConfiguration;
+}>;
+
+export const SmartLinkInitializer: React.FC<SmartLinkInitializerProps> = ({ children, configuration }) => {
   useEffect(() => {
-    const plugin = KontentSmartLink.initialize(DefaultSdkConfigurationWithoutWs);
+    const plugin = KontentSmartLink.initialize(configuration);
 
     return () => {
       plugin.destroy();
     };
   }, []);
 
-  return <>{children}</>;
+  return <div style={{ padding: '1rem' }}>{children}</div>;
 };
