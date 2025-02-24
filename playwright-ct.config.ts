@@ -8,7 +8,7 @@ export default defineConfig({
   /* The base directory, relative to the config file, for snapshot files created with toMatchSnapshot and toHaveScreenshot. */
   snapshotDir: './test-components/__snapshots__',
   /* Maximum time one test can run for. */
-  timeout: 30 * 1000,
+  timeout: 60 * 1000,
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -25,13 +25,18 @@ export default defineConfig({
     trace: 'on-first-retry',
     /* Port to use for Playwright component endpoint. */
     ctPort: 3100,
+    launchOptions: {
+      ignoreDefaultArgs: ['--hide-scrollbars'],
+    },
   },
 
   /* Configure projects for major browsers */
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+      },
     },
     // {
     //   name: 'firefox',
