@@ -1,5 +1,5 @@
 import React from 'react';
-import { ElementPositionOffset, PositionProperty } from './types';
+import { ElementPositionOffset, PositionProperty } from '../../helpers/types';
 
 export type PositionComponentProps = {
   containerPosition: PositionProperty;

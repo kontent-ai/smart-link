@@ -1,7 +1,7 @@
 import React from 'react';
-import { OverflowProperty, PositionProperty } from '../../../.storybook/types';
 import { ElementPositionOffset } from '../../../src/web-components/abstract/KSLPositionedElement';
 import { ScrollOffsets, useScroll } from '../../helpers/useScroll';
+import { OverflowProperty, PositionProperty } from '../../helpers/types';
 
 type OverflowProps = {
   overflow: OverflowProperty;
