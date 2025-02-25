@@ -12,10 +12,8 @@ import { DefaultSdkConfigurationWithWs } from '../components/config';
     ['Long element', <LongElement />, 'edge-case-long-element.png'],
   ] as const
 ).forEach(([name, component, screenshotName]) => {
-  test(name, async ({ mount }) => {
-    const mountedComponent = await mount(
-      <SmartLinkInitializer configuration={DefaultSdkConfigurationWithWs}>{component}</SmartLinkInitializer>
-    );
-    await expect(mountedComponent).toHaveScreenshot(screenshotName);
+  test(name, async ({ mount, page }) => {
+    await mount(<SmartLinkInitializer configuration={DefaultSdkConfigurationWithWs}>{component}</SmartLinkInitializer>);
+    await expect(page.getByTestId('root')).toHaveScreenshot(screenshotName);
   });
 });

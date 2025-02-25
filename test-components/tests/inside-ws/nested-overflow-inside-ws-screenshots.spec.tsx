@@ -62,6 +62,6 @@ testCases.forEach(([name, component, screenshotName]) => {
   test(name, async ({ mount, page }) => {
     await mount(<SmartLinkInitializer configuration={DefaultSdkConfigurationWithWs}>{component}</SmartLinkInitializer>);
 
-    await expect(page).toHaveScreenshot(screenshotName);
+    await expect(page.getByTestId('root')).toHaveScreenshot(screenshotName);
   });
 });

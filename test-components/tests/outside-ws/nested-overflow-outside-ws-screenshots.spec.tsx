@@ -64,6 +64,6 @@ testCases.forEach(([name, component, screenshotName]) => {
       <SmartLinkInitializer configuration={DefaultSdkConfigurationWithoutWs}>{component}</SmartLinkInitializer>
     );
 
-    await expect(page).toHaveScreenshot(screenshotName);
+    await expect(page.getByTestId('root')).toHaveScreenshot(screenshotName);
   });
 });
