@@ -4,8 +4,8 @@ import { test } from '../../helpers/withQueryTest';
 import { SmartLinkInitializer } from '../../components/SmartLinkInitializer';
 import { OverflowComponent } from '../../components/overflow/OverflowComponent';
 import { DefaultSdkConfigurationWithWs } from '../../components/config';
-import { OverflowProperty, PositionProperty } from '../../../.storybook/types';
 import { ElementPositionOffset } from '../../../src/web-components/abstract/KSLPositionedElement';
+import { PositionProperty, OverflowProperty } from '../../helpers/types';
 
 const testCases = [
   [

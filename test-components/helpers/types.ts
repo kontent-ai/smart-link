@@ -6,6 +6,13 @@ export enum PositionProperty {
   Sticky = 'sticky',
 }
 
+export enum OverflowProperty {
+  Auto = 'auto',
+  Hidden = 'hidden',
+  Scroll = 'scroll',
+  Visible = 'visible',
+}
+
 export enum ElementPositionOffset {
   Bottom = 'bottom',
   BottomEnd = 'bottom-end',
