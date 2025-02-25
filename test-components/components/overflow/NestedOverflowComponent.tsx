@@ -1,6 +1,7 @@
 import React from 'react';
 import { OverflowProperty, PositionProperty } from '../../../.storybook/types';
 import { ElementPositionOffset } from '../../../src/web-components/abstract/KSLPositionedElement';
+import { ScrollOffsets, useScroll } from '../../helpers/useScroll';
 
 type NestedOverflowProps = {
   containerOverflow: OverflowProperty;
@@ -8,26 +9,13 @@ type NestedOverflowProps = {
   nestedOverflow: OverflowProperty;
   nestedPosition: PositionProperty;
   buttonPosition: ElementPositionOffset;
+  scrollOffsets: ScrollOffsets;
 };
 
 type OverflowTextProps = {
   buttonPosition: ElementPositionOffset;
 };
 
-const OverflowText: React.FC<OverflowTextProps> = ({ buttonPosition }) => (
-  <div
-    data-kontent-element-codename="e"
-    style={{ width: '800px' }}
-    data-kontent-add-button="true"
-    data-kontent-add-button-render-position={buttonPosition}
-  >
-    {Array(10)
-      .fill(
-        'This text node overflows its parent. This text node overflows its parent. This text node overflows its parent. '
-      )
-      .join('')}
-  </div>
-);
 
 export const NestedOverflowComponent: React.FC<NestedOverflowProps> = ({
   containerOverflow,
@@ -35,7 +23,9 @@ export const NestedOverflowComponent: React.FC<NestedOverflowProps> = ({
   nestedOverflow,
   nestedPosition,
   buttonPosition,
+  scrollOffsets = {},
 }) => {
+  useScroll(scrollOffsets);
   return (
     <div
       id="container"
@@ -48,10 +38,12 @@ export const NestedOverflowComponent: React.FC<NestedOverflowProps> = ({
       }}
       data-kontent-project-id="p"
       data-kontent-language-codename="l"
+      data-testid="container"
       data-kontent-item-id="i"
     >
       <div
         id="nested"
+        data-testid="nested"
         className="bg-white p-3 border border-info"
         data-kontent-component-id="c"
         style={{
@@ -60,10 +52,56 @@ export const NestedOverflowComponent: React.FC<NestedOverflowProps> = ({
           maxHeight: '400px',
         }}
       >
-        <OverflowText buttonPosition={buttonPosition} />
-        <OverflowText buttonPosition={buttonPosition} />
+        <div
+          data-kontent-element-codename="e"
+          data-kontent-add-button="true"
+          data-kontent-add-button-render-position={buttonPosition}
+          style={{ width: '100%' }}
+        >
+          {`This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
+          This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
+          This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
+          This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
+          This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
+          This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
+          This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
+          This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
+          This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
+          This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.`}
+        </div>
+        <div
+          data-kontent-element-codename="e"
+          data-kontent-add-button="true"
+          data-kontent-add-button-render-position={buttonPosition}
+        >
+          {`This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
+          This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
+          This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
+          This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
+          This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
+          This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
+          This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
+          This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
+          This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
+          This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.`}
+        </div>
       </div>
-      <OverflowText buttonPosition={buttonPosition} />
+      <div
+        data-kontent-element-codename="e"
+        data-kontent-add-button="true"
+        data-kontent-add-button-render-position={buttonPosition}
+      >
+        {`This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
+          This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
+          This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
+          This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
+          This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
+          This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
+          This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
+          This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
+          This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
+          This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.`}
+      </div>
     </div>
   );
 };
