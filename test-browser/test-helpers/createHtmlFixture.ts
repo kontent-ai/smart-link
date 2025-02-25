@@ -1,3 +1,5 @@
+import { beforeAll, afterAll, afterEach } from 'vitest';
+
 interface IHtmlFixture {
   readonly querySelector: (selectors: string) => Element | null;
   readonly setHtml: (html: string) => void;

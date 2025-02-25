@@ -1,5 +1,6 @@
 import { createStorage, IStorage } from '../../src/utils/storage';
 import { generateRandomString } from '../test-helpers/generateRandomString';
+import { describe, beforeEach, afterEach, it, expect } from 'vitest';
 
 interface IStoredObject {
   readonly value: string;
