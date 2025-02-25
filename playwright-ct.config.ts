@@ -6,6 +6,7 @@ import { defineConfig, devices } from '@playwright/experimental-ct-react';
 export default defineConfig({
   testDir: './test-components/tests',
   snapshotDir: './test-components/__snapshots__',
+  snapshotPathTemplate: '{snapshotDir}/{testFilePath}/{arg}-{projectName}{ext}',
   timeout: 60 * 1000,
   expect: {
     timeout: 10000,
