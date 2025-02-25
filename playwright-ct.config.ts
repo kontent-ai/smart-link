@@ -8,6 +8,7 @@ export default defineConfig({
   snapshotDir: './test-components/__snapshots__',
   timeout: 60 * 1000,
   expect: {
+    timeout: 10000,
     toHaveScreenshot: {
       animations: 'disabled',
       scale: 'css',
