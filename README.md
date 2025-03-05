@@ -72,30 +72,18 @@ npm i @kontent-ai/smart-link
 ### jsdelivr
 
 When you include the UMD bundle of this library in the `script` tag of your HTML page, an SDK becomes available
-under the `KontentSmartLink` global variable. Both the JS bundle and its minified version can be found
-in the `dist` folder.
+under the `kontentSmartLink` global variable. Minified version of js bundle can be found in the `dist/bundles` folder.
 
-- `dist/kontent-smart-link.umd.min.js`
-- `dist/kontent-smart-link.umd.js`
+- `dist/bundles/kontent-smart-link.min.js`
 
-#### kontent-smart-link.umd.js
+##### kontent-smart-link.min.js
 
-![Gzip browser bundle](https://img.badgesize.io/https://unpkg.com/@kontent-ai/smart-link@latest/dist/kontent-smart-link.umd.js?compression=gzip)
+![Gzip browser bundle](https://img.badgesize.io/https://unpkg.com/@kontent-ai/smart-link@latest/dist/kontent-smart-link.min.js?compression=gzip)
 
 ```html
 
 <script type='text/javascript'
-        src='https://cdn.jsdelivr.net/npm/@kontent-ai/smart-link@latest/dist/kontent-smart-link.umd.js'></script>
-```
-
-##### kontent-smart-link.umd.min.js
-
-![Gzip browser bundle](https://img.badgesize.io/https://unpkg.com/@kontent-ai/smart-link@latest/dist/kontent-smart-link.umd.min.js?compression=gzip)
-
-```html
-
-<script type='text/javascript'
-        src='https://cdn.jsdelivr.net/npm/@kontent-ai/smart-link@latest/dist/kontent-smart-link.umd.min.js'></script>
+        src='https://cdn.jsdelivr.net/npm/@kontent-ai/smart-link@latest/dist/bundles/kontent-smart-link.min.js'></script>
 ```
 
 To prevent potential issues from arising due to breaking changes, it is recommended to replace `@latest` with a specific
@@ -595,10 +583,10 @@ capabilities using straightforward HTML and JavaScript.
     <title>Kontent.ai Smart Link - HTML example</title>
     <!-- Include the SDK from a CDN -->
     <script type='text/javascript'
-            src='https://cdn.jsdelivr.net/npm/@kontent-ai/smart-link@3.2.0/dist/kontent-smart-link.umd.min.js'></script>
+            src='https://cdn.jsdelivr.net/npm/@kontent-ai/smart-link@4.0.0/dist/bundles/kontent-smart-link.min.js'></script>
     <script type='text/javascript'>
       // Initialize the SDK upon page load
-      KontentSmartLink.initializeOnLoad({ queryParam: 'preview' }).then((sdk) => {
+      kontentSmartLink.initializeOnLoad({ queryParam: 'preview' }).then((sdk) => {
         // NOTE: this is just an example of what your live preview implementation may look like
         sdk.on("update", (data) => {
           data.elements.forEach((i) => {
@@ -661,7 +649,7 @@ capabilities using straightforward HTML and JavaScript.
 </html>
 ```
 
-**Note:** Make sure to replace `@3.2.0` with the latest SDK version for improved features and fixes.
+**Note:** Make sure to replace `@4.0.0` with the latest SDK version for improved features and fixes.
 
 ### ES6
 
@@ -1021,26 +1009,31 @@ export default function handler(req, res) {
 
 ### Unit tests
 
-Since this SDK highly depends on browser APIs, the unit tests are run by Karma test runner (+ Jasmine) inside Chrome
+Since this SDK highly depends on browser APIs, the unit tests are run by [Vitest Browser](https://vitest.dev/guide/browser/) inside Chrome
 browser. To run all tests in a watch mode you can use the `npm run test:unit` command. To run all tests only once you
 can use the `npm run test:unit:ci` command. All unit tests are located in the `test-browser` folder.
 
 ### Visual regression tests
 
-Visual regression testing is implemented using Storybook and Loki. Each story in Storybook represents a test case, which
-is then used by Loki to generate screenshots. In order to run visual regression tests you need to start Storybook using
-the `npm run storybook` command and then start loki testing using the `npm run test:visual` command. Or you can use
-the `npm run test:visual:ci` command to automatically start the Storybook server in a CI mode and run visual tests.
+Visual regression testing is implemented using [Playwright Components](https://playwright.dev/docs/test-components). Pre-built components are available into which Smart-Link loads. After the component is mounted, Playwright performs a screenshot test of the component. 
 
-Visual regression tests use the built version of SDK, so before running them make sure you rebuild the SDK after the
-last change you made. You can this using the `npm run build` command or using the `npm run dev` command to start build
-in a watch mode.
+To run Visual Regression tests use `npm run test:visual` command. Or you can use
+the `npm run test:visual:ci` to start tests in a UI mode.
 
-Please note that the reference screenshots for visual regression tests are created on the `ubuntu-latest` environment,
-which is utilized in our GitHub Action workflow for visual tests. It means tests could (and probably will) fail on
-Windows. In case the visual regression tests fail during a pull request, and you need to update reference screenshots,
-you can locate the new screenshots in the failed GitHub Action run. Navigate to the Artifacts section (`.loki/current`)
-of the failed run to find the updated screenshots.
+> [!NOTE]
+> Visual regression tests use the built version of SDK, so before running them make sure you rebuild the SDK after the last changes you made.
+
+### Updating Visual Regression Tests
+
+Rendering differences across operating systems can lead to variations in screenshots. In our GitHub Action workflow for visual tests, reference screenshots are generated using the `ubuntu-latest` environment. To ensure consistency, a dedicated workflow produces an artifact with the updated screenshots.
+
+Follow these steps if you need to update the screenshots:
+
+1. Navigate to the **Actions** tab in your GitHub repository.
+2. Locate and select the **Update Snapshots** workflow.
+3. Manually trigger the workflow on your branch.
+4. Once the workflow completes, download the generated artifact containing the updated screenshots.
+5. Copy the updated screenshots into the repository.
 
 ## Breaking changes
 
@@ -1049,4 +1042,3 @@ All breaking changes can be found in [a separate markdown file](BREAKING.md).
 ## Feedback & Contribution
 
 Feedback & Contributions are welcomed. Feel free to take/start an issue & submit PR.
-
