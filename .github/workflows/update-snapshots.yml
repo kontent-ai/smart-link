@@ -1,0 +1,36 @@
+name: Update Snaphots
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update-snaphots:
+    name: Update Visual Tests snaphots
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js from .nvmrc file
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+      - name: Build
+        run: npm run build
+      - name: Visual regression tests
+        run: npm run test:visual -- --update-snapshots
+      - name: Copy modified snapshots
+        run: |
+          git ls-files --other --modified --exclude-standard | grep '^test-components/__snapshots__/' | while IFS= read -r file; do
+            mkdir -p "updated_snapshots/$(dirname "$file")"
+            cp "$file" "updated_snapshots/$file"
+          done
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: snapshots
+          path: updated_snapshots/
+          retention-days: 20
