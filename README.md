@@ -1050,3 +1050,14 @@ All breaking changes can be found in [a separate markdown file](BREAKING.md).
 
 Feedback & Contributions are welcomed. Feel free to take/start an issue & submit PR.
 
+### Updating Visual Regression Tests
+
+Rendering differences across operating systems may cause variations in screenshots. To ensure consistency, a dedicated workflow generates an artifact containing the updated screenshots. Follow these steps, if you need to update screenshots:
+
+1. Navigate to the **Actions** tab in your GitHub repository.
+2. Locate and select the **Update Snapshots** workflow.
+3. Manually trigger the workflow on your branch.
+4. Once the workflow completes, download the generated artifact containing the updated screenshots.
+5. Copy the updated screenshots into the repository.
+
+This process helps maintain visual consistency across different environments.
