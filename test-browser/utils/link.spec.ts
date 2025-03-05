@@ -1,5 +1,6 @@
 import { buildComponentElementLink, buildElementLink, buildKontentLink } from '../../src';
 import { IElementClickedMessageData } from '../../src/lib/IFrameCommunicatorTypes';
+import { describe, it, expect, beforeEach } from 'vitest';
 
 describe('link.ts', () => {
   describe('buildElementLink', () => {
