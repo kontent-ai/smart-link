@@ -7,25 +7,19 @@
     "url": "https://github.com/kontent-ai/smart-link"
   },
   "description": "Kontent.ai Smart Link SDK allowing to automatically inject [smart links](https://docs.kontent.ai/tutorials/develop-apps/build-strong-foundation/set-up-editing-from-preview#a-using-smart-links) to Kontent.ai according to manually specified [HTML data attributes](https://www.w3schools.com/tags/att_data-.asp) on your website. It also lets you connect your website with Web Spotlight.",
-  "main": "./commonjs/index.js",
-  "types": "./types/index.d.ts",
-  "module": "./es/index.js",
-  "jsnext:main": "./es/index.js",
+  "main": "./build/commonjs/index.js",
+  "types": "./build/types/index.d.ts",
+  "module": "./build/es/index.js",
+  "jsnext:main": "./build/es/index.js",
   "files": [
-    "dist",
-    "commonjs",
-    "es",
-    "types"
+    "build"
   ],
   "scripts": {
     "build": "npm run build:commonjs && npm run build:umd && npm run build:es",
     "build:commonjs": "tsc -m commonjs --outDir build/commonjs --p tsconfig.json",
-    "build:commonjs:watch": "npm run build:commonjs -- -w",
     "build:es": "tsc -m es2015 --outDir build/es --p tsconfig.json",
-    "build:es:watch": "npm run build:es -- -w",
     "build:umd": "vite build",
-    "build:umd:watch": "npm run build:umd -- --watch",
-    "clean": "rimraf commonjs dist es types",
+    "clean": "rimraf build",
     "lint": "eslint \"{src,test-browser,test-components}/**/*.{js,ts,tsx}\"",
     "lint:fix": "npm run lint -- --fix",
     "prepare": "npm run clean && npm run build",
