@@ -1,24 +1,27 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 export const SeparateNodeAddition: React.FC = () => {
-  useEffect(() => {
-    const container = document.querySelector('#test-html-container');
-    if (container) {
-      const element = document.createElement('button');
-      element.type = 'button';
-      element.classList.add('btn');
-      element.classList.add('btn-info');
-      element.setAttribute('data-kontent-project-id', 'p');
-      element.setAttribute('data-kontent-language-codename', 'l');
-      element.setAttribute('data-kontent-item-id', 'i');
-      element.setAttribute('data-kontent-element-codename', 'e');
-      element.innerText = 'Button with smart link';
+  const [isButtonMounted, setIsButtonMounted] = useState(false);
 
-      container.appendChild(element);
-    }
+  useEffect(() => {
+    setIsButtonMounted(true);
   }, []);
 
-  return <div id="test-html-container"></div>;
+  return (
+    <div id="test-html-container">
+      {isButtonMounted && (
+        <button
+          className="btn btn-info"
+          data-kontent-project-id="p"
+          data-kontent-language-codename="l"
+          data-kontent-item-id="i"
+          data-kontent-element-codename="e"
+        >
+          Button with smart link
+        </button>
+      )}
+    </div>
+  );
 };
 
 SeparateNodeAddition.displayName = 'SeparateNodeAddition';
