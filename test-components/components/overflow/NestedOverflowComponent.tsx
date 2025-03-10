@@ -12,11 +12,6 @@ type NestedOverflowProps = {
   scrollOffsets: ScrollOffsets;
 };
 
-type OverflowTextProps = {
-  buttonPosition: ElementPositionOffset;
-};
-
-
 export const NestedOverflowComponent: React.FC<NestedOverflowProps> = ({
   containerOverflow,
   containerPosition,

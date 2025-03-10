@@ -2,7 +2,7 @@ import { expect } from '@playwright/experimental-ct-react';
 import React from 'react';
 import { test } from '../../helpers/withQueryTest';
 import { SmartLinkInitializer } from '../../components/SmartLinkInitializer';
-import { DefaultSdkConfigurationWithoutWs, DefaultSdkConfigurationWithWs } from '../../components/config';
+import { DefaultSdkConfigurationWithoutWs } from '../../components/config';
 import { SingleSmartLink } from '../../components/layout/SingleSmartLink';
 import { MultipleSmartLinks } from '../../components/layout/MultipleSmartLinks';
 import { ComplexLayout } from '../../components/layout/ComplexLayout';
