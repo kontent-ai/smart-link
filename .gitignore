@@ -5,7 +5,6 @@ types/
 commonjs/
 .idea/
 coverage/
-storybook-static/
 debug.log
 .DS_Store
 
