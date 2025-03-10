@@ -14,7 +14,7 @@ jobs:
         with:
           node-version-file: ".nvmrc"
       - name: Install dependencies
-        run: npm run ci -- --ignore-scripts
+        run: npm ci
       - name: Run ESLint
         run: npm run lint
       - name: Build
