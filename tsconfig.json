@@ -19,6 +19,7 @@
     "noImplicitReturns": true,
     "noUnusedParameters": true,
     "outDir": "dist",
+    "skipLibCheck": true,
     "sourceMap": true,
     "strictFunctionTypes": true,
     "strictNullChecks": true,
