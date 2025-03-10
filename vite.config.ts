@@ -15,7 +15,7 @@ export default defineConfig(({ mode }) => {
     build: {
       sourcemap: true,
       minify: isProduction,
-      outDir: 'dist',
+      outDir: 'build/dist',
       lib: {
         entry: path.resolve(__dirname, 'src/index.ts'),
         name: 'KontentSmartLink',
@@ -33,8 +33,7 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [
       visualizer({
-        filename: 'stats.json',
-        json: true,
+        filename: 'stats.html',
         open: false,
       }),
     ],
