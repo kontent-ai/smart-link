@@ -14,7 +14,7 @@ jobs:
         with:
           node-version-file: ".nvmrc"
       - name: Install dependencies
-        run: npm run ci -- --ignore-scripts
+        run: npm ci
       - name: Run ESLint
         run: npm run lint
       - name: Build
@@ -23,46 +23,46 @@ jobs:
   unit:
     name: Unit tests
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Use Node.js from .nvmrc file
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version-file: ".nvmrc"
-      - name: Use latest stable Chrome
-        uses: browser-actions/setup-chrome@latest
-        with:
-          chrome-version: stable
       - name: Install dependencies
-        run: npm run ci -- --ignore-scripts
+        run: npm ci
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
       - name: Unit tests
         run: npm run test:unit:ci
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-unit
+          path: playwright-report/
+          retention-days: 30
 
   visual-regression:
     name: Visual tests
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Use Node.js from .nvmrc file
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version-file: ".nvmrc"
-      - name: Use latest stable Chrome
-        uses: browser-actions/setup-chrome@latest
-        with:
-          chrome-version: stable
       - name: Install dependencies
-        run: npm run ci -- --ignore-scripts
+        run: npm ci
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
       - name: Build
         run: npm run build
       - name: Visual regression tests
-        run: npm run test:visual:ci
-      - name: Save visual regression tests artifacts (on failure)
-        if: ${{ failure() }}
-        uses: actions/upload-artifact@v4
+        run: npm run test:visual
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
         with:
-          name: .loki
-          path: .loki/
-          retention-days: 5
+          name: playwright-component
+          path: playwright-report/
+          retention-days: 30

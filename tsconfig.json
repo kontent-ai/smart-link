@@ -5,11 +5,11 @@
     "alwaysStrict": true,
     "baseUrl": ".",
     "declaration": true,
-    "declarationDir": "./types",
+    "declarationDir": "./build/types",
     "downlevelIteration": true,
     "forceConsistentCasingInFileNames": true,
     "lib": [
-      "es2017",
+      "es2019",
       "dom",
       "dom.iterable"
     ],
@@ -19,11 +19,12 @@
     "noImplicitReturns": true,
     "noUnusedParameters": true,
     "outDir": "dist",
+    "skipLibCheck": true,
     "sourceMap": true,
     "strictFunctionTypes": true,
     "strictNullChecks": true,
     "strictPropertyInitialization": true,
-    "target": "es2015",
+    "target": "ESNext",
     "typeRoots": [
       "./node_modules/@types"
     ]
