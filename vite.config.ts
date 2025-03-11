@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => {
       outDir: 'build/dist',
       lib: {
         entry: path.resolve(__dirname, 'src/index.ts'),
-        name: 'KontentSmartLink',
+        name: 'kontentSmartLink',
         formats: ['umd'],
         fileName: () => (isProduction ? `${libName}.min.js` : `${libName}.js`),
       },
