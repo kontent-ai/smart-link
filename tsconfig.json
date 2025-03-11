@@ -5,7 +5,7 @@
     "alwaysStrict": true,
     "baseUrl": ".",
     "declaration": true,
-    "declarationDir": "./build/types",
+    "declarationDir": "./dist/types",
     "downlevelIteration": true,
     "forceConsistentCasingInFileNames": true,
     "lib": [

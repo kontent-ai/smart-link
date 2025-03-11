@@ -1,5 +1,5 @@
 import { PropsWithChildren, useEffect } from 'react';
-import { KontentSmartLink } from '../../build/es';
+import KontentSmartLink from '../../dist/es';
 import { SdkConfiguration } from './config';
 import React from 'react';
 

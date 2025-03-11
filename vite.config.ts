@@ -15,7 +15,7 @@ export default defineConfig(({ mode }) => {
     build: {
       sourcemap: true,
       minify: isProduction,
-      outDir: 'build/dist',
+      outDir: 'dist/bundles',
       lib: {
         entry: path.resolve(__dirname, 'src/index.ts'),
         name: 'kontentSmartLink',
