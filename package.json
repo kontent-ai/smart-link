@@ -68,6 +68,6 @@
     "vitest": "^3.0.5"
   },
   "dependencies": {
-    "@kontent-ai/delivery-sdk": "^14.10.0"
+    "@kontent-ai/delivery-sdk": "^16.0.0"
   }
 }
