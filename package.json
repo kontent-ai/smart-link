@@ -57,6 +57,7 @@
     "eslint": "^8.57.1",
     "eslint-config-prettier": "10.1.1",
     "eslint-plugin-prettier": "5.2.3",
+    "@kontent-ai/delivery-sdk": "^16.0.0",
     "playwright": "^1.51.0",
     "prettier": "3.5.3",
     "react": "^19.0.0",
@@ -66,8 +67,5 @@
     "typescript": "5.8.2",
     "vite": "^6.2.1",
     "vitest": "^3.0.8"
-  },
-  "dependencies": {
-    "@kontent-ai/delivery-sdk": "^14.11.0"
   }
 }
