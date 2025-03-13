@@ -165,7 +165,7 @@ export class KSLAddButtonElement extends KSLPositionedElement {
 
     window.removeEventListener('click', this.handleClickOutside, { capture: true });
     this.buttonRef.removeEventListener('click', this.handleClick);
-    this.hidePopover();
+    this.dismissPopover();
   }
 
   public adjustPosition = (): void => {
@@ -263,7 +263,7 @@ export class KSLAddButtonElement extends KSLPositionedElement {
         this.buttonRef.disabled = false;
         this.buttonRef.tooltipMessage = DefaultTooltipMessage;
 
-        this.showPopover(response);
+        this.displayPopover(response);
       }
     } catch (reason) {
       Logger.error(reason);
@@ -286,15 +286,15 @@ export class KSLAddButtonElement extends KSLPositionedElement {
 
     const clickedInside = this.isSameNode(event.target) || this.contains(event.target);
     if (!clickedInside) {
-      this.hidePopover();
+      this.dismissPopover();
     }
   };
 
-  private showPopover = (response: IAddButtonPermissionsServerModel): void => {
+  private displayPopover = (response: IAddButtonPermissionsServerModel): void => {
     assert(this.shadowRoot, 'Shadow root must be available in "open" mode.');
 
     if (this.popoverRef) {
-      this.hidePopover();
+      this.dismissPopover();
     }
 
     this.buttonRef.tooltipPosition = ElementPositionOffset.Bottom;
@@ -314,7 +314,7 @@ export class KSLAddButtonElement extends KSLPositionedElement {
     this.popoverRef.adjustPosition();
   };
 
-  private hidePopover = (): void => {
+  private dismissPopover = (): void => {
     this.buttonRef.tooltipPosition = ElementPositionOffset.Top;
 
     if (this.popoverRef) {
@@ -408,7 +408,7 @@ export class KSLAddButtonElement extends KSLPositionedElement {
       },
     });
 
-    this.hidePopover();
+    this.dismissPopover();
     this.dispatchEvent(customEvent);
   };
 }
