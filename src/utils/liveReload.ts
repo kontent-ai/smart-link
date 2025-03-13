@@ -1,11 +1,4 @@
-import {
-  camelCasePropertyNameResolver,
-  ElementModels,
-  Elements,
-  ElementType,
-  IContentItem,
-  IContentItemElements,
-} from '@kontent-ai/delivery-sdk';
+import { ElementModels, Elements, ElementType, IContentItem, IContentItemElements } from '@kontent-ai/delivery-sdk';
 import {
   CustomElementUpdateData,
   DatetimeElementUpdateData,
@@ -23,52 +16,36 @@ import {
   OptionallyAsync,
 } from './liveReload/optionallyAsync';
 
-const defaultCodenameResolver = (codename: string) => camelCasePropertyNameResolver('', codename);
-
 export const applyUpdateOnItem = <Elements extends IContentItemElements>(
   item: IContentItem<Elements>,
-  update: IUpdateMessageData,
-  resolveElementCodename: (codename: string) => string = defaultCodenameResolver
-): IContentItem<Elements> =>
-  evaluateOptionallyAsync(applyUpdateOnItemOptionallyAsync(item, update, resolveElementCodename), null);
+  update: IUpdateMessageData
+): IContentItem<Elements> => evaluateOptionallyAsync(applyUpdateOnItemOptionallyAsync(item, update), null);
 
 export const applyUpdateOnItemAndLoadLinkedItems = <Elements extends IContentItemElements>(
   item: IContentItem<Elements>,
   update: IUpdateMessageData,
-  fetchItems: (itemCodenames: ReadonlyArray<string>) => Promise<ReadonlyArray<IContentItem>>,
-  resolveElementCodename: (codename: string) => string = defaultCodenameResolver
+  fetchItems: (itemCodenames: ReadonlyArray<string>) => Promise<ReadonlyArray<IContentItem>>
 ): Promise<IContentItem<Elements>> =>
-  Promise.resolve(
-    evaluateOptionallyAsync(applyUpdateOnItemOptionallyAsync(item, update, resolveElementCodename), fetchItems)
-  );
+  Promise.resolve(evaluateOptionallyAsync(applyUpdateOnItemOptionallyAsync(item, update), fetchItems));
 
 const applyUpdateOnItemOptionallyAsync = <Elements extends IContentItemElements>(
   item: IContentItem<Elements>,
   update: InternalUpdateMessage,
-  resolveElementCodename: (codename: string) => string,
   updatedItem: IContentItem<Elements> | null = null,
   processedItemsPath: ReadonlyArray<string> = []
 ): OptionallyAsync<IContentItem<Elements>> => {
   const shouldApplyOnThisItem =
     item.system.codename === update.item.codename && item.system.language === update.variant.codename;
 
-  const elementUpdates = update.elements.map((u) => ({
-    ...u,
-    element: {
-      ...u.element,
-      codename: resolveElementCodename(u.element.codename),
-    },
-  }));
-
   const newUpdatedItem = !updatedItem && shouldApplyOnThisItem ? { ...item } : updatedItem; // We will mutate its elements to new values before returning. This is necesary to preserve cyclic dependencies between items without infinite recursion.
 
   const updatedElements = mergeOptionalAsyncs(
     Object.entries(item.elements).map(([elementCodename, element]) => {
-      const matchingUpdate = elementUpdates.find((u) => u.element.codename === elementCodename);
+      const matchingUpdate = update.elements.find((u) => u.element.codename === elementCodename);
 
       if (shouldApplyOnThisItem && matchingUpdate) {
         return applyOnOptionallyAsync(
-          applyUpdateOnElement(element, matchingUpdate, resolveElementCodename),
+          applyUpdateOnElement(element, matchingUpdate),
           (newElement) => [elementCodename, newElement] as const
         );
       }
@@ -89,7 +66,7 @@ const applyUpdateOnItemOptionallyAsync = <Elements extends IContentItemElements>
                 updatedItem?.system.codename ?? null
               )
                 ? createOptionallyAsync(() => i) // we found a cycle that doesn't need any update so we just ignore it
-                : applyUpdateOnItemOptionallyAsync(i, update, resolveElementCodename, newUpdatedItem, [
+                : applyUpdateOnItemOptionallyAsync(i, update, newUpdatedItem, [
                     ...processedItemsPath,
                     i.system.codename,
                   ]);
@@ -127,8 +104,7 @@ const closesCycleWithoutUpdate = (path: ReadonlyArray<string>, nextItem: string,
 
 const applyUpdateOnElement = (
   element: ElementModels.IElement<unknown>,
-  update: InternalUpdateElementMessage,
-  resolveCodenames: (codename: string) => string
+  update: InternalUpdateElementMessage
 ): OptionallyAsync<ElementModels.IElement<unknown>> => {
   switch (update.type) {
     case ElementType.Text:
@@ -140,7 +116,7 @@ const applyUpdateOnElement = (
     case ElementType.ModularContent:
       return applyLinkedItemsElement(element as Elements.LinkedItemsElement, update);
     case ElementType.RichText:
-      return applyRichTextElement(element as Elements.RichTextElement, update, resolveCodenames);
+      return applyRichTextElement(element as Elements.RichTextElement, update);
     case ElementType.MultipleChoice:
       return createOptionallyAsync(() =>
         applyArrayElement(element as Elements.MultipleChoiceElement, update, (o1, o2) => o1?.codename === o2?.codename)
@@ -213,8 +189,7 @@ const applyLinkedItemsElement = (
 
 const applyRichTextElement = (
   element: Elements.RichTextElement,
-  update: RichTextElementUpdateData,
-  resolveCodenames: (codename: string) => string
+  update: RichTextElementUpdateData
 ): OptionallyAsync<Elements.RichTextElement> => {
   if (areRichTextElementsSame(element, update.data)) {
     return createOptionallyAsync(() => element);
@@ -225,7 +200,6 @@ const applyRichTextElement = (
       update.data.linkedItemCodenames,
       update.data.linkedItems
         .filter((i) => !element.linkedItems.find((u) => u.system.codename === i.system.codename))
-        .map(applyCodenameResolver(resolveCodenames))
         .concat(element.linkedItems)
     ),
     (linkedItems) => ({
@@ -239,10 +213,10 @@ const applyRichTextElement = (
   );
 
   return chainOptionallyAsync(withItems, (el) =>
-    applyOnOptionallyAsync(
-      updateComponents(update.data.linkedItems, el.linkedItems, resolveCodenames),
-      (linkedItems) => ({ ...el, linkedItems })
-    )
+    applyOnOptionallyAsync(updateComponents(update.data.linkedItems, el.linkedItems), (linkedItems) => ({
+      ...el,
+      linkedItems,
+    }))
   );
 };
 
@@ -322,17 +296,13 @@ const areRichTextElementsSame = (
   el1.linkedItems.length === el2.linkedItems.length &&
   el1.linkedItems.every((item, i) => areItemsSame(item, el2.linkedItems[i]));
 
-const updateComponents = (
-  newItems: ReadonlyArray<IContentItem>,
-  oldItems: ReadonlyArray<IContentItem>,
-  resolveCodenames: (codename: string) => string
-) =>
+const updateComponents = (newItems: ReadonlyArray<IContentItem>, oldItems: ReadonlyArray<IContentItem>) =>
   mergeOptionalAsyncs(
     oldItems.map((item) => {
       const newItem = newItems.find((i) => i.system.codename === item.system.codename);
 
       return newItem
-        ? applyUpdateOnItemOptionallyAsync(item, convertItemToUpdate(newItem), resolveCodenames)
+        ? applyUpdateOnItemOptionallyAsync(item, convertItemToUpdate(newItem))
         : createOptionallyAsync(() => item);
     })
   );
@@ -348,7 +318,7 @@ const updateLinkedItems = (newValue: ReadonlyArray<string>, loadedItems: Readonl
       const fetchedItems = new Map(fetchedItemsArray.map((i) => [i.system.codename, i] as const));
 
       return newLinkedItems
-        .map((codename) => (isString(codename) ? fetchedItems.get(codename) ?? null : codename))
+        .map((codename) => (isString(codename) ? (fetchedItems.get(codename) ?? null) : codename))
         .filter(notNull);
     }
   );
@@ -419,27 +389,3 @@ const convertItemToUpdate = (item: IContentItem): InternalUpdateMessage => ({
     }
   }),
 });
-
-const applyCodenameResolver =
-  (resolver: (codename: string) => string) =>
-  (item: IContentItem): IContentItem => ({
-    ...item,
-    elements: Object.fromEntries(
-      Object.entries(item.elements).map(([codename, element]) => {
-        switch (element.type) {
-          case ElementType.ModularContent:
-          case ElementType.RichText:
-            type Element = Elements.LinkedItemsElement | Elements.RichTextElement;
-            return [
-              resolver(codename),
-              {
-                ...element,
-                linkedItems: (element as Element).linkedItems.map(applyCodenameResolver(resolver)),
-              },
-            ];
-          default:
-            return [resolver(codename), element];
-        }
-      })
-    ),
-  });
