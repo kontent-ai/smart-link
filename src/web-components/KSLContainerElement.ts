@@ -5,8 +5,8 @@ import { createTemplateForCustomElement, getRenderingRootMetadata, getTotalScrol
 import { IPositionable } from './abstract/KSLPositionedElement';
 import { BaseZIndex } from './constants/zIndex';
 
-const templateHTML = `
-  <style>
+const templateHTML = (cspNonce?: string) => `
+  <style ${cspNonce ? `nonce=${cspNonce}` : ''}>
     :host {
       display: block;
       position: absolute;
@@ -34,8 +34,8 @@ export class KSLContainerElement extends KSLCustomElement implements IPositionab
 
   private _boundingClientRect: DOMRect | null = null;
 
-  public static initializeTemplate(): HTMLTemplateElement {
-    return createTemplateForCustomElement(templateHTML);
+  public static initializeTemplate(cspNonce?: string): HTMLTemplateElement {
+    return createTemplateForCustomElement(templateHTML(cspNonce));
   }
 
   public getBoundingClientRect(shouldRecompute = false): DOMRect {
