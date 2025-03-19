@@ -586,7 +586,7 @@ capabilities using straightforward HTML and JavaScript.
             src='https://cdn.jsdelivr.net/npm/@kontent-ai/smart-link@4.0.0/dist/bundles/kontent-smart-link.min.js'></script>
     <script type='text/javascript'>
       // Initialize the SDK upon page load
-      kontentSmartLink.initializeOnLoad({ queryParam: 'preview' }).then((sdk) => {
+      kontentSmartLink.KontentSmartLink.initializeOnLoad({ queryParam: 'preview' }).then((sdk) => {
         // NOTE: this is just an example of what your live preview implementation may look like
         sdk.on("update", (data) => {
           data.elements.forEach((i) => {
