@@ -39,12 +39,12 @@ export abstract class KSLCustomElement extends HTMLElement {
    *
    * @type {HTMLTemplateElement}
    */
-  protected static get template(): HTMLTemplateElement {
-    if (!this._template) {
-      this._template = this.initializeTemplate();
-    }
-    return this._template;
-  }
+  // protected static get template(): HTMLTemplateElement {
+  //   if (!this._template) {
+  //     this._template = this.initializeTemplate();
+  //   }
+  //   return this._template;
+  // }
 
   protected constructor() {
     super();
@@ -55,7 +55,7 @@ export abstract class KSLCustomElement extends HTMLElement {
 
     const selfClass = Object.getPrototypeOf(this).constructor;
     const shadowRoot = this.attachShadow(shadowRootConfig);
-    shadowRoot.appendChild(selfClass.template.content.cloneNode(true));
+    shadowRoot.appendChild(selfClass._template.content.cloneNode(true));
   }
 
   /**
@@ -63,7 +63,7 @@ export abstract class KSLCustomElement extends HTMLElement {
    * Usually customElements.define is called inline right at the bottom of the custom element file,
    * but this would not work with SSR, since custom elements can't be defined on the backend.
    */
-  public static define(): Promise<CustomElementConstructor> {
+  public static define(cspNonce?: string): Promise<CustomElementConstructor> {
     if (typeof window === 'undefined') {
       throw InvalidEnvironmentError('KSLCustomElement: custom elements can only be defined in a browser environment.');
     }
@@ -79,6 +79,7 @@ export abstract class KSLCustomElement extends HTMLElement {
     const constructor = window.customElements.get(this.is);
 
     if (!constructor) {
+      (self as any)._template = (self as any).initializeTemplate(cspNonce);
       customElements.define(this.is, self as CustomElementConstructor);
       return customElements.whenDefined(this.is);
     }
@@ -92,7 +93,9 @@ export abstract class KSLCustomElement extends HTMLElement {
    *
    * @returns {HTMLTemplateElement}
    */
-  protected static initializeTemplate(): HTMLTemplateElement {
+  protected static initializeTemplate(cspNonce?: string): HTMLTemplateElement {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    cspNonce as never;
     throw NotImplementedError(
       'KSLCustomElement: "initializeTemplate" method should be implemented for every component.'
     );

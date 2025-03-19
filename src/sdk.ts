@@ -58,7 +58,7 @@ class KontentSmartLinkSDK {
   }
 
   public initialize = async (): Promise<void> => {
-    await defineAllRequiredWebComponents();
+    await defineAllRequiredWebComponents(this.configurationManager.cspNonce);
 
     const level = this.configurationManager.debug ? LogLevel.Debug : LogLevel.Info;
     Logger.setLogLevel(level);

@@ -36,8 +36,8 @@ const webComponentTags: ReadonlyArray<string> = webComponents.map((component) =>
  *
  * @returns {Promise<void[]>}
  */
-export function defineAllRequiredWebComponents(): Promise<CustomElementConstructor[]> {
-  const allDefined = webComponents.map((webComponent) => webComponent.define());
+export function defineAllRequiredWebComponents(cspNonce?: string): Promise<CustomElementConstructor[]> {
+  const allDefined = webComponents.map((webComponent) => webComponent.define(cspNonce));
   return Promise.all(allDefined);
 }
 

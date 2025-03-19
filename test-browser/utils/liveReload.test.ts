@@ -20,12 +20,11 @@ const system: IContentItem['system'] = {
   describe(isAsync ? 'applyUpdateOnItemAndLoadLinkedItems' : 'applyUpdateOnItem', () => {
     const callTestFnc = async <Elements extends IContentItemElements>(
       item: IContentItem<Elements>,
-      update: IUpdateMessageData,
-      resolveCodename?: (codename: string) => string
+      update: IUpdateMessageData
     ): Promise<IContentItem<Elements>> =>
       isAsync
-        ? await applyUpdateOnItemAndLoadLinkedItems(item, update, () => Promise.resolve([]), resolveCodename)
-        : applyUpdateOnItem(item, update, resolveCodename);
+        ? await applyUpdateOnItemAndLoadLinkedItems(item, update, () => Promise.resolve([]))
+        : applyUpdateOnItem(item, update);
 
     it('applies update to all elements', async () => {
       const item: IContentItem = {
@@ -220,70 +219,6 @@ const system: IContentItem['system'] = {
           linked: { ...item.elements.linked, linkedItems: [updatedInnerItem] } as Elements.LinkedItemsElement,
           rich: { ...item.elements.rich, linkedItems: [updatedInnerItem] } as Elements.RichTextElement,
         },
-      });
-    });
-
-    it('Uses provided codename resolver to transform element codenames before applying them on the item', async () => {
-      const item: IContentItem = {
-        system,
-        elements: {
-          testElementResolved: {
-            type: ElementType.Number,
-            name: 'number element',
-            value: 42,
-          },
-        },
-      };
-      const update: IUpdateMessageData = {
-        item: { id: item.system.id, codename: item.system.codename },
-        variant: { id: '87767c98-3d1d-490f-bd19-e0157157d087', codename: item.system.language },
-        projectId: '5f53475c-de51-4cef-b373-463d56919cec',
-        elements: [
-          {
-            type: ElementType.Number,
-            element: { id: '467dc8c1-4fcb-4adc-a5fc-049d17ee1386', codename: 'test_element' },
-            data: { value: 69 },
-          },
-        ],
-      };
-
-      const result = await callTestFnc(item, update, (c) => (c === 'test_element' ? 'testElementResolved' : 'nothing'));
-
-      expect(result).toEqual({
-        ...item,
-        elements: { ...item.elements, testElementResolved: { ...item.elements.testElementResolved, value: 69 } },
-      });
-    });
-
-    it('Uses camelCase resolver when no resolver is provided', async () => {
-      const item: IContentItem = {
-        system,
-        elements: {
-          testElement: {
-            type: ElementType.Number,
-            name: 'number element',
-            value: 42,
-          },
-        },
-      };
-      const update: IUpdateMessageData = {
-        item: { id: item.system.id, codename: item.system.codename },
-        variant: { id: '87767c98-3d1d-490f-bd19-e0157157d087', codename: item.system.language },
-        projectId: '5f53475c-de51-4cef-b373-463d56919cec',
-        elements: [
-          {
-            type: ElementType.Number,
-            element: { id: '467dc8c1-4fcb-4adc-a5fc-049d17ee1386', codename: 'test_element' },
-            data: { value: 69 },
-          },
-        ],
-      };
-
-      const result = await callTestFnc(item, update);
-
-      expect(result).toEqual({
-        ...item,
-        elements: { ...item.elements, testElement: { ...item.elements.testElement, value: 69 } },
       });
     });
 

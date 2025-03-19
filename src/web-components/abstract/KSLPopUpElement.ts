@@ -4,8 +4,8 @@ import { Colors } from '../tokens/colors';
 import { Shadows } from '../tokens/shadows';
 import { BaseZIndex } from '../constants/zIndex';
 
-const templateHTML = `
-  <style>
+const templateHTML = (cspNonce?: string) => `
+  <style ${cspNonce ? `nonce=${cspNonce}` : ''}>
     :host {
       --arrow-size: var(--ksl-pop-up-arrow-size, 12px);
       --background-color: var(--ksl-pop-up-background-color, ${Colors.BackgroundDefault});
@@ -164,8 +164,8 @@ export abstract class KSLPopUpElement extends KSLPositionedElement {
     this.updateAttribute('visible', value);
   }
 
-  public static initializeTemplate(): HTMLTemplateElement {
-    return createTemplateForCustomElement(templateHTML);
+  public static initializeTemplate(cspNonce?: string): HTMLTemplateElement {
+    return createTemplateForCustomElement(templateHTML(cspNonce));
   }
 
   public connectedCallback(): void {

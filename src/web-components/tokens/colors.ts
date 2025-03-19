@@ -9,5 +9,6 @@ export enum Colors {
   PrimaryTransparent = 'rgba(219, 60, 0, 0.5)',
   TextDefault = 'rgba(21, 21, 21, 1)',
   TextDefaultDisabled = 'rgba(140, 140, 140, 1)',
+  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
   TextSecondary = 'rgba(255, 255, 255, 1)',
 }

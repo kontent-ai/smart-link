@@ -3,8 +3,8 @@ import { createTemplateForCustomElement } from '../utils/node';
 import { Colors } from './tokens/colors';
 import { Shadows } from './tokens/shadows';
 
-const templateHTML = `
-  <style>
+const templateHTML = (cspNonce?: string) => `
+  <<style ${cspNonce ? `nonce=${cspNonce}` : ''}>
     :host {
       --ksl-pop-up-arrow-size: 12px;
       --ksl-pop-up-background-color: var(--ksl-color-background-default, ${Colors.BackgroundDefault});
@@ -21,9 +21,9 @@ export class KSLPopoverElement extends KSLPopUpElement {
     return 'ksl-popover' as const;
   }
 
-  public static initializeTemplate(): HTMLTemplateElement {
+  public static initializeTemplate(cspNonce?: string): HTMLTemplateElement {
     const baseTemplate = KSLPopUpElement.initializeTemplate();
-    const thisTemplate = createTemplateForCustomElement(templateHTML);
+    const thisTemplate = createTemplateForCustomElement(templateHTML(cspNonce));
     baseTemplate.content.appendChild(thisTemplate.content.cloneNode(true));
     return baseTemplate;
   }
