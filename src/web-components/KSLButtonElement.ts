@@ -10,8 +10,8 @@ export enum ButtonType {
   Quinary = 'quinary',
 }
 
-const templateHTML = `
-  <style>
+const templateHTML = (cspNonce?: string) => `
+  <style ${cspNonce ? `nonce=${cspNonce}` : ''}>
     :host,
     :host * {
       box-sizing: border-box;
@@ -161,8 +161,8 @@ export class KSLButtonElement extends KSLCustomElementWithTooltip {
     this.buttonRef = this.shadowRoot.querySelector('button') as HTMLButtonElement;
   }
 
-  public static initializeTemplate(): HTMLTemplateElement {
-    return createTemplateForCustomElement(templateHTML);
+  public static initializeTemplate(cspNonce?: string): HTMLTemplateElement {
+    return createTemplateForCustomElement(templateHTML(cspNonce));
   }
 
   public connectedCallback(): void {

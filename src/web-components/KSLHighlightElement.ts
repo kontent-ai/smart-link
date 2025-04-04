@@ -33,8 +33,8 @@ declare global {
   }
 }
 
-const templateHTML = `
-  <style>
+const templateHTML = (cspNonce?: string) => `
+  <style ${cspNonce ? `nonce=${cspNonce}` : ''}>
     :host,
     :host * {
       box-sizing: border-box;
@@ -133,8 +133,8 @@ export class KSLHighlightElement extends KSLPositionedElement {
     this.editButtonRef = this.shadowRoot.querySelector('#ksl-edit') as KSLButtonElement;
   }
 
-  public static initializeTemplate(): HTMLTemplateElement {
-    return createTemplateForCustomElement(templateHTML);
+  public static initializeTemplate(cspNonce?: string): HTMLTemplateElement {
+    return createTemplateForCustomElement(templateHTML(cspNonce));
   }
 
   private static getEditButtonTooltip(type: HighlightType): string {

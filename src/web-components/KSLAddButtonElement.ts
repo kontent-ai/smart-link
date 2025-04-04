@@ -61,11 +61,14 @@ declare global {
   }
 }
 
-const getPopoverHtml = ({ elementType, isParentPublished, permissions }: IAddButtonPermissionsServerModel) => {
-  const canUserCreateLinkedItem = permissions.get(AddButtonPermission.CreateNew) === AddButtonPermissionCheckResult.Ok;
+const getPopoverHtml =
+  (cspNonce?: string) =>
+  ({ elementType, isParentPublished, permissions }: IAddButtonPermissionsServerModel) => {
+    const canUserCreateLinkedItem =
+      permissions.get(AddButtonPermission.CreateNew) === AddButtonPermissionCheckResult.Ok;
 
-  return `
-    <style>
+    return `
+    <style ${cspNonce ? `nonce=${cspNonce}` : ''}>
     .ksl-add-button__popover-button + .ksl-add-button__popover-button {
       margin-left: 4px;
     }
@@ -105,7 +108,7 @@ const getPopoverHtml = ({ elementType, isParentPublished, permissions }: IAddBut
     <ksl-icon icon-name="${IconName.CollapseScheme}"/>
   </ksl-button>
 `;
-};
+  };
 
 const templateHTML = `
   <style>
@@ -130,6 +133,8 @@ const templateHTML = `
 `;
 
 export class KSLAddButtonElement extends KSLPositionedElement {
+  private static PopOverElement: ((params: IAddButtonPermissionsServerModel) => string) | null = null;
+
   public static get is() {
     return 'ksl-add-button' as const;
   }
@@ -148,7 +153,8 @@ export class KSLAddButtonElement extends KSLPositionedElement {
     this.buttonRef = this.shadowRoot.querySelector(KSLButtonElement.is) as KSLButtonElement;
   }
 
-  public static initializeTemplate(): HTMLTemplateElement {
+  public static initializeTemplate(cspNonce?: string): HTMLTemplateElement {
+    KSLAddButtonElement.PopOverElement = getPopoverHtml(cspNonce);
     return createTemplateForCustomElement(templateHTML);
   }
 
@@ -300,7 +306,7 @@ export class KSLAddButtonElement extends KSLPositionedElement {
     this.buttonRef.tooltipPosition = ElementPositionOffset.Bottom;
 
     const popover = document.createElement(KSLPopoverElement.is);
-    popover.innerHTML = getPopoverHtml(response);
+    popover.innerHTML = KSLAddButtonElement.PopOverElement?.(response) ?? '';
 
     const popoverParent = this.shadowRoot;
 

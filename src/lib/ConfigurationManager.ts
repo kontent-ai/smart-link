@@ -21,6 +21,8 @@ export interface IKSLPublicConfiguration {
    * outside Web Spotlight.
    */
   readonly queryParam: string;
+
+  readonly cspNonce?: string;
 }
 
 export interface IKSLPrivateConfiguration {
@@ -43,6 +45,7 @@ export interface IConfigurationManager {
   readonly defaultProjectId?: string;
   readonly isInsideWebSpotlightPreviewIFrame: boolean;
   readonly queryParam?: string;
+  readonly cspNonce?: string;
   readonly update: (configuration?: Partial<KSLConfiguration>) => void;
 }
 
@@ -74,6 +77,9 @@ export class ConfigurationManager implements IConfigurationManager {
 
   public get defaultProjectId(): string | undefined {
     return this.configuration.defaultDataAttributes.projectId;
+  }
+  public get cspNonce(): string | undefined {
+    return this.configuration.cspNonce;
   }
 
   public get isInsideWebSpotlightPreviewIFrame(): boolean {

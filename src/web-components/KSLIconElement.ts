@@ -70,8 +70,8 @@ const iconsHTML = `
   </template>
 `;
 
-const templateHTML = `
-  <style>
+const templateHTML = (cspNonce?: string) => `
+  <style ${cspNonce ? `nonce=${cspNonce}` : ''}>
     @-webkit-keyframes spin-500 {
       0% {
         -webkit-transform: rotate(0deg);
@@ -162,8 +162,8 @@ export class KSLIconElement extends KSLCustomElement {
     }
   }
 
-  public static initializeTemplate(): HTMLTemplateElement {
-    return createTemplateForCustomElement(templateHTML);
+  public static initializeTemplate(cspNonce?: string): HTMLTemplateElement {
+    return createTemplateForCustomElement(templateHTML(cspNonce));
   }
 
   public attributeChangedCallback(attributeName: string, _oldValue: string | null, newValue: string | null): void {
