@@ -5,11 +5,11 @@ import {
   IContentItemClickedMessageData,
   IElementClickedMessageData,
 } from '../lib/IFrameCommunicatorTypes';
-import { DeepPartial } from './dataAttributes';
 import { Logger } from '../lib/Logger';
+import { DeepPartial } from './typeUtils';
 
 function logErrors(errors: string[]): void {
-  errors.forEach((error: string) => {
+  errors.forEach((error) => {
     Logger.error(error);
   });
 }
@@ -17,19 +17,11 @@ function logErrors(errors: string[]): void {
 export function validateContentItemClickEditMessageData(
   data: Partial<IContentItemClickedMessageData>
 ): data is IContentItemClickedMessageData {
-  const errors: string[] = [];
-
-  if (!data.projectId) {
-    errors.push('Project ID is required to handle element click.');
-  }
-
-  if (!data.languageCodename) {
-    errors.push('Language codename is required to handle element click.');
-  }
-
-  if (!data.itemId) {
-    errors.push('Item ID is required to handle element click.');
-  }
+  const errors: string[] = [
+    !data.projectId ? 'Project ID is required to handle element click.' : undefined,
+    !data.languageCodename ? 'Language codename is required to handle element click.' : undefined,
+    !data.itemId ? 'Item ID is required to handle element click.' : undefined,
+  ].filter((e) => e !== undefined);
 
   logErrors(errors);
 
@@ -61,27 +53,13 @@ export function validateContentComponentClickMessageData(
 export function validateAddInitialMessageData(
   data: DeepPartial<IAddButtonInitialMessageData>
 ): data is IAddButtonInitialMessageData {
-  const errors: string[] = [];
-
-  if (!data.projectId) {
-    errors.push('Project ID is required to handle add button click.');
-  }
-
-  if (!data.languageCodename) {
-    errors.push('Language codename is required to handle add button click.');
-  }
-
-  if (!data.itemId) {
-    errors.push('Item ID is required to handle add button click.');
-  }
-
-  if (!data.elementCodename) {
-    errors.push('Element codename is required to handle add button click.');
-  }
-
-  if (!data.insertPosition) {
-    errors.push('Insert position (placement, targetId) is required to handle add button click.');
-  }
+  const errors: string[] = [
+    !data.projectId ? 'Project ID is required to handle add button click.' : undefined,
+    !data.languageCodename ? 'Language codename is required to handle add button click.' : undefined,
+    !data.itemId ? 'Item ID is required to handle add button click.' : undefined,
+    !data.elementCodename ? 'Element codename is required to handle add button click.' : undefined,
+    !data.insertPosition ? 'Insert position (placement, targetId) is required to handle add button click.' : undefined,
+  ].filter((e) => e !== undefined);
 
   logErrors(errors);
 

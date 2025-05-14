@@ -88,7 +88,7 @@ export function getTotalScrollOffset(node: HTMLElement | null): [number, number]
   while (currentNode.parentElement) {
     currentNode = currentNode.parentElement;
 
-    if (offsetParent && offsetParent.isSameNode(currentNode)) {
+    if (offsetParent.isSameNode(currentNode)) {
       break;
     }
 
