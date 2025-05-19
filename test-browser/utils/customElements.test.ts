@@ -5,13 +5,9 @@ import {
 } from '../../src/utils/customElements';
 import { createHtmlFixture } from '../test-helpers/createHtmlFixture';
 import { ConfigurationManager } from '../../src/lib/ConfigurationManager';
-import {
-  DataAttribute,
-  getHighlightTypeForElement,
-  HighlightType,
-  MetadataAttribute,
-} from '../../src/utils/dataAttributes';
+import { DataAttribute, MetadataAttribute } from '../../src/utils/dataAttributes/attributes';
 import { describe, it, expect } from 'vitest';
+import { getHighlightTypeForElement, HighlightType } from '../../src/utils/dataAttributes/elementHighlight';
 
 describe('customElements.ts', () => {
   describe('getAugmentableDescendants', () => {

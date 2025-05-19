@@ -4,17 +4,13 @@ import { assert } from '../utils/assert';
 import { ElementPositionOffset, KSLPositionedElement } from './abstract/KSLPositionedElement';
 import { KSLContainerElement } from './KSLContainerElement';
 import { createTemplateForCustomElement } from '../utils/node';
-import {
-  DeepPartial,
-  EditButtonClickedData,
-  getHighlightTypeForElement,
-  HighlightType,
-  parseEditButtonDataAttributes,
-} from '../utils/dataAttributes';
 import { Logger } from '../lib/Logger';
 import { Colors } from './tokens/colors';
 import { Shadows } from './tokens/shadows';
 import { BaseZIndex } from './constants/zIndex';
+import { DeepPartial } from '../utils/typeUtils';
+import { EditButtonClickedData, parseEditButtonDataAttributes } from '../utils/dataAttributes/parser';
+import { getHighlightTypeForElement, HighlightType } from '../utils/dataAttributes/elementHighlight';
 
 interface IKSLHighlightElementEventData {
   readonly data: DeepPartial<EditButtonClickedData>;
