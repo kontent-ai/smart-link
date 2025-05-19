@@ -1,11 +1,6 @@
-import {
-  DataAttribute,
-  DisableableFeature,
-  getHighlightTypeForElement,
-  HighlightType,
-  MetadataAttribute,
-} from './dataAttributes';
 import { ConfigurationManager } from '../lib/ConfigurationManager';
+import { DataAttribute, DisableableFeature, MetadataAttribute } from './dataAttributes/attributes';
+import { getHighlightTypeForElement, HighlightType } from './dataAttributes/elementHighlight';
 
 const DisabledHighlightFeatureSelector = `[${MetadataAttribute.DisableFeatures}*="${DisableableFeature.Highlight}"]`;
 const ElementSelector = `*[${DataAttribute.ElementCodename}]:not(${DisabledHighlightFeatureSelector})`;

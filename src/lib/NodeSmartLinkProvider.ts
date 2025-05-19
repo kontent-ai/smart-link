@@ -23,11 +23,11 @@ import {
   KSLAddButtonElementInitialAsyncEvent,
 } from '../web-components/KSLAddButtonElement';
 import { IFrameCommunicator } from './IFrameCommunicator';
-import { DeepPartial } from '../utils/dataAttributes';
 import { ConfigurationManager, IConfigurationManager } from './ConfigurationManager';
 import { buildKontentLink } from '../utils/link';
 import { Logger } from './Logger';
 import { InvalidEnvironmentError } from '../utils/errors';
+import { DeepPartial } from 'src/utils/typeUtils';
 
 export class NodeSmartLinkProvider {
   private readonly mutationObserver: MutationObserver;

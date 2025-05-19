@@ -1,4 +1,3 @@
-import { getElementAncestors } from './node';
 import {
   IAddButtonInitialMessageData,
   IContentComponentClickedMessageData,
@@ -6,133 +5,77 @@ import {
   IElementClickedMessageData,
   InsertPosition,
   InsertPositionPlacement,
-} from '../lib/IFrameCommunicatorTypes';
-import { Logger } from '../lib/Logger';
-
-export type DeepPartial<T> = {
-  [P in keyof T]?: DeepPartial<T[P]>;
-};
-
-/**
- * Data-attributes are used to get some Kontent related data from DOM.
- * Data from data-attributes is used to generate smart links or iframe messages to Kontent.
- * However, this data can also be used in rendering (e.g. HTML elements with element codename attribute
- * have highlights).
- */
-export enum DataAttribute {
-  AddButtonInsertPosition = 'data-kontent-add-button-insert-position',
-  ElementCodename = 'data-kontent-element-codename',
-  ComponentId = 'data-kontent-component-id',
-  ItemId = 'data-kontent-item-id',
-  LanguageCodename = 'data-kontent-language-codename',
-  ProjectId = 'data-kontent-project-id',
-}
-
-/**
- * Metadata-attributes are used to get some metadata about some of the SDK features.
- * Metadata is used for SDK inner logic (such as rendering, event handling, etc.).
- */
-export enum MetadataAttribute {
-  AddButton = 'data-kontent-add-button',
-  AddButtonRenderPosition = 'data-kontent-add-button-render-position',
-  DisableFeatures = 'data-kontent-disable-features',
-}
-
-/**
- * Valid values of the MetadataAttribute.DisableFeatures attribute.
- * Those values can be used to disable certain features for the selected node.
- */
-export enum DisableableFeature {
-  Highlight = 'highlight',
-}
-
-enum ParserTokenKey {
-  ProjectId = 'projectId',
-  LanguageCodename = 'languageCodename',
-  ItemId = 'itemId',
-  ComponentId = 'contentComponentId',
-  ElementCodename = 'elementCodename',
-  Placement = 'placement',
-  TargetId = 'targetId',
-}
-
-interface IDataAttributesParserToken {
-  readonly key: ParserTokenKey; // will be used to store parsed values (key -> value)
-  readonly dataAttributes: DataAttribute[]; // attributes that should be checked for the current token
-  readonly optional?: boolean; // could this token be ignored
-}
-
-type DataAttributesParserPattern = Array<IDataAttributesParserToken>;
-
-const baseParserPattern: DataAttributesParserPattern = [
-  { key: ParserTokenKey.LanguageCodename, dataAttributes: [DataAttribute.LanguageCodename] },
-  { key: ParserTokenKey.ProjectId, dataAttributes: [DataAttribute.ProjectId] },
-];
-
-const itemEditButtonParserPattern: DataAttributesParserPattern = [
-  { key: ParserTokenKey.ItemId, dataAttributes: [DataAttribute.ItemId] },
-  ...baseParserPattern,
-];
-
-const componentEditButtonParserPattern: DataAttributesParserPattern = [
-  { key: ParserTokenKey.ComponentId, dataAttributes: [DataAttribute.ComponentId] },
-  ...itemEditButtonParserPattern,
-];
-
-const elementEditButtonParserPattern: DataAttributesParserPattern = [
-  { key: ParserTokenKey.ElementCodename, dataAttributes: [DataAttribute.ElementCodename] },
-  { key: ParserTokenKey.ComponentId, dataAttributes: [DataAttribute.ComponentId], optional: true },
-  ...itemEditButtonParserPattern,
-];
-
-const baseAddButtonParserPattern: DataAttributesParserPattern = [
-  { key: ParserTokenKey.ElementCodename, dataAttributes: [DataAttribute.ElementCodename] },
-  { key: ParserTokenKey.ComponentId, dataAttributes: [DataAttribute.ComponentId], optional: true },
-  { key: ParserTokenKey.ItemId, dataAttributes: [DataAttribute.ItemId] },
-  ...baseParserPattern,
-];
-
-const relativeAddButtonParserPattern: DataAttributesParserPattern = [
-  { key: ParserTokenKey.Placement, dataAttributes: [DataAttribute.AddButtonInsertPosition], optional: true },
-  { key: ParserTokenKey.TargetId, dataAttributes: [DataAttribute.ComponentId, DataAttribute.ItemId] },
-  ...baseAddButtonParserPattern,
-];
-
-const fixedAddButtonParserPattern: DataAttributesParserPattern = [
-  { key: ParserTokenKey.Placement, dataAttributes: [DataAttribute.AddButtonInsertPosition], optional: true },
-  ...baseAddButtonParserPattern,
-];
+} from '../../lib/IFrameCommunicatorTypes';
+import { DataAttribute } from './attributes';
+import { DeepPartial } from '../typeUtils';
+import { getHighlightTypeForElement, HighlightType } from './elementHighlight';
+import { getElementAncestors } from '../node';
+import { Logger } from '../../lib/Logger';
 
 export type EditButtonClickedData =
   | IContentItemClickedMessageData
   | IContentComponentClickedMessageData
   | IElementClickedMessageData;
 
+type ParserTokenKey =
+  | 'projectId'
+  | 'languageCodename'
+  | 'itemId'
+  | 'contentComponentId'
+  | 'elementCodename'
+  | 'placement'
+  | 'targetId';
+
+type IDataAttributesParserToken = Readonly<{
+  key: ParserTokenKey;
+  dataAttributes: DataAttribute[]; //  Attributes that should be checked for the current token (logical OR - any of these attributes can satisfy the token)
+  optional?: boolean;
+}>;
+
+/**
+ * Represents a pattern of tokens to parse data attributes.
+ * Tokens have precedence in the hierarchy - tokens appearing later in the array
+ * can appear in upper elements than earlier ones.
+ *
+ * EXAMPLE: projectId can be specified in higher element than itemId
+ */
+type DataAttributesParserPattern = ReadonlyArray<IDataAttributesParserToken>;
+
+/**
+ * Parses data attributes from an HTML element to extract edit button information.
+ * The function determines the type of element being edited (element, component, or item)
+ * and extracts relevant data attributes based on that type.
+ */
 export function parseEditButtonDataAttributes(target: HTMLElement): DeepPartial<EditButtonClickedData> {
   const type = getHighlightTypeForElement(target);
   const pattern = getEditButtonDataAttributesPattern(type);
   const parsed = parseDataAttributes(pattern, target);
 
   return {
-    projectId: parsed.get(ParserTokenKey.ProjectId),
-    languageCodename: parsed.get(ParserTokenKey.LanguageCodename),
-    itemId: parsed.get(ParserTokenKey.ItemId),
-    ...(parsed.has(ParserTokenKey.ComponentId) && { contentComponentId: parsed.get(ParserTokenKey.ComponentId) }),
-    ...(parsed.has(ParserTokenKey.ElementCodename) && { elementCodename: parsed.get(ParserTokenKey.ElementCodename) }),
+    projectId: parsed.get('projectId'),
+    languageCodename: parsed.get('languageCodename'),
+    itemId: parsed.get('itemId'),
+    ...(parsed.has('contentComponentId') && { contentComponentId: parsed.get('contentComponentId') }),
+    ...(parsed.has('elementCodename') && { elementCodename: parsed.get('elementCodename') }),
   };
 }
 
+/**
+ * Parses data attributes from an HTML element to extract add button information.
+ * The function determines the insert position type (fixed or relative) and extracts
+ * relevant data attributes based on that type.
+ */
 export function parseAddButtonDataAttributes(target: HTMLElement): DeepPartial<IAddButtonInitialMessageData> {
   const position = target.getAttribute(DataAttribute.AddButtonInsertPosition);
   const pattern = getAddButtonDataAttributesPattern(position);
   const parsed = parseDataAttributes(pattern, target);
 
   return {
-    projectId: parsed.get(ParserTokenKey.ProjectId),
-    languageCodename: parsed.get(ParserTokenKey.LanguageCodename),
-    itemId: parsed.get(ParserTokenKey.ItemId),
-    ...(parsed.get(ParserTokenKey.ComponentId) && { contentComponentId: parsed.get(ParserTokenKey.ComponentId) }),
-    elementCodename: parsed.get(ParserTokenKey.ElementCodename),
+    projectId: parsed.get('projectId'),
+    languageCodename: parsed.get('languageCodename'),
+    itemId: parsed.get('itemId'),
+    ...(parsed.get('contentComponentId') && { contentComponentId: parsed.get('contentComponentId') }),
+    elementCodename: parsed.get('elementCodename'),
     insertPosition: getAddButtonInsertPosition(parsed),
   };
 }
@@ -163,8 +106,8 @@ function getAddButtonDataAttributesPattern(position: string | null): DataAttribu
 }
 
 function getAddButtonInsertPosition(parsed: ReadonlyMap<ParserTokenKey, string>): Partial<InsertPosition> {
-  const placement = (parsed.get(ParserTokenKey.Placement) as InsertPositionPlacement) ?? InsertPositionPlacement.After;
-  const targetId = parsed.get(ParserTokenKey.TargetId);
+  const placement = (parsed.get('placement') as InsertPositionPlacement) ?? InsertPositionPlacement.After;
+  const targetId = parsed.get('targetId');
 
   switch (placement) {
     case InsertPositionPlacement.End:
@@ -179,95 +122,53 @@ function getAddButtonInsertPosition(parsed: ReadonlyMap<ParserTokenKey, string>)
 }
 
 /**
- * Parse data-attributes starting from target to its ancestors using the parsing pattern.
- *
- * @param {DataAttributesParserPattern} pattern
- * @param {HTMLElement} startFrom
- * @returns {ReadonlyMap<ParserTokenKey, string>}
+ * Parses data attributes from an HTML element and its ancestors according to a specified pattern.
+ * The function traverses up the DOM tree starting from the given element, looking for data attributes
+ * that match the pattern. It respects token precedence and optionality rules defined in the pattern.
  */
 function parseDataAttributes(
   pattern: DataAttributesParserPattern,
   startFrom: HTMLElement
 ): ReadonlyMap<ParserTokenKey, string> {
-  const parsed = new Map();
-
-  Logger.debugGroup('Parse data-attributes starting with ', startFrom);
-
   const elements = [startFrom, ...getElementAncestors(startFrom)];
 
+  Logger.debugGroup('Parse data-attributes starting with ', startFrom);
   Logger.debug('Elements that will be parsed: ', elements);
   Logger.debug('Parsing pattern: ', pattern);
 
-  for (const element of elements) {
-    const takenDataAttributes = new Set();
-
+  const parsed = elements.reduce((acc, element) => {
     Logger.debugGroup('Checking data-attributes on ', element);
-
-    for (const token of pattern) {
-      const { key, dataAttributes, optional } = token;
-
-      Logger.debugGroupCollapsed(`Looking for '${key}' [${dataAttributes}]`);
-      const [dataAttribute, value] = findDataAttribute(element, dataAttributes);
-
-      Logger.debug('Value: ', value);
-      Logger.debug('Already parsed: ', parsed.has(key));
-      Logger.debug('Already taken by previous token: ', takenDataAttributes.has(dataAttribute));
-
-      if (!value && !parsed.has(key) && !optional) {
-        Logger.debug('[Result]: Required data-attribute is missing.');
-        Logger.debugGroupEnd();
-        // Required data-attribute is missing. There is no point in continuing parsing data-attributes
-        // on current element, we should move to the next ancestor.
-        break;
-      }
-
-      if (parsed.has(key)) {
-        Logger.debug('[Result]: This data-attribute has already been parsed in some of the previous steps.');
+    for (const [index, token] of pattern.entries()) {
+      Logger.debugGroupCollapsed(`Looking for '${token.key}' [${token.dataAttributes}]`);
+      if (acc.has(token.key) || (token.optional && pattern.slice(index + 1).some((t) => acc.has(t.key)))) {
+        Logger.debug(
+          'This data-attribute has already been parsed in some of the previous elements or is optional and a higher-precedence token was parsed.',
+          acc.has(token.key)
+        );
         Logger.debugGroupEnd();
         continue;
       }
+
+      const [dataAttribute, value] = findDataAttribute(element, token.dataAttributes);
+      Logger.debug('Value: ', value);
 
       if (!value) {
-        Logger.debug('[Result]: This data attribute has no value.');
-        Logger.debugGroupEnd();
-        continue;
-      }
-
-      if (takenDataAttributes.has(dataAttribute)) {
-        Logger.debug('[Result]: A previous token has already used this data-attribute.');
-        Logger.debugGroupEnd();
-        continue;
-      }
-
-      const currentTokenIndex = pattern.indexOf(token);
-      const tokensWithHigherPriority = pattern.slice(currentTokenIndex, pattern.length);
-      const areSomeTokensWithHigherPriorityParsed = tokensWithHigherPriority.some((token) => parsed.has(token.key));
-
-      // If some higher token has already been parsed, it can mean two things:
-      // a) Current data-attribute is optional and is not related to the current scope. In that case, it can be ignored.
-      // b) Parsed data is related to some lower scope (or invalid) and should be cleared.
-      if (areSomeTokensWithHigherPriorityParsed) {
-        if (optional) {
-          Logger.debug('[Result]: Attribute is not related to the current scope.');
-          Logger.debugGroupEnd();
+        if (token.optional) {
           continue;
         }
-
-        for (const token of tokensWithHigherPriority) {
-          parsed.delete(token.key);
-        }
+        Logger.debug(`Required data-attribute '${dataAttribute}' is missing.`);
+        Logger.debugGroupEnd();
+        break; // Required data-attribute is missing. As other tokens have higher precedence, we can stop parsing.
       }
 
-      parsed.set(token.key, value);
-      takenDataAttributes.add(dataAttribute);
-
-      Logger.debug('[Result]: Attribute successfully parsed!');
+      acc.set(token.key, value);
+      Logger.debug('Attribute successfully parsed!');
       Logger.debugGroupEnd();
     }
-
-    Logger.debug('Values parsed so far: ', parsed);
+    Logger.debug('Values parsed so far: ', acc);
     Logger.debugGroupEnd();
-  }
+    return acc;
+  }, new Map<ParserTokenKey, string>());
 
   Logger.debugGroupEnd();
   Logger.debug('[Result]: ', parsed);
@@ -275,55 +176,62 @@ function parseDataAttributes(
   return parsed;
 }
 
+const baseParserPattern: DataAttributesParserPattern = [
+  { key: 'languageCodename', dataAttributes: [DataAttribute.LanguageCodename] },
+  { key: 'projectId', dataAttributes: [DataAttribute.ProjectId] },
+] as const;
+
+// EDIT BUTTON PARSING PATTERNS
+const itemEditButtonParserPattern: DataAttributesParserPattern = [
+  { key: 'itemId', dataAttributes: [DataAttribute.ItemId] },
+  ...baseParserPattern,
+] as const;
+
+const componentEditButtonParserPattern: DataAttributesParserPattern = [
+  { key: 'contentComponentId', dataAttributes: [DataAttribute.ComponentId] },
+  ...itemEditButtonParserPattern,
+] as const;
+
+const elementEditButtonParserPattern: DataAttributesParserPattern = [
+  { key: 'elementCodename', dataAttributes: [DataAttribute.ElementCodename] },
+  { key: 'contentComponentId', dataAttributes: [DataAttribute.ComponentId], optional: true },
+  ...itemEditButtonParserPattern,
+] as const;
+
+// ADD BUTTON PARSING PATTERNS
+const baseAddButtonParserPattern: DataAttributesParserPattern = [
+  { key: 'elementCodename', dataAttributes: [DataAttribute.ElementCodename] },
+  { key: 'contentComponentId', dataAttributes: [DataAttribute.ComponentId], optional: true },
+  { key: 'itemId', dataAttributes: [DataAttribute.ItemId] },
+  ...baseParserPattern,
+] as const;
+
+const relativeAddButtonParserPattern: DataAttributesParserPattern = [
+  { key: 'placement', dataAttributes: [DataAttribute.AddButtonInsertPosition], optional: true },
+  { key: 'targetId', dataAttributes: [DataAttribute.ComponentId, DataAttribute.ItemId] },
+  ...baseAddButtonParserPattern,
+] as const;
+
+const fixedAddButtonParserPattern: DataAttributesParserPattern = [
+  { key: 'placement', dataAttributes: [DataAttribute.AddButtonInsertPosition], optional: true },
+  ...baseAddButtonParserPattern,
+] as const;
+
+/**
+ * Searches for the first matching data attribute in an HTML element from a provided list.
+ */
 function findDataAttribute(
   element: HTMLElement,
   dataAttributes: DataAttribute[]
 ): [DataAttribute, string] | [null, null] {
-  for (const attribute of dataAttributes) {
-    const value = element.getAttribute(attribute);
-    if (value) {
-      return [attribute, value];
+  const result = dataAttributes.reduce<[DataAttribute, string] | null>((acc, attribute) => {
+    if (acc !== null) {
+      return acc;
     }
-  }
 
-  return [null, null];
-}
+    const value = element.getAttribute(attribute);
+    return value ? [attribute, value] : acc;
+  }, null);
 
-export enum HighlightType {
-  None = '',
-  Element = 'element',
-  ContentComponent = 'content-component',
-  ContentItem = 'content-item',
-}
-
-/**
- * Get HighlightType based on the HTML element data-attributes.
- *
- * @param {HTMLElement | null} element
- * @returns {HighlightType}
- */
-export function getHighlightTypeForElement(element: HTMLElement | null): HighlightType {
-  if (!element || isFeatureDisabledForElement(element, DisableableFeature.Highlight)) {
-    return HighlightType.None;
-  }
-
-  // treat node as element if it has element codename attribute
-  if (element.hasAttribute(DataAttribute.ElementCodename)) {
-    return HighlightType.Element;
-  }
-  // else treat node as content component if it has component id attribute
-  else if (element.hasAttribute(DataAttribute.ComponentId)) {
-    return HighlightType.ContentComponent;
-  }
-  // else treat node as content item if it has item id attribute
-  else if (element.hasAttribute(DataAttribute.ItemId)) {
-    return HighlightType.ContentItem;
-  }
-
-  return HighlightType.None;
-}
-
-function isFeatureDisabledForElement(element: HTMLElement, feature: DisableableFeature): boolean {
-  const attribute = element.getAttribute(MetadataAttribute.DisableFeatures);
-  return attribute?.toLowerCase().includes(feature) ?? false;
+  return result ?? [null, null];
 }

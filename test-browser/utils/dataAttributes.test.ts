@@ -1,11 +1,8 @@
 import { createHtmlFixture } from '../test-helpers/createHtmlFixture';
-import {
-  parseEditButtonDataAttributes,
-  parseAddButtonDataAttributes,
-  MetadataAttribute,
-} from '../../src/utils/dataAttributes';
 import { InsertPositionPlacement } from '../../src/lib/IFrameCommunicatorTypes';
 import { describe, it, expect } from 'vitest';
+import { parseEditButtonDataAttributes, parseAddButtonDataAttributes } from '../../src/utils/dataAttributes/parser';
+import { MetadataAttribute } from '../../src/utils/dataAttributes/attributes';
 
 describe('dataAttributes.ts', () => {
   const fixture = createHtmlFixture();

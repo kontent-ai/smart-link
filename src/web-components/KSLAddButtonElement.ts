@@ -5,7 +5,6 @@ import { KSLPopoverElement } from './KSLPopoverElement';
 import { ElementPositionOffset, KSLPositionedElement } from './abstract/KSLPositionedElement';
 import { KSLContainerElement } from './KSLContainerElement';
 import { createTemplateForCustomElement } from '../utils/node';
-import { DeepPartial, MetadataAttribute, parseAddButtonDataAttributes } from '../utils/dataAttributes';
 import {
   AddButtonAction,
   AddButtonElementType,
@@ -18,6 +17,9 @@ import {
 import { AsyncCustomEvent } from '../utils/events';
 import { Logger } from '../lib/Logger';
 import { BaseZIndex } from './constants/zIndex';
+import { DeepPartial } from '../utils/typeUtils';
+import { MetadataAttribute } from '../utils/dataAttributes/attributes';
+import { parseAddButtonDataAttributes } from '../utils/dataAttributes/parser';
 
 const ContentIsPublishedTooltip = 'Content is published';
 const DefaultTooltipMessage = 'Insert...';
