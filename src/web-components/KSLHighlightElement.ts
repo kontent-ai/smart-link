@@ -3,7 +3,7 @@ import { IconName } from './KSLIconElement';
 import { assert } from '../utils/assert';
 import { ElementPositionOffset, KSLPositionedElement } from './abstract/KSLPositionedElement';
 import { KSLContainerElement } from './KSLContainerElement';
-import { createTemplateForCustomElement } from '../utils/node';
+import { createTemplateForCustomElement } from '../utils/domElement';
 import { Logger } from '../lib/Logger';
 import { Colors } from './tokens/colors';
 import { Shadows } from './tokens/shadows';
