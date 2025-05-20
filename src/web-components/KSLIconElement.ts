@@ -1,6 +1,6 @@
 import { KSLCustomElement } from './abstract/KSLCustomElement';
 import { assert } from '../utils/assert';
-import { createTemplateForCustomElement } from '../utils/node';
+import { createTemplateForCustomElement } from '../utils/domElement';
 
 export enum IconName {
   CollapseScheme = 'icon-collapse-scheme',

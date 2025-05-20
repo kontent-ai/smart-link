@@ -1,7 +1,7 @@
 import { IconName } from './KSLIconElement';
 import { assert } from '../utils/assert';
 import { KSLCustomElementWithTooltip } from './abstract/KSLCustomElementWithTooltip';
-import { createTemplateForCustomElement } from '../utils/node';
+import { createTemplateForCustomElement } from '../utils/domElement';
 import { Colors } from './tokens/colors';
 import { Shadows } from './tokens/shadows';
 

@@ -9,7 +9,7 @@ import {
 import { DataAttribute } from './attributes';
 import { DeepPartial } from '../typeUtils';
 import { getHighlightTypeForElement, HighlightType } from './elementHighlight';
-import { getElementAncestors } from '../node';
+import { getElementAncestors } from '../domElement';
 import { Logger } from '../../lib/Logger';
 
 export type EditButtonClickedData =
