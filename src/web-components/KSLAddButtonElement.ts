@@ -4,7 +4,7 @@ import { assert } from '../utils/assert';
 import { KSLPopoverElement } from './KSLPopoverElement';
 import { ElementPositionOffset, KSLPositionedElement } from './abstract/KSLPositionedElement';
 import { KSLContainerElement } from './KSLContainerElement';
-import { createTemplateForCustomElement } from '../utils/node';
+import { createTemplateForCustomElement } from '../utils/domElement';
 import {
   AddButtonAction,
   AddButtonElementType,

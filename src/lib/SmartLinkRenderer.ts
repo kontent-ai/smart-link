@@ -1,4 +1,4 @@
-import { groupElementsByRenderingRoot } from '../utils/node';
+import { groupElementsByRenderingRoot } from '../utils/domElement';
 import { KSLContainerElement } from '../web-components/KSLContainerElement';
 import { KSLHighlightElement } from '../web-components/KSLHighlightElement';
 import { KSLAddButtonElement } from '../web-components/KSLAddButtonElement';
