@@ -1,4 +1,4 @@
-import { ConfigurationManager } from '../lib/ConfigurationManager';
+import { isInsideWebSpotlightPreviewIFrame, KSLConfiguration } from '../lib/ConfigurationManager';
 import { DataAttribute, DisableableFeature, MetadataAttribute } from './dataAttributes/attributes';
 import { getHighlightTypeForElement, HighlightType } from './dataAttributes/elementHighlight';
 
@@ -16,15 +16,15 @@ const AllAugmentableElementsSelector = `${ElementSelector}, ${ContentComponentSe
  * @param {HTMLElement | Document} node
  * @returns {NodeListOf<HTMLElement>}
  */
-export function getAugmentableDescendants(node: HTMLElement | Document): NodeListOf<HTMLElement> {
-  const configurationManager = ConfigurationManager.getInstance();
-  const isInsideWebSpotlight = configurationManager.isInsideWebSpotlightPreviewIFrame;
+export function getAugmentableDescendants(
+  node: HTMLElement | Document,
+  configuration: KSLConfiguration
+): NodeListOf<HTMLElement> {
+  const isInsideWebSpotlight = isInsideWebSpotlightPreviewIFrame(configuration);
 
-  if (isInsideWebSpotlight) {
-    return node.querySelectorAll(AllAugmentableElementsSelector);
-  }
-
-  return node.querySelectorAll(ElementSelector);
+  return isInsideWebSpotlight
+    ? node.querySelectorAll(AllAugmentableElementsSelector)
+    : node.querySelectorAll(ElementSelector);
 }
 
 /**
@@ -33,8 +33,8 @@ export function getAugmentableDescendants(node: HTMLElement | Document): NodeLis
  * @param {HTMLElement | null} element
  * @returns {boolean}
  */
-export function isElementAugmentable(element: HTMLElement | null): boolean {
-  return shouldElementHaveHighlight(element) || shouldElementHaveAddButton(element);
+export function isElementAugmentable(element: HTMLElement | null, configuration: KSLConfiguration): boolean {
+  return shouldElementHaveHighlight(element, configuration) || shouldElementHaveAddButton(element, configuration);
 }
 
 /**
@@ -43,7 +43,7 @@ export function isElementAugmentable(element: HTMLElement | null): boolean {
  * @param {HTMLElement | null} element
  * @returns {boolean}
  */
-export function shouldElementHaveHighlight(element: HTMLElement | null): boolean {
+export function shouldElementHaveHighlight(element: HTMLElement | null, configuration: KSLConfiguration): boolean {
   const highlightType = getHighlightTypeForElement(element);
 
   switch (highlightType) {
@@ -54,8 +54,7 @@ export function shouldElementHaveHighlight(element: HTMLElement | null): boolean
     case HighlightType.ContentItem:
     case HighlightType.ContentComponent:
     default: {
-      const configurationManager = ConfigurationManager.getInstance();
-      return configurationManager.isInsideWebSpotlightPreviewIFrame;
+      return isInsideWebSpotlightPreviewIFrame(configuration);
     }
   }
 }
@@ -66,9 +65,12 @@ export function shouldElementHaveHighlight(element: HTMLElement | null): boolean
  * @param {HTMLElement | null} element
  * @returns {boolean}
  */
-export function shouldElementHaveAddButton(element: HTMLElement | null): boolean {
-  const configurationManager = ConfigurationManager.getInstance();
-  const isInsideWebSpotlight = configurationManager.isInsideWebSpotlightPreviewIFrame;
+export function shouldElementHaveAddButton(element: HTMLElement | null, configuration: KSLConfiguration): boolean {
   // add button should only be visible inside Web Spotlight
-  return Boolean(isInsideWebSpotlight && element && element.hasAttribute(MetadataAttribute.AddButton));
+  return (
+    (isInsideWebSpotlightPreviewIFrame(configuration) &&
+      element &&
+      element.hasAttribute(MetadataAttribute.AddButton)) ??
+    false
+  );
 }

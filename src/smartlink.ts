@@ -1,4 +1,4 @@
-import { IKSLPublicConfiguration } from './lib/ConfigurationManager';
+import { KSLPublicConfiguration } from './lib/ConfigurationManager';
 import KontentSmartLinkSDK, { KontentSmartLinkEventMap } from './sdk';
 import { InvalidEnvironmentError, NotInitializedError } from './utils/errors';
 
@@ -13,7 +13,7 @@ class KontentSmartLink {
   private static instance: KontentSmartLink;
   private sdk: KontentSmartLinkSDK | null = null;
 
-  public static initializeOnLoad(configuration?: Partial<IKSLPublicConfiguration>): Promise<KontentSmartLink> {
+  public static initializeOnLoad(configuration?: Partial<KSLPublicConfiguration>): Promise<KontentSmartLink> {
     if (typeof window === 'undefined') {
       throw InvalidEnvironmentError('KontentSmartLink can only be initialized in a browser environment.');
     }
@@ -25,7 +25,7 @@ class KontentSmartLink {
     });
   }
 
-  public static initialize(configuration?: Partial<IKSLPublicConfiguration>): KontentSmartLink {
+  public static initialize(configuration?: Partial<KSLPublicConfiguration>): KontentSmartLink {
     if (!KontentSmartLink.instance) {
       KontentSmartLink.instance = new KontentSmartLink();
     }
@@ -42,7 +42,7 @@ class KontentSmartLink {
     this.sdk = null;
   };
 
-  public setConfiguration = (configuration: Partial<IKSLPublicConfiguration>): void => {
+  public setConfiguration = (configuration: Partial<KSLPublicConfiguration>): void => {
     if (!this.sdk) {
       throw NotInitializedError('KontentSmartLink is not initialized or has already been destroyed.');
     } else {

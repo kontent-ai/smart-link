@@ -23,7 +23,7 @@ import {
   KSLAddButtonElementInitialAsyncEvent,
 } from '../web-components/KSLAddButtonElement';
 import { IFrameCommunicator } from './IFrameCommunicator';
-import { ConfigurationManager, IConfigurationManager } from './ConfigurationManager';
+import { isInsideWebSpotlightPreviewIFrame, KSLConfiguration } from './ConfigurationManager';
 import { buildKontentLink } from '../utils/link';
 import { Logger } from './Logger';
 import { InvalidEnvironmentError } from '../utils/errors';
@@ -32,7 +32,6 @@ import { DeepPartial } from 'src/utils/typeUtils';
 export class NodeSmartLinkProvider {
   private readonly mutationObserver: MutationObserver;
   private readonly intersectionObserver: IntersectionObserver;
-  private readonly configurationManager: IConfigurationManager;
   private readonly renderer: IRenderer;
 
   private enabled = false;
@@ -40,7 +39,10 @@ export class NodeSmartLinkProvider {
   private observedElements = new Set<HTMLElement>();
   private visibleElements = new Set<HTMLElement>();
 
-  constructor(private readonly iframeCommunicator: IFrameCommunicator) {
+  constructor(
+    private readonly iframeCommunicator: IFrameCommunicator,
+    private readonly configuration: KSLConfiguration
+  ) {
     if (
       typeof window === 'undefined' ||
       typeof MutationObserver === 'undefined' ||
@@ -49,10 +51,9 @@ export class NodeSmartLinkProvider {
       throw InvalidEnvironmentError('NodeSmartLinkProvider can only be initialized in a browser environment.');
     }
 
-    this.configurationManager = ConfigurationManager.getInstance();
     this.mutationObserver = new MutationObserver(this.onDomMutation);
     this.intersectionObserver = new IntersectionObserver(this.onElementVisibilityChange);
-    this.renderer = new SmartLinkRenderer();
+    this.renderer = new SmartLinkRenderer(this.configuration);
   }
 
   public toggle = (force?: boolean): void => {
@@ -147,7 +148,7 @@ export class NodeSmartLinkProvider {
       subtree: true,
     });
 
-    getAugmentableDescendants(document).forEach((element: Element) => {
+    getAugmentableDescendants(document, this.configuration).forEach((element: Element) => {
       if (element instanceof HTMLElement) {
         this.observeElementVisibility(element);
       }
@@ -204,11 +205,11 @@ export class NodeSmartLinkProvider {
       for (const node of mutation.addedNodes) {
         if (!(node instanceof HTMLElement)) continue;
 
-        if (isElementAugmentable(node)) {
+        if (isElementAugmentable(node, this.configuration)) {
           this.observeElementVisibility(node);
         }
 
-        for (const element of getAugmentableDescendants(node)) {
+        for (const element of getAugmentableDescendants(node, this.configuration)) {
           if (!(element instanceof HTMLElement)) continue;
 
           this.observeElementVisibility(element);
@@ -218,11 +219,11 @@ export class NodeSmartLinkProvider {
       for (const node of mutation.removedNodes) {
         if (!(node instanceof HTMLElement)) continue;
 
-        if (isElementAugmentable(node)) {
+        if (isElementAugmentable(node, this.configuration)) {
           this.unobserveElementVisibility(node);
         }
 
-        for (const element of getAugmentableDescendants(node)) {
+        for (const element of getAugmentableDescendants(node, this.configuration)) {
           if (!(element instanceof HTMLElement)) continue;
 
           this.unobserveElementVisibility(element);
@@ -253,13 +254,13 @@ export class NodeSmartLinkProvider {
   };
 
   private onEditElement = (event: KSLHighlightElementEvent): void => {
-    const isInsideWebSpotlight = this.configurationManager.isInsideWebSpotlightPreviewIFrame;
+    const isInsideWebSpotlight = isInsideWebSpotlightPreviewIFrame(this.configuration);
     const { data, targetNode } = event.detail;
 
     const messageData: Partial<IElementClickedMessageData> = {
       ...data,
-      projectId: data.projectId ?? this.configurationManager.defaultProjectId,
-      languageCodename: data.languageCodename ?? this.configurationManager.defaultLanguageCodename,
+      projectId: data.projectId ?? this.configuration.defaultDataAttributes.projectId,
+      languageCodename: data.languageCodename ?? this.configuration.defaultDataAttributes.languageCodename,
     };
 
     const messageMetadata: IClickedMessageMetadata = {
@@ -299,14 +300,14 @@ export class NodeSmartLinkProvider {
   };
 
   private onAddInitialClick = (event: KSLAddButtonElementInitialAsyncEvent): void => {
-    const isInsideWebSpotlight = this.configurationManager.isInsideWebSpotlightPreviewIFrame;
+    const isInsideWebSpotlight = isInsideWebSpotlightPreviewIFrame(this.configuration);
     const { eventData, onResolve, onReject } = event.detail;
     const { data, targetNode } = eventData;
 
     const messageData: DeepPartial<IAddButtonInitialMessageData> = {
       ...data,
-      languageCodename: data.languageCodename ?? this.configurationManager.defaultLanguageCodename,
-      projectId: data.projectId ?? this.configurationManager.defaultProjectId,
+      languageCodename: data.languageCodename ?? this.configuration.defaultDataAttributes.languageCodename,
+      projectId: data.projectId ?? this.configuration.defaultDataAttributes.projectId,
     };
 
     if (validateAddInitialMessageData(messageData)) {
@@ -337,13 +338,13 @@ export class NodeSmartLinkProvider {
   };
 
   private onAddActionClick = (event: KSLAddButtonElementActionEvent): void => {
-    const isInsideWebSpotlight = this.configurationManager.isInsideWebSpotlightPreviewIFrame;
+    const isInsideWebSpotlight = isInsideWebSpotlightPreviewIFrame(this.configuration);
     const { data, targetNode } = event.detail;
 
     const messageData: DeepPartial<IAddActionMessageData> = {
       ...data,
-      languageCodename: data.languageCodename ?? this.configurationManager.defaultLanguageCodename,
-      projectId: data.projectId ?? this.configurationManager.defaultProjectId,
+      languageCodename: data.languageCodename ?? this.configuration.defaultDataAttributes.languageCodename,
+      projectId: data.projectId ?? this.configuration.defaultDataAttributes.projectId,
     };
 
     if (validateAddActionMessageData(messageData)) {

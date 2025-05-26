@@ -3,6 +3,7 @@ import { KSLContainerElement } from '../web-components/KSLContainerElement';
 import { KSLHighlightElement } from '../web-components/KSLHighlightElement';
 import { KSLAddButtonElement } from '../web-components/KSLAddButtonElement';
 import { shouldElementHaveHighlight, shouldElementHaveAddButton } from '../utils/customElements';
+import { KSLConfiguration } from './ConfigurationManager';
 
 export interface IRenderer {
   readonly destroy: () => void;
@@ -16,7 +17,7 @@ export class SmartLinkRenderer implements IRenderer {
   private highlightByElement: Map<HTMLElement, KSLHighlightElement>;
   private addButtonByElement: Map<HTMLElement, KSLAddButtonElement>;
 
-  constructor() {
+  constructor(private readonly configuration: KSLConfiguration) {
     this.containerByRenderingRoot = new Map<HTMLElement, KSLContainerElement>();
     this.highlightByElement = new Map<HTMLElement, KSLHighlightElement>();
     this.addButtonByElement = new Map<HTMLElement, KSLAddButtonElement>();
@@ -49,7 +50,7 @@ export class SmartLinkRenderer implements IRenderer {
           // because those elements are basically invisible and cannot be clicked.
           const isFlat = element.offsetHeight === 0 || element.offsetHeight === 0;
 
-          if (!isFlat && shouldElementHaveHighlight(element)) {
+          if (!isFlat && shouldElementHaveHighlight(element, this.configuration)) {
             const highlight = this.highlightByElement.get(element) ?? container.createHighlightForElement(element);
             highlight.adjustPosition();
 
@@ -59,7 +60,7 @@ export class SmartLinkRenderer implements IRenderer {
             this.highlightByElement.delete(element);
           }
 
-          if (shouldElementHaveAddButton(element)) {
+          if (shouldElementHaveAddButton(element, this.configuration)) {
             const button = this.addButtonByElement.get(element) ?? container.createAddButtonForElement(element);
             button.adjustPosition();
 

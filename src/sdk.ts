@@ -13,7 +13,7 @@ import {
 } from './lib/IFrameCommunicatorTypes';
 import { QueryParamPresenceWatcher } from './lib/QueryParamPresenceWatcher';
 import { defineAllRequiredWebComponents } from './web-components/components';
-import { ConfigurationManager, IConfigurationManager, IKSLPublicConfiguration } from './lib/ConfigurationManager';
+import { defaultConfiguration, KSLConfiguration, KSLPublicConfiguration } from './lib/ConfigurationManager';
 import { Logger, LogLevel } from './lib/Logger';
 import { reload } from './utils/reload';
 import { Callback, EventHandler, EventManager } from './lib/EventManager';
@@ -33,21 +33,20 @@ export type KontentSmartLinkEventMap = Readonly<{
 }>;
 
 class KontentSmartLinkSDK {
-  private readonly configurationManager: IConfigurationManager;
+  private configuration: KSLConfiguration = defaultConfiguration;
   private readonly queryParamPresenceWatcher: QueryParamPresenceWatcher;
   private readonly iframeCommunicator: IFrameCommunicator;
   private readonly nodeSmartLinkProvider: NodeSmartLinkProvider;
   private readonly events: EventManager<KontentSmartLinkEventMap>;
 
-  constructor(configuration?: Partial<IKSLPublicConfiguration>) {
-    this.configurationManager = ConfigurationManager.getInstance();
-    this.configurationManager.update(configuration);
+  constructor(configuration?: Partial<KSLPublicConfiguration>) {
+    this.configuration = { ...this.configuration, ...configuration };
 
     this.events = new EventManager<KontentSmartLinkEventMap>();
     this.queryParamPresenceWatcher = new QueryParamPresenceWatcher();
     this.iframeCommunicator = new IFrameCommunicator();
 
-    this.nodeSmartLinkProvider = new NodeSmartLinkProvider(this.iframeCommunicator);
+    this.nodeSmartLinkProvider = new NodeSmartLinkProvider(this.iframeCommunicator, this.configuration);
 
     this.initialize();
   }
@@ -59,11 +58,11 @@ class KontentSmartLinkSDK {
   public initialize = async (): Promise<void> => {
     await defineAllRequiredWebComponents();
 
-    const level = this.configurationManager.debug ? LogLevel.Debug : LogLevel.Info;
+    const level = this.configuration.debug ? LogLevel.Debug : LogLevel.Info;
     Logger.setLogLevel(level);
 
-    if (this.configurationManager.queryParam) {
-      this.queryParamPresenceWatcher.watch(this.configurationManager.queryParam, this.nodeSmartLinkProvider.toggle);
+    if (this.configuration.queryParam) {
+      this.queryParamPresenceWatcher.watch(this.configuration.queryParam, this.nodeSmartLinkProvider.toggle);
     } else {
       this.nodeSmartLinkProvider.enable();
     }
@@ -80,22 +79,22 @@ class KontentSmartLinkSDK {
     this.nodeSmartLinkProvider.destroy();
   };
 
-  public updateConfiguration = (configuration: Partial<IKSLPublicConfiguration>): void => {
-    if (typeof configuration.queryParam !== 'undefined') {
-      if (!configuration.queryParam) {
+  public updateConfiguration = (configuration: Partial<KSLPublicConfiguration>): void => {
+    if (configuration.queryParam !== undefined) {
+      if (configuration.queryParam === '') {
         this.nodeSmartLinkProvider.enable();
-      } else if (configuration.queryParam !== this.configurationManager.queryParam) {
+      } else if (configuration.queryParam !== this.configuration.queryParam) {
         this.queryParamPresenceWatcher.unwatchAll();
         this.queryParamPresenceWatcher.watch(configuration.queryParam, this.nodeSmartLinkProvider.toggle);
       }
     }
 
-    if (typeof configuration.debug !== 'undefined') {
+    if (configuration.debug) {
       const level = configuration.debug ? LogLevel.Debug : LogLevel.Info;
       Logger.setLogLevel(level);
     }
 
-    this.configurationManager.update(configuration);
+    this.configuration = { ...this.configuration, ...configuration };
   };
 
   public on = <TEvent extends keyof KontentSmartLinkEventMap>(
@@ -121,8 +120,8 @@ class KontentSmartLinkSDK {
 
     const messageData: ISDKInitializedMessageData = {
       enabled,
-      languageCodename: this.configurationManager.defaultLanguageCodename ?? null,
-      projectId: this.configurationManager.defaultProjectId ?? null,
+      languageCodename: this.configuration.defaultDataAttributes.languageCodename ?? null,
+      projectId: this.configuration.defaultDataAttributes.projectId ?? null,
       supportedFeatures: {
         previewIFrameCurrentUrlHandler: true,
         refreshHandler: true,
@@ -131,7 +130,7 @@ class KontentSmartLinkSDK {
     };
 
     this.iframeCommunicator.sendMessageWithResponse(IFrameMessageType.Initialized, messageData, () => {
-      this.configurationManager.update({ isInsideWebSpotlight: true });
+      this.configuration = { ...this.configuration, isInsideWebSpotlight: true };
       this.queryParamPresenceWatcher.unwatchAll();
       this.nodeSmartLinkProvider.disable();
 
