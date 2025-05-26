@@ -3,7 +3,7 @@ import { KSLContainerElement } from '../web-components/KSLContainerElement';
 import { KSLHighlightElement } from '../web-components/KSLHighlightElement';
 import { KSLAddButtonElement } from '../web-components/KSLAddButtonElement';
 import { shouldElementHaveHighlight, shouldElementHaveAddButton } from '../utils/customElements';
-import { KSLConfiguration } from './ConfigurationManager';
+import { KSLConfiguration } from '../utils/configuration';
 
 export interface IRenderer {
   readonly destroy: () => void;

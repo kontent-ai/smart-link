@@ -1,4 +1,4 @@
-import { isInsideIFrame } from '../utils/iframe';
+import { isInsideIFrame } from './iframe';
 
 export type KSLPublicConfiguration = Readonly<{
   /**

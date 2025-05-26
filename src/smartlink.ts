@@ -1,4 +1,4 @@
-import { KSLPublicConfiguration } from './lib/ConfigurationManager';
+import { KSLPublicConfiguration } from './utils/configuration';
 import KontentSmartLinkSDK, { KontentSmartLinkEventMap } from './sdk';
 import { InvalidEnvironmentError, NotInitializedError } from './utils/errors';
 

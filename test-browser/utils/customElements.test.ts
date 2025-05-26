@@ -7,7 +7,7 @@ import { createHtmlFixture } from '../test-helpers/createHtmlFixture';
 import { DataAttribute, MetadataAttribute } from '../../src/utils/dataAttributes/attributes';
 import { describe, it, expect } from 'vitest';
 import { getHighlightTypeForElement, HighlightType } from '../../src/utils/dataAttributes/elementHighlight';
-import { defaultConfiguration } from '../../src/lib/ConfigurationManager';
+import { defaultConfiguration } from '../../src/utils/configuration';
 
 describe('customElements.ts', () => {
   const defaultConfig = { ...defaultConfiguration };
