@@ -1,50 +1,37 @@
-type QueryParamChangeCallback = (isPresent: boolean) => void;
+const WatchTimeoutMs = 1000;
 
-export class QueryParamPresenceWatcher {
-  private static WatchTimeoutMs = 1000;
+/**
+ * Check the presence of query parameter in the current page URL.
+ */
+export function isQueryParamPresent(queryParam: string): boolean {
+  const regex = new RegExp(`[?&]${queryParam}([=&]|$)`, 'i');
+  return regex.test(window.location.search);
+}
 
-  private previousValue: Map<string, boolean> = new Map();
-  private timers: Map<string, number> = new Map();
+/**
+ * Watches for changes in the presence of a query parameter in the URL and calls a callback when it changes.
+ */
 
-  /**
-   * Check if query parameter is present in the current page URL.
-   * Query parameter value is ignored, only presence is checked.
-   *
-   * @param {string} queryParam
-   * @returns {boolean}
-   */
-  public static isQueryParamPresent(queryParam: string): boolean {
-    const regex = new RegExp(`[?&]${queryParam}([=&]|$)`, 'i');
-    return regex.test(window.location.search);
-  }
+export const watchQueryParamPresence = (queryParam: string, onChange: (isPresent: boolean) => void): (() => void) => {
+  // consider returning a timerIds instead of a function to unwatch and add a function to unwatch all
+  let previousValue = false; // will work due to clojures
 
-  public watch = (queryParam: string, onChange: QueryParamChangeCallback): void => {
-    const timerId = this.timers.get(queryParam);
-
-    if (timerId) {
-      clearTimeout(timerId);
-    }
-
-    const isPresent = QueryParamPresenceWatcher.isQueryParamPresent(queryParam);
-    const hasChanged = this.previousValue.get(queryParam) !== isPresent;
+  const checkAndNotifyChange = () => {
+    const isPresent = isQueryParamPresent(queryParam);
+    const hasChanged = previousValue !== isPresent;
 
     if (hasChanged) {
       onChange(isPresent);
+      previousValue = isPresent;
     }
-
-    const newTimerId = window.setTimeout(
-      () => this.watch(queryParam, onChange),
-      QueryParamPresenceWatcher.WatchTimeoutMs
-    );
-
-    this.timers.set(queryParam, newTimerId);
   };
 
-  public unwatchAll = (): void => {
-    this.timers.forEach((timerId: number) => {
-      clearTimeout(timerId);
-    });
+  // Check once before starting the interval
+  checkAndNotifyChange();
 
-    this.timers.clear();
+  const timerId = window.setInterval(checkAndNotifyChange, WatchTimeoutMs);
+
+  return () => {
+    clearInterval(timerId);
   };
-}
+};
