@@ -1,4 +1,4 @@
-import { isInsideWebSpotlightPreviewIFrame, KSLConfiguration } from '../lib/ConfigurationManager';
+import { isInsideWebSpotlightPreviewIFrame, KSLConfiguration } from './configuration';
 import { DataAttribute, DisableableFeature, MetadataAttribute } from './dataAttributes/attributes';
 import { getHighlightTypeForElement, HighlightType } from './dataAttributes/elementHighlight';
 
