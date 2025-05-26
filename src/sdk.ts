@@ -14,24 +14,23 @@ import {
 import { QueryParamPresenceWatcher } from './lib/QueryParamPresenceWatcher';
 import { defineAllRequiredWebComponents } from './web-components/components';
 import { ConfigurationManager, IConfigurationManager, IKSLPublicConfiguration } from './lib/ConfigurationManager';
-import { InvalidEnvironmentError, NotInitializedError } from './utils/errors';
 import { Logger, LogLevel } from './lib/Logger';
 import { reload } from './utils/reload';
 import { Callback, EventHandler, EventManager } from './lib/EventManager';
 
-interface IKontentSmartLinkStoredSettings {
-  readonly enabled: boolean;
-}
+type KontentSmartLinkStoredSettings = Readonly<{
+  enabled: boolean;
+}>;
 
 export enum KontentSmartLinkEvent {
   Refresh = 'refresh',
   Update = 'update',
 }
 
-type KontentSmartLinkEventMap = {
-  readonly [KontentSmartLinkEvent.Refresh]: EventHandler<IRefreshMessageData, IRefreshMessageMetadata, Callback>;
-  readonly [KontentSmartLinkEvent.Update]: EventHandler<IUpdateMessageData>;
-};
+export type KontentSmartLinkEventMap = Readonly<{
+  [KontentSmartLinkEvent.Refresh]: EventHandler<IRefreshMessageData, IRefreshMessageMetadata, Callback>;
+  [KontentSmartLinkEvent.Update]: EventHandler<IUpdateMessageData>;
+}>;
 
 class KontentSmartLinkSDK {
   private readonly configurationManager: IConfigurationManager;
@@ -53,8 +52,8 @@ class KontentSmartLinkSDK {
     this.initialize();
   }
 
-  private static getSettingsStorage(): IStorage<IKontentSmartLinkStoredSettings> {
-    return createStorage<IKontentSmartLinkStoredSettings>('kontent-smart-link:iframe-settings');
+  private static getSettingsStorage(): IStorage<KontentSmartLinkStoredSettings> {
+    return createStorage<KontentSmartLinkStoredSettings>('kontent-smart-link:iframe-settings');
   }
 
   public initialize = async (): Promise<void> => {
@@ -183,68 +182,4 @@ class KontentSmartLinkSDK {
   };
 }
 
-class KontentSmartLink {
-  private static instance: KontentSmartLink;
-  private sdk: KontentSmartLinkSDK | null = null;
-
-  public static initializeOnLoad(configuration?: Partial<IKSLPublicConfiguration>): Promise<KontentSmartLink> {
-    if (typeof window === 'undefined') {
-      throw InvalidEnvironmentError('KontentSmartLink can only be initialized in a browser environment.');
-    }
-
-    return new Promise<KontentSmartLink>((resolve) => {
-      window.addEventListener('load', () => {
-        resolve(KontentSmartLink.initialize(configuration));
-      });
-    });
-  }
-
-  public static initialize(configuration?: Partial<IKSLPublicConfiguration>): KontentSmartLink {
-    if (!KontentSmartLink.instance) {
-      KontentSmartLink.instance = new KontentSmartLink();
-    }
-
-    if (!KontentSmartLink.instance.sdk) {
-      KontentSmartLink.instance.sdk = new KontentSmartLinkSDK(configuration);
-    }
-
-    return KontentSmartLink.instance;
-  }
-
-  public destroy = (): void => {
-    this.sdk?.destroy();
-    this.sdk = null;
-  };
-
-  public setConfiguration = (configuration: Partial<IKSLPublicConfiguration>): void => {
-    if (!this.sdk) {
-      throw NotInitializedError('KontentSmartLink is not initialized or has already been destroyed.');
-    } else {
-      this.sdk.updateConfiguration(configuration);
-    }
-  };
-
-  public on = <TEvent extends keyof KontentSmartLinkEventMap>(
-    event: TEvent,
-    handler: KontentSmartLinkEventMap[TEvent]
-  ): void => {
-    if (!this.sdk) {
-      throw NotInitializedError('KontentSmartLink is not initialized or has already been destroyed.');
-    } else {
-      this.sdk.on(event, handler);
-    }
-  };
-
-  public off = <TEvent extends keyof KontentSmartLinkEventMap>(
-    event: TEvent,
-    handler: KontentSmartLinkEventMap[TEvent]
-  ): void => {
-    if (!this.sdk) {
-      throw NotInitializedError('KontentSmartLink is not initialized or has already been destroyed.');
-    } else {
-      this.sdk.off(event, handler);
-    }
-  };
-}
-
-export default KontentSmartLink;
+export default KontentSmartLinkSDK;
