@@ -13,7 +13,7 @@ import {
 } from './lib/IFrameCommunicatorTypes';
 import { QueryParamPresenceWatcher } from './lib/QueryParamPresenceWatcher';
 import { defineAllRequiredWebComponents } from './web-components/components';
-import { defaultConfiguration, KSLConfiguration, KSLPublicConfiguration } from './lib/ConfigurationManager';
+import { defaultConfiguration, KSLConfiguration, KSLPublicConfiguration } from './utils/configuration';
 import { Logger, LogLevel } from './lib/Logger';
 import { reload } from './utils/reload';
 import { Callback, EventHandler, EventManager } from './lib/EventManager';

@@ -23,7 +23,7 @@ import {
   KSLAddButtonElementInitialAsyncEvent,
 } from '../web-components/KSLAddButtonElement';
 import { IFrameCommunicator } from './IFrameCommunicator';
-import { isInsideWebSpotlightPreviewIFrame, KSLConfiguration } from './ConfigurationManager';
+import { isInsideWebSpotlightPreviewIFrame, KSLConfiguration } from '../utils/configuration';
 import { buildKontentLink } from '../utils/link';
 import { Logger } from './Logger';
 import { InvalidEnvironmentError } from '../utils/errors';
