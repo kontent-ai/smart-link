@@ -1,52 +1,42 @@
 import { isInsideIFrame } from '../utils/iframe';
 
-export interface IKSLPublicConfiguration {
+export type KSLPublicConfiguration = Readonly<{
   /**
    * When it's set to `true`, enables all debug logs.
-   * Can be useful to get more information about how the SDK works inside.
    */
-  readonly debug: boolean;
+  debug: boolean;
   /**
    * Default values for data attributes, which are only used when those data attributes
    * are not found in DOM during data attributes parsing process.
    */
-  readonly defaultDataAttributes: IDefaultDataAttributes;
+  defaultDataAttributes: DefaultDataAttributes;
   /**
    * When it's set to `true`, iframe communication will always be enabled,
    * even when outside Web Spotlight.
    */
-  readonly forceWebSpotlightMode: boolean;
+  forceWebSpotlightMode: boolean;
   /**
    * Name of the query parameter that should be present in the URL to enable the SDK. Query parameter is only used
    * outside Web Spotlight.
    */
-  readonly queryParam: string;
-}
+  queryParam: string;
+}>;
 
-export interface IKSLPrivateConfiguration {
+export type KSLPrivateConfiguration = Readonly<{
   /**
    * When it's set to `true`, enables iframe communication instead of redirects.
    */
-  readonly isInsideWebSpotlight: boolean;
-}
+  isInsideWebSpotlight: boolean;
+}>;
 
-export type KSLConfiguration = IKSLPublicConfiguration & IKSLPrivateConfiguration;
+export type KSLConfiguration = KSLPublicConfiguration & KSLPrivateConfiguration;
 
-export interface IDefaultDataAttributes {
-  readonly languageCodename?: string;
-  readonly projectId?: string;
-}
+type DefaultDataAttributes = Readonly<{
+  languageCodename?: string;
+  projectId?: string;
+}>;
 
-export interface IConfigurationManager {
-  readonly debug?: boolean;
-  readonly defaultLanguageCodename?: string;
-  readonly defaultProjectId?: string;
-  readonly isInsideWebSpotlightPreviewIFrame: boolean;
-  readonly queryParam?: string;
-  readonly update: (configuration?: Partial<KSLConfiguration>) => void;
-}
-
-const defaultConfiguration: KSLConfiguration = {
+export const defaultConfiguration: KSLConfiguration = {
   debug: false,
   defaultDataAttributes: {
     languageCodename: undefined,
@@ -55,47 +45,8 @@ const defaultConfiguration: KSLConfiguration = {
   forceWebSpotlightMode: false,
   isInsideWebSpotlight: false,
   queryParam: 'ksl-enabled',
-};
+} as const;
 
-export class ConfigurationManager implements IConfigurationManager {
-  private static instance: ConfigurationManager;
-
-  public get debug(): boolean {
-    return this.configuration.debug;
-  }
-
-  public get queryParam(): string | undefined {
-    return this.configuration.queryParam;
-  }
-
-  public get defaultLanguageCodename(): string | undefined {
-    return this.configuration.defaultDataAttributes.languageCodename;
-  }
-
-  public get defaultProjectId(): string | undefined {
-    return this.configuration.defaultDataAttributes.projectId;
-  }
-
-  public get isInsideWebSpotlightPreviewIFrame(): boolean {
-    const { forceWebSpotlightMode, isInsideWebSpotlight } = this.configuration;
-    return forceWebSpotlightMode || (isInsideIFrame() && isInsideWebSpotlight);
-  }
-
-  private configuration: KSLConfiguration;
-
-  private constructor() {
-    this.configuration = defaultConfiguration;
-  }
-
-  public static getInstance(): ConfigurationManager {
-    if (!ConfigurationManager.instance) {
-      ConfigurationManager.instance = new ConfigurationManager();
-    }
-
-    return ConfigurationManager.instance;
-  }
-
-  public update = (configuration: Partial<KSLConfiguration> = {}): void => {
-    this.configuration = { ...this.configuration, ...configuration };
-  };
+export function isInsideWebSpotlightPreviewIFrame(configuration: KSLConfiguration): boolean {
+  return configuration.forceWebSpotlightMode || (isInsideIFrame() && configuration.isInsideWebSpotlight);
 }
