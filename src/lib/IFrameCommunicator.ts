@@ -16,7 +16,7 @@ import {
   ISDKStatusMessageData,
   IUpdateMessageData,
 } from './IFrameCommunicatorTypes';
-import { createUuid } from '../utils/createUuid';
+import { createRequestId } from '../utils/request';
 import { InvalidEnvironmentError } from '../utils/errors';
 
 export type IFrameMessageMap = {
@@ -81,7 +81,7 @@ export class IFrameCommunicator {
     callback: Parameters<IFrameMessageMap[M]>[2],
     metadata?: Parameters<IFrameMessageMap[M]>[1]
   ): void => {
-    const requestId = createUuid();
+    const requestId = createRequestId();
     this.registerCallback(requestId, callback);
     this.sendMessage(type, data, metadata, requestId);
   };
