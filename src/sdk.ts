@@ -11,7 +11,7 @@ import {
   ISDKStatusMessageData,
   IUpdateMessageData,
 } from './lib/IFrameCommunicatorTypes';
-import { QueryParamPresenceWatcher } from './lib/QueryParamPresenceWatcher';
+import { watchQueryParamPresence } from './lib/QueryParamPresenceWatcher';
 import { defineAllRequiredWebComponents } from './web-components/components';
 import { defaultConfiguration, KSLConfiguration, KSLPublicConfiguration } from './utils/configuration';
 import { Logger, LogLevel } from './lib/Logger';
@@ -34,16 +34,15 @@ export type KontentSmartLinkEventMap = Readonly<{
 
 class KontentSmartLinkSDK {
   private configuration: KSLConfiguration = defaultConfiguration;
-  private readonly queryParamPresenceWatcher: QueryParamPresenceWatcher;
   private readonly iframeCommunicator: IFrameCommunicator;
   private readonly nodeSmartLinkProvider: NodeSmartLinkProvider;
   private readonly events: EventManager<KontentSmartLinkEventMap>;
+  private queryPresenceIntervalCleanup: (() => void) | null = null;
 
   constructor(configuration?: Partial<KSLPublicConfiguration>) {
     this.configuration = { ...this.configuration, ...configuration };
 
     this.events = new EventManager<KontentSmartLinkEventMap>();
-    this.queryParamPresenceWatcher = new QueryParamPresenceWatcher();
     this.iframeCommunicator = new IFrameCommunicator();
 
     this.nodeSmartLinkProvider = new NodeSmartLinkProvider(this.iframeCommunicator, this.configuration);
@@ -62,7 +61,10 @@ class KontentSmartLinkSDK {
     Logger.setLogLevel(level);
 
     if (this.configuration.queryParam) {
-      this.queryParamPresenceWatcher.watch(this.configuration.queryParam, this.nodeSmartLinkProvider.toggle);
+      this.queryPresenceIntervalCleanup = watchQueryParamPresence(
+        this.configuration.queryParam,
+        this.nodeSmartLinkProvider.toggle
+      );
     } else {
       this.nodeSmartLinkProvider.enable();
     }
@@ -74,7 +76,7 @@ class KontentSmartLinkSDK {
 
   public destroy = (): void => {
     this.events.removeAllListeners();
-    this.queryParamPresenceWatcher.unwatchAll();
+    this.queryPresenceIntervalCleanup?.();
     this.iframeCommunicator.destroy();
     this.nodeSmartLinkProvider.destroy();
   };
@@ -84,8 +86,11 @@ class KontentSmartLinkSDK {
       if (configuration.queryParam === '') {
         this.nodeSmartLinkProvider.enable();
       } else if (configuration.queryParam !== this.configuration.queryParam) {
-        this.queryParamPresenceWatcher.unwatchAll();
-        this.queryParamPresenceWatcher.watch(configuration.queryParam, this.nodeSmartLinkProvider.toggle);
+        this.queryPresenceIntervalCleanup?.();
+        this.queryPresenceIntervalCleanup = watchQueryParamPresence(
+          configuration.queryParam,
+          this.nodeSmartLinkProvider.toggle
+        );
       }
     }
 
@@ -131,7 +136,7 @@ class KontentSmartLinkSDK {
 
     this.iframeCommunicator.sendMessageWithResponse(IFrameMessageType.Initialized, messageData, () => {
       this.configuration = { ...this.configuration, isInsideWebSpotlight: true };
-      this.queryParamPresenceWatcher.unwatchAll();
+      this.queryPresenceIntervalCleanup?.();
       this.nodeSmartLinkProvider.disable();
 
       if (enabled) {
