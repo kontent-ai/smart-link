@@ -6,36 +6,46 @@ export type EventHandler<TEventData = undefined, TEventMetadata = undefined, TEv
   callback: TEventCallback
 ) => void;
 
-type EventMap = {
-  [k: string]: (...args: any[]) => void;
+type EventMap = Record<string, (...args: any[]) => void>;
+
+export type EventListeners<Events extends EventMap> = Map<keyof Events, Set<Events[any]>>;
+
+/**
+ * Adds an event listener for a given event. This function is not pure as it modifies the provided eventListeners map.
+ */
+export const addListener = <Events extends EventMap, E extends keyof Events>(
+  eventListeners: EventListeners<Events>,
+  event: E,
+  listener: Events[E]
+): void => {
+  const newListeners = eventListeners.get(event)?.add(listener) ?? new Set([listener]);
+  eventListeners.set(event, newListeners);
 };
 
-export class EventManager<Events extends EventMap> {
-  private listeners = new Map<keyof Events, Set<Events[any]>>();
+/**
+ * Removes an event listener for a given event. This function is not pure as it modifies the provided eventListeners map.
+ */
+export const removeListener = <Events extends EventMap, E extends keyof Events>(
+  eventListeners: EventListeners<Events>,
+  event: E,
+  listener: Events[E]
+): void => {
+  eventListeners.get(event)?.delete(listener);
+};
 
-  public on = <E extends keyof Events>(event: E, listener: Events[E]): void => {
-    const newListeners = this.listeners.get(event)?.add(listener) ?? new Set([listener]);
-    this.listeners.set(event, newListeners);
-  };
-
-  public off = <E extends keyof Events>(event: E, listener: Events[E]): void => {
-    this.listeners.get(event)?.delete(listener);
-  };
-
-  public emit = <E extends keyof Events>(event: E, ...args: Parameters<Events[E]>): void => {
-    const listeners = this.listeners.get(event);
-    if (listeners && listeners.size > 0) {
-      listeners.forEach((callback: Events[E]) => {
-        callback(...args);
-      });
-    }
-  };
-
-  public removeAllListeners = (): void => {
-    this.listeners = new Map<keyof Events, Set<Events[any]>>();
-  };
-
-  public hasEventListener = <E extends keyof Events>(event: E): boolean => {
-    return this.listeners.has(event);
-  };
-}
+/**
+ * Emits an event, calling all registered listeners for that event with the provided arguments.
+ * This function is not pure, though it only reads from the eventListeners map, its core purpose is to trigger side effects (the listeners).
+ */
+export const emitEvents = <Events extends EventMap, E extends keyof Events>(
+  eventListeners: EventListeners<Events>,
+  event: E,
+  ...args: Parameters<Events[E]>
+): void => {
+  const actualEventListeners = eventListeners.get(event);
+  if (actualEventListeners && actualEventListeners.size > 0) {
+    actualEventListeners.forEach((callback: Events[E]) => {
+      callback(...args);
+    });
+  }
+};
