@@ -1,5 +1,5 @@
 import { isInsideIFrame } from '../utils/iframe';
-import { Callback, EventHandler, EventManager } from './EventManager';
+import { addListener, Callback, emitEvents, EventHandler, EventListeners, removeListener } from './EventManager';
 import {
   IAddActionMessageData,
   IAddButtonInitialMessageData,
@@ -51,7 +51,7 @@ export interface IFrameMessage<TMessageType extends keyof IFrameMessageMap> {
 }
 
 export class IFrameCommunicator {
-  private readonly events: EventManager<IFrameMessageMap> = new EventManager<IFrameMessageMap>();
+  private events: EventListeners<IFrameMessageMap> = new Map();
   private readonly callbacks: Map<string, Callback<any>> = new Map();
 
   public initialize(): void {
@@ -63,16 +63,16 @@ export class IFrameCommunicator {
   }
 
   public destroy(): void {
-    this.events.removeAllListeners();
+    this.events = new Map();
     window.removeEventListener('message', this.onMessage, true);
   }
 
   public addMessageListener = <M extends keyof IFrameMessageMap>(type: M, listener: IFrameMessageMap[M]): void => {
-    this.events.on(type, listener);
+    addListener(this.events, type, listener);
   };
 
   public removeMessageListener = <M extends keyof IFrameMessageMap>(type: M, listener: IFrameMessageMap[M]): void => {
-    this.events.off(type, listener);
+    removeListener(this.events, type, listener);
   };
 
   public sendMessageWithResponse = <M extends keyof IFrameMessageMap>(
@@ -103,7 +103,7 @@ export class IFrameCommunicator {
   private onMessage = (event: MessageEvent): void => {
     if (!event.data) return;
     const message = event.data as IFrameMessage<any>;
-    this.events.emit(message.type, message.data, message.metadata);
+    emitEvents(this.events, message.type, message.data, message.metadata);
 
     if (message.requestId) {
       this.executeCallback(message.requestId, message.data);
