@@ -16,7 +16,7 @@ import { defineAllRequiredWebComponents } from './web-components/components';
 import { defaultConfiguration, KSLConfiguration, KSLPublicConfiguration } from './utils/configuration';
 import { Logger, LogLevel } from './lib/Logger';
 import { reload } from './utils/reload';
-import { Callback, EventHandler, EventManager } from './lib/EventManager';
+import { addListener, Callback, emitEvents, EventHandler, EventListeners, removeListener } from './lib/EventManager';
 
 type KontentSmartLinkStoredSettings = Readonly<{
   enabled: boolean;
@@ -36,13 +36,13 @@ class KontentSmartLinkSDK {
   private configuration: KSLConfiguration = defaultConfiguration;
   private readonly iframeCommunicator: IFrameCommunicator;
   private readonly nodeSmartLinkProvider: NodeSmartLinkProvider;
-  private readonly events: EventManager<KontentSmartLinkEventMap>;
+  private events: EventListeners<KontentSmartLinkEventMap>;
   private queryPresenceIntervalCleanup: (() => void) | null = null;
 
   constructor(configuration?: Partial<KSLPublicConfiguration>) {
     this.configuration = { ...this.configuration, ...configuration };
+    this.events = new Map();
 
-    this.events = new EventManager<KontentSmartLinkEventMap>();
     this.iframeCommunicator = new IFrameCommunicator();
 
     this.nodeSmartLinkProvider = new NodeSmartLinkProvider(this.iframeCommunicator, this.configuration);
@@ -75,7 +75,7 @@ class KontentSmartLinkSDK {
   };
 
   public destroy = (): void => {
-    this.events.removeAllListeners();
+    this.events = new Map();
     this.queryPresenceIntervalCleanup?.();
     this.iframeCommunicator.destroy();
     this.nodeSmartLinkProvider.destroy();
@@ -106,14 +106,14 @@ class KontentSmartLinkSDK {
     event: TEvent,
     handler: KontentSmartLinkEventMap[TEvent]
   ): void => {
-    this.events.on(event, handler);
+    addListener(this.events, event, handler);
   };
 
   public off = <TEvent extends keyof KontentSmartLinkEventMap>(
     event: TEvent,
     handler: KontentSmartLinkEventMap[TEvent]
   ): void => {
-    this.events.off(event, handler);
+    removeListener(this.events, event, handler);
   };
 
   private initializeIFrameCommunication = (): void => {
@@ -164,17 +164,17 @@ class KontentSmartLinkSDK {
   };
 
   private handleRefreshMessage = (data: IRefreshMessageData, metadata: IRefreshMessageMetadata): void => {
-    const isCustomRefreshHandlerImplemented = this.events.hasEventListener(KontentSmartLinkEvent.Refresh);
+    const isCustomRefreshHandlerImplemented = this.events.has(KontentSmartLinkEvent.Refresh);
 
     if (isCustomRefreshHandlerImplemented) {
-      this.events.emit(KontentSmartLinkEvent.Refresh, data, metadata, reload);
+      emitEvents(this.events, KontentSmartLinkEvent.Refresh, data, metadata, reload);
     } else {
       reload();
     }
   };
 
   private handleUpdateMessage = (data: IUpdateMessageData): void => {
-    this.events.emit(KontentSmartLinkEvent.Update, data, undefined, undefined);
+    emitEvents(this.events, KontentSmartLinkEvent.Update, data, undefined, undefined);
   };
 
   private handlePreviewIFrameCurrentUrlRequestMessage = (): void => {
