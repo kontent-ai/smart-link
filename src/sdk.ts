@@ -16,7 +16,7 @@ import { defineAllRequiredWebComponents } from './web-components/components';
 import { defaultConfiguration, KSLConfiguration, KSLPublicConfiguration } from './utils/configuration';
 import { Logger, LogLevel } from './lib/Logger';
 import { reload } from './utils/reload';
-import { addListener, Callback, emitEvents, EventHandler, EventListeners, removeListener } from './lib/EventManager';
+import { addListener, Callback, emitEvents, EventHandler, EventListeners, removeListener } from './utils/events';
 
 type KontentSmartLinkStoredSettings = Readonly<{
   enabled: boolean;
