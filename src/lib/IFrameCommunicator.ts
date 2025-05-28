@@ -1,5 +1,5 @@
 import { isInsideIFrame } from '../utils/iframe';
-import { addListener, Callback, emitEvents, EventHandler, EventListeners, removeListener } from './EventManager';
+import { addListener, Callback, emitEvents, EventHandler, EventListeners, removeListener } from '../utils/events';
 import {
   IAddActionMessageData,
   IAddButtonInitialMessageData,
