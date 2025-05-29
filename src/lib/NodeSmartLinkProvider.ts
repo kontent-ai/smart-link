@@ -25,7 +25,7 @@ import {
 import { IFrameCommunicator } from './IFrameCommunicator';
 import { isInsideWebSpotlightPreviewIFrame, KSLConfiguration } from '../utils/configuration';
 import { buildKontentLink } from '../utils/link';
-import { Logger } from './Logger';
+import { logWarn } from './Logger';
 import { InvalidEnvironmentError } from '../utils/errors';
 import { DeepPartial } from 'src/utils/typeUtils';
 
@@ -281,7 +281,7 @@ export class NodeSmartLinkProvider {
         if (isInsideWebSpotlight) {
           this.iframeCommunicator.sendMessage(IFrameMessageType.ContentComponentClicked, messageData, messageMetadata);
         } else {
-          Logger.warn('Edit buttons for content components are only functional inside Web Spotlight.');
+          logWarn('Edit buttons for content components are only functional inside Web Spotlight.');
         }
       }
     } else if ('itemId' in messageData && messageData.itemId) {
@@ -289,11 +289,11 @@ export class NodeSmartLinkProvider {
         if (isInsideWebSpotlight) {
           this.iframeCommunicator.sendMessage(IFrameMessageType.ContentItemClicked, messageData, messageMetadata);
         } else {
-          Logger.warn('Add buttons for content items are only functional inside Web Spotlight.');
+          logWarn('Add buttons for content items are only functional inside Web Spotlight.');
         }
       }
     } else {
-      Logger.warn(
+      logWarn(
         'Some required attributes are not found or the edit button for this type of element is not yet supported.'
       );
     }
@@ -329,7 +329,7 @@ export class NodeSmartLinkProvider {
           messageMetadata
         );
       } else {
-        Logger.warn('Add buttons are only functional inside Web Spotlight.');
+        logWarn('Add buttons are only functional inside Web Spotlight.');
         onReject({ message: 'Add buttons are only functional inside Web Spotlight' });
       }
     } else {
@@ -355,7 +355,7 @@ export class NodeSmartLinkProvider {
 
         this.iframeCommunicator.sendMessage(IFrameMessageType.AddAction, messageData, messageMetadata);
       } else {
-        Logger.warn('Add buttons are only functional inside Web Spotlight.');
+        logWarn('Add buttons are only functional inside Web Spotlight.');
       }
     }
   };

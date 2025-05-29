@@ -5,12 +5,12 @@ import {
   IContentItemClickedMessageData,
   IElementClickedMessageData,
 } from '../lib/IFrameCommunicatorTypes';
-import { Logger } from '../lib/Logger';
+import { logError } from '../lib/Logger';
 import { DeepPartial } from './typeUtils';
 
 function logErrors(errors: string[]): void {
   errors.forEach((error) => {
-    Logger.error(error);
+    logError(error);
   });
 }
 
@@ -32,7 +32,7 @@ export function validateElementClickMessageData(
   data: Partial<IElementClickedMessageData>
 ): data is IElementClickedMessageData {
   if (!data.elementCodename) {
-    Logger.error('Element codename is required to handle element click.');
+    logError('Element codename is required to handle element click.');
     return false;
   }
 
@@ -43,7 +43,7 @@ export function validateContentComponentClickMessageData(
   data: Partial<IContentComponentClickedMessageData>
 ): data is IContentComponentClickedMessageData {
   if (!data.contentComponentId) {
-    Logger.error('Content component ID is required to handle element click.');
+    logError('Content component ID is required to handle element click.');
     return false;
   }
 
@@ -68,7 +68,7 @@ export function validateAddInitialMessageData(
 
 export function validateAddActionMessageData(data: DeepPartial<IAddActionMessageData>): data is IAddActionMessageData {
   if (!data.action) {
-    Logger.error('Action is required to handle add button click.');
+    logError('Action is required to handle add button click.');
     return false;
   }
 

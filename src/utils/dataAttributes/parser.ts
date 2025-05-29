@@ -10,7 +10,7 @@ import { DataAttribute } from './attributes';
 import { DeepPartial } from '../typeUtils';
 import { getHighlightTypeForElement, HighlightType } from './elementHighlight';
 import { getElementAncestors } from '../domElement';
-import { Logger } from '../../lib/Logger';
+import { logDebugGroup, logDebug, logDebugGroupCollapsed, logDebugGroupEnd } from '../../lib/Logger';
 
 export type EditButtonClickedData =
   | IContentItemClickedMessageData
@@ -132,46 +132,46 @@ function parseDataAttributes(
 ): ReadonlyMap<ParserTokenKey, string> {
   const elements = [startFrom, ...getElementAncestors(startFrom)];
 
-  Logger.debugGroup('Parse data-attributes starting with ', startFrom);
-  Logger.debug('Elements that will be parsed: ', elements);
-  Logger.debug('Parsing pattern: ', pattern);
+  logDebugGroup('Parse data-attributes starting with ', startFrom);
+  logDebug('Elements that will be parsed: ', elements);
+  logDebug('Parsing pattern: ', pattern);
 
   const parsed = elements.reduce((acc, element) => {
-    Logger.debugGroup('Checking data-attributes on ', element);
+    logDebugGroup('Checking data-attributes on ', element);
     for (const [index, token] of pattern.entries()) {
-      Logger.debugGroupCollapsed(`Looking for '${token.key}' [${token.dataAttributes}]`);
+      logDebugGroupCollapsed(`Looking for '${token.key}' [${token.dataAttributes}]`);
       if (acc.has(token.key) || (token.optional && pattern.slice(index + 1).some((t) => acc.has(t.key)))) {
-        Logger.debug(
+        logDebug(
           'This data-attribute has already been parsed in some of the previous elements or is optional and a higher-precedence token was parsed.',
           acc.has(token.key)
         );
-        Logger.debugGroupEnd();
+        logDebugGroupEnd();
         continue;
       }
 
       const [dataAttribute, value] = findDataAttribute(element, token.dataAttributes);
-      Logger.debug('Value: ', value);
+      logDebug('Value: ', value);
 
       if (!value) {
         if (token.optional) {
           continue;
         }
-        Logger.debug(`Required data-attribute '${dataAttribute}' is missing.`);
-        Logger.debugGroupEnd();
+        logDebug(`Required data-attribute '${dataAttribute}' is missing.`);
+        logDebugGroupEnd();
         break; // Required data-attribute is missing. As other tokens have higher precedence, we can stop parsing.
       }
 
       acc.set(token.key, value);
-      Logger.debug('Attribute successfully parsed!');
-      Logger.debugGroupEnd();
+      logDebug('Attribute successfully parsed!');
+      logDebugGroupEnd();
     }
-    Logger.debug('Values parsed so far: ', acc);
-    Logger.debugGroupEnd();
+    logDebug('Values parsed so far: ', acc);
+    logDebugGroupEnd();
     return acc;
   }, new Map<ParserTokenKey, string>());
 
-  Logger.debugGroupEnd();
-  Logger.debug('[Result]: ', parsed);
+  logDebugGroupEnd();
+  logDebug('[Result]: ', parsed);
 
   return parsed;
 }
