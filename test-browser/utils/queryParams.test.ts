@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from 'vitest';
-import { isQueryParamPresent, watchQueryParamPresence } from '../../src/lib/QueryParamPresenceWatcher';
+import { isQueryParamPresent, watchQueryParamPresence } from '../../src/utils/queryParams';
 
 describe('QueryParamPresenceWatcher.ts', () => {
   function setQueryStringWithoutReload(query: string) {

@@ -11,7 +11,7 @@ import {
   ISDKStatusMessageData,
   IUpdateMessageData,
 } from './lib/IFrameCommunicatorTypes';
-import { watchQueryParamPresence } from './lib/QueryParamPresenceWatcher';
+import { watchQueryParamPresence } from './utils/queryParams';
 import { defineAllRequiredWebComponents } from './web-components/components';
 import { defaultConfiguration, KSLConfiguration, KSLPublicConfiguration } from './utils/configuration';
 import { setLogLevel, LogLevel } from './lib/Logger';
