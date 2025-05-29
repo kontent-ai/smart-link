@@ -1,15 +1,19 @@
 import { describe, it, expect, vi } from 'vitest';
 import { assert } from '../../src/utils/assert';
-import { Logger } from '../../src/lib/Logger';
+
+// Mock the logError function
+vi.mock('../../src/lib/Logger', () => ({
+  logError: vi.fn(),
+}));
+
+import { logError } from '../../src/lib/Logger';
 
 describe('assert.ts', () => {
   it('should throw error if condition is falsy', () => {
-    vi.spyOn(Logger, 'error');
-
     expect(() => {
       assert(false, 'error-message');
     }).toThrowError();
 
-    expect(Logger.error).toHaveBeenCalled();
+    expect(logError).toHaveBeenCalled();
   });
 });

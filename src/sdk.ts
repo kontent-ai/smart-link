@@ -14,7 +14,7 @@ import {
 import { watchQueryParamPresence } from './lib/QueryParamPresenceWatcher';
 import { defineAllRequiredWebComponents } from './web-components/components';
 import { defaultConfiguration, KSLConfiguration, KSLPublicConfiguration } from './utils/configuration';
-import { Logger, LogLevel } from './lib/Logger';
+import { setLogLevel, LogLevel } from './lib/Logger';
 import { reload } from './utils/reload';
 import { addListener, Callback, emitEvents, EventHandler, EventListeners, removeListener } from './utils/events';
 
@@ -58,7 +58,7 @@ class KontentSmartLinkSDK {
     await defineAllRequiredWebComponents();
 
     const level = this.configuration.debug ? LogLevel.Debug : LogLevel.Info;
-    Logger.setLogLevel(level);
+    setLogLevel(level);
 
     if (this.configuration.queryParam) {
       this.queryPresenceIntervalCleanup = watchQueryParamPresence(
@@ -96,7 +96,7 @@ class KontentSmartLinkSDK {
 
     if (configuration.debug) {
       const level = configuration.debug ? LogLevel.Debug : LogLevel.Info;
-      Logger.setLogLevel(level);
+      setLogLevel(level);
     }
 
     this.configuration = { ...this.configuration, ...configuration };

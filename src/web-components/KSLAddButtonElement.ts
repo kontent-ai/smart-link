@@ -15,7 +15,7 @@ import {
   IAddButtonPermissionsServerModel,
 } from '../lib/IFrameCommunicatorTypes';
 import { AsyncCustomEvent } from '../utils/events';
-import { Logger } from '../lib/Logger';
+import { logError } from '../lib/Logger';
 import { BaseZIndex } from './constants/zIndex';
 import { DeepPartial } from '../utils/typeUtils';
 import { MetadataAttribute } from '../utils/dataAttributes/attributes';
@@ -268,7 +268,7 @@ export class KSLAddButtonElement extends KSLPositionedElement {
         this.displayPopover(response);
       }
     } catch (reason) {
-      Logger.error(reason);
+      logError(reason);
 
       this.buttonRef.loading = false;
       this.buttonRef.disabled = true;

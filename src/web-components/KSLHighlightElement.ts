@@ -4,7 +4,7 @@ import { assert } from '../utils/assert';
 import { ElementPositionOffset, KSLPositionedElement } from './abstract/KSLPositionedElement';
 import { KSLContainerElement } from './KSLContainerElement';
 import { createTemplateForCustomElement } from '../utils/domElement';
-import { Logger } from '../lib/Logger';
+import { logWarn } from '../lib/Logger';
 import { Colors } from './tokens/colors';
 import { Shadows } from './tokens/shadows';
 import { BaseZIndex } from './constants/zIndex';
@@ -184,7 +184,7 @@ export class KSLHighlightElement extends KSLPositionedElement {
     }
 
     if (!(this.offsetParent instanceof KSLContainerElement)) {
-      Logger.warn('KSLHighlightElement: should be located inside KSLContainerElement to be positioned properly.');
+      logWarn('KSLHighlightElement: should be located inside KSLContainerElement to be positioned properly.');
     }
 
     const offsetParentRect = this.offsetParent.getBoundingClientRect();
