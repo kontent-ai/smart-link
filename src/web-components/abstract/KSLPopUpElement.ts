@@ -1,5 +1,5 @@
 import { ElementPositionOffset, KSLPositionedElement } from './KSLPositionedElement';
-import { createTemplateForCustomElement, getTotalScrollOffset } from '../../utils/node';
+import { createTemplateForCustomElement, getTotalScrollOffset } from '../../utils/domElement';
 import { Colors } from '../tokens/colors';
 import { Shadows } from '../tokens/shadows';
 import { BaseZIndex } from '../constants/zIndex';
