@@ -43,11 +43,7 @@ export class NodeSmartLinkProvider {
     private readonly iframeCommunicator: IFrameCommunicator,
     private readonly configuration: KSLConfiguration
   ) {
-    if (
-      typeof window === 'undefined' ||
-      typeof MutationObserver === 'undefined' ||
-      typeof IntersectionObserver === 'undefined'
-    ) {
+    if (window === undefined || MutationObserver === undefined || IntersectionObserver === undefined) {
       throw InvalidEnvironmentError('NodeSmartLinkProvider can only be initialized in a browser environment.');
     }
 
@@ -57,7 +53,7 @@ export class NodeSmartLinkProvider {
   }
 
   public toggle = (force?: boolean): void => {
-    const shouldEnable = typeof force !== 'undefined' ? force : !this.enabled;
+    const shouldEnable = force ? force : !this.enabled;
 
     if (shouldEnable) {
       this.enable();
@@ -99,19 +95,18 @@ export class NodeSmartLinkProvider {
   };
 
   /**
-   * Start an interval rendering (1s) that will re-render highlights for all visible elements using `setTimeout`.
+   * Start an interval rendering (1s) that will re-render highlights for all visible elements using `setInterval`.
    * It helps to adjust highlights position even in situations that are currently not supported by
    * the SDK (e.g. element position change w/o animations, some infinite animations and other possible unhandled cases)
    * for better user experience.
    */
   private startRenderingInterval = (): void => {
-    this.augmentVisibleElements();
-    this.renderingTimeoutId = window.setTimeout(this.startRenderingInterval, 1000);
+    this.renderingTimeoutId = window.setInterval(this.augmentVisibleElements, 1000);
   };
 
   private stopRenderingInterval = (): void => {
     if (this.renderingTimeoutId) {
-      clearTimeout(this.renderingTimeoutId);
+      clearInterval(this.renderingTimeoutId);
       this.renderingTimeoutId = 0;
     }
   };
@@ -183,23 +178,7 @@ export class NodeSmartLinkProvider {
   };
 
   private onDomMutation = (mutations: MutationRecord[]): void => {
-    const relevantMutations = mutations.filter((mutation: MutationRecord) => {
-      const isTypeRelevant = mutation.type === 'childList';
-      const isTargetRelevant = mutation.target instanceof HTMLElement && !isElementWebComponent(mutation.target);
-
-      if (!isTypeRelevant || !isTargetRelevant) {
-        return false;
-      }
-
-      const hasRelevantAddedNodes = Array.from(mutation.addedNodes).some(
-        (node) => node instanceof HTMLElement && !isElementWebComponent(node)
-      );
-      const hasRelevantRemovedNodes = Array.from(mutation.removedNodes).some(
-        (node) => node instanceof HTMLElement && !isElementWebComponent(node)
-      );
-
-      return hasRelevantAddedNodes || hasRelevantRemovedNodes;
-    });
+    const relevantMutations = mutations.filter(isRelevantMutation);
 
     for (const mutation of relevantMutations) {
       for (const node of mutation.addedNodes) {
@@ -237,7 +216,7 @@ export class NodeSmartLinkProvider {
   };
 
   private onElementVisibilityChange = (entries: IntersectionObserverEntry[]): void => {
-    const filteredEntries = entries.filter((entry: IntersectionObserverEntry) => entry.target instanceof HTMLElement);
+    const filteredEntries = entries.filter((entry) => entry.target instanceof HTMLElement);
 
     for (const entry of filteredEntries) {
       const target = entry.target as HTMLElement;
@@ -267,30 +246,24 @@ export class NodeSmartLinkProvider {
       elementRect: targetNode.getBoundingClientRect(),
     };
 
-    if ('elementCodename' in messageData && messageData.elementCodename) {
-      if (validateElementClickMessageData(messageData)) {
-        if (isInsideWebSpotlight) {
-          this.iframeCommunicator.sendMessage(IFrameMessageType.ElementClicked, messageData, messageMetadata);
-        } else {
-          const link = buildKontentLink(messageData);
-          window.open(link, '_blank');
-        }
+    if (validateElementClickMessageData(messageData)) {
+      if (isInsideWebSpotlight) {
+        this.iframeCommunicator.sendMessage(IFrameMessageType.ElementClicked, messageData, messageMetadata);
+      } else {
+        const link = buildKontentLink(messageData);
+        window.open(link, '_blank');
       }
-    } else if ('contentComponentId' in messageData && messageData.contentComponentId) {
-      if (validateContentComponentClickMessageData(messageData)) {
-        if (isInsideWebSpotlight) {
-          this.iframeCommunicator.sendMessage(IFrameMessageType.ContentComponentClicked, messageData, messageMetadata);
-        } else {
-          logWarn('Edit buttons for content components are only functional inside Web Spotlight.');
-        }
+    } else if (validateContentComponentClickMessageData(messageData)) {
+      if (isInsideWebSpotlight) {
+        this.iframeCommunicator.sendMessage(IFrameMessageType.ContentComponentClicked, messageData, messageMetadata);
+      } else {
+        logWarn('Edit buttons for content components are only functional inside Web Spotlight.');
       }
-    } else if ('itemId' in messageData && messageData.itemId) {
-      if (validateContentItemClickEditMessageData(messageData)) {
-        if (isInsideWebSpotlight) {
-          this.iframeCommunicator.sendMessage(IFrameMessageType.ContentItemClicked, messageData, messageMetadata);
-        } else {
-          logWarn('Add buttons for content items are only functional inside Web Spotlight.');
-        }
+    } else if (validateContentItemClickEditMessageData(messageData)) {
+      if (isInsideWebSpotlight) {
+        this.iframeCommunicator.sendMessage(IFrameMessageType.ContentItemClicked, messageData, messageMetadata);
+      } else {
+        logWarn('Add buttons for content items are only functional inside Web Spotlight.');
       }
     } else {
       logWarn(
@@ -360,3 +333,21 @@ export class NodeSmartLinkProvider {
     }
   };
 }
+
+const isRelevantMutation = (mutation: MutationRecord): boolean => {
+  const isTypeRelevant = mutation.type === 'childList';
+  const isTargetRelevant = mutation.target instanceof HTMLElement && !isElementWebComponent(mutation.target);
+
+  if (!isTypeRelevant || !isTargetRelevant) {
+    return false;
+  }
+
+  const hasRelevantAddedNodes = Array.from(mutation.addedNodes).some(
+    (node) => node instanceof HTMLElement && !isElementWebComponent(node)
+  );
+  const hasRelevantRemovedNodes = Array.from(mutation.removedNodes).some(
+    (node) => node instanceof HTMLElement && !isElementWebComponent(node)
+  );
+
+  return hasRelevantAddedNodes || hasRelevantRemovedNodes;
+};
