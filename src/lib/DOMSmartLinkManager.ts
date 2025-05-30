@@ -283,28 +283,29 @@ export class DOMSmartLinkManager {
       projectId: data.projectId ?? this.configuration.defaultDataAttributes.projectId,
     };
 
+    const messageMetadata: IClickedMessageMetadata = {
+      elementRect: targetNode.getBoundingClientRect(),
+    };
+
     if (validateAddInitialMessageData(messageData)) {
-      if (isInsideWebSpotlight) {
-        const messageMetadata: IClickedMessageMetadata = {
-          elementRect: targetNode.getBoundingClientRect(),
-        };
-
-        this.iframeCommunicator.sendMessageWithResponse(
-          IFrameMessageType.AddInitial,
-          messageData,
-          (response?: IAddButtonPermissionsServerModel) => {
-            if (!response || response.elementType === AddButtonElementType.Unknown) {
-              return onReject({ message: 'Something went wrong' });
-            }
-
-            return onResolve(response);
-          },
-          messageMetadata
-        );
-      } else {
+      if (!isInsideWebSpotlight) {
         logWarn('Add buttons are only functional inside Web Spotlight.');
         onReject({ message: 'Add buttons are only functional inside Web Spotlight' });
+        return;
       }
+
+      this.iframeCommunicator.sendMessageWithResponse(
+        IFrameMessageType.AddInitial,
+        messageData,
+        (response?: IAddButtonPermissionsServerModel) => {
+          if (!response || response.elementType === AddButtonElementType.Unknown) {
+            return onReject({ message: 'Something went wrong' });
+          }
+
+          return onResolve(response);
+        },
+        messageMetadata
+      );
     } else {
       onReject({ message: 'Required data attributes are missing' });
     }
@@ -320,16 +321,17 @@ export class DOMSmartLinkManager {
       projectId: data.projectId ?? this.configuration.defaultDataAttributes.projectId,
     };
 
-    if (validateAddActionMessageData(messageData)) {
-      if (isInsideWebSpotlight) {
-        const messageMetadata: IClickedMessageMetadata = {
-          elementRect: targetNode.getBoundingClientRect(),
-        };
+    const messageMetadata: IClickedMessageMetadata = {
+      elementRect: targetNode.getBoundingClientRect(),
+    };
 
-        this.iframeCommunicator.sendMessage(IFrameMessageType.AddAction, messageData, messageMetadata);
-      } else {
+    if (validateAddActionMessageData(messageData)) {
+      if (!isInsideWebSpotlight) {
         logWarn('Add buttons are only functional inside Web Spotlight.');
+        return;
       }
+
+      this.iframeCommunicator.sendMessage(IFrameMessageType.AddAction, messageData, messageMetadata);
     }
   };
 }
