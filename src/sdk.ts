@@ -99,7 +99,8 @@ class KontentSmartLinkSDK {
       setLogLevel(level);
     }
 
-    this.configuration = { ...this.configuration, ...configuration };
+    // need to use .assing to prevent changing the reference of the configuration object
+    Object.assign(this.configuration, configuration);
   };
 
   public on = <TEvent extends keyof KontentSmartLinkEventMap>(
