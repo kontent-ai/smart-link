@@ -1,5 +1,5 @@
 import { isInsideIFrame } from './utils/iframe';
-import { NodeSmartLinkProvider } from './lib/NodeSmartLinkProvider';
+import { DOMSmartLinkManager } from './lib/DOMSmartLinkManager';
 import { createStorage, IStorage } from './utils/storage';
 import { IFrameCommunicator } from './lib/IFrameCommunicator';
 import {
@@ -35,7 +35,7 @@ export type KontentSmartLinkEventMap = Readonly<{
 class KontentSmartLinkSDK {
   private configuration: KSLConfiguration = defaultConfiguration;
   private readonly iframeCommunicator: IFrameCommunicator;
-  private readonly nodeSmartLinkProvider: NodeSmartLinkProvider;
+  private readonly nodeSmartLinkProvider: DOMSmartLinkManager;
   private events: EventListeners<KontentSmartLinkEventMap>;
   private queryPresenceIntervalCleanup: (() => void) | null = null;
 
@@ -45,7 +45,7 @@ class KontentSmartLinkSDK {
 
     this.iframeCommunicator = new IFrameCommunicator();
 
-    this.nodeSmartLinkProvider = new NodeSmartLinkProvider(this.iframeCommunicator, this.configuration);
+    this.nodeSmartLinkProvider = new DOMSmartLinkManager(this.iframeCommunicator, this.configuration);
 
     this.initialize();
   }

@@ -29,7 +29,7 @@ import { logWarn } from './Logger';
 import { InvalidEnvironmentError } from '../utils/errors';
 import { DeepPartial } from 'src/utils/typeUtils';
 
-export class NodeSmartLinkProvider {
+export class DOMSmartLinkManager {
   private readonly mutationObserver: MutationObserver;
   private readonly intersectionObserver: IntersectionObserver;
   private readonly renderer: IRenderer;
