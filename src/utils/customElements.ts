@@ -9,6 +9,7 @@ const ContentItemSelector = `*[${DataAttribute.ItemId}]:not([${DataAttribute.Com
 
 const ElementsWithAddButtonSelector = `*[${MetadataAttribute.AddButton}]`;
 const AllAugmentableElementsSelector = `${ElementSelector}, ${ContentComponentSelector}, ${ContentItemSelector}, ${ElementsWithAddButtonSelector}`;
+const AugmentableElementsSelector = `${ElementSelector}, ${ContentItemSelector}`;
 
 /**
  * Find all descendant HTML elements that could be augmented (have highlights or add buttons near them).
@@ -24,7 +25,7 @@ export function getAugmentableDescendants(
 
   return isInsideWebSpotlight
     ? node.querySelectorAll(AllAugmentableElementsSelector)
-    : node.querySelectorAll(ElementSelector);
+    : node.querySelectorAll(AugmentableElementsSelector);
 }
 
 /**
@@ -50,8 +51,8 @@ export function shouldElementHaveHighlight(element: HTMLElement | null, configur
     case HighlightType.None:
       return false;
     case HighlightType.Element:
-      return true;
     case HighlightType.ContentItem:
+      return true;
     case HighlightType.ContentComponent:
     default: {
       return isInsideWebSpotlightPreviewIFrame(configuration);

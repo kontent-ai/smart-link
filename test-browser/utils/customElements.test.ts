@@ -33,7 +33,7 @@ describe('customElements.ts', () => {
             id="elementC"
             data-kontent-item-id="item-id"
           />
-          <div
+          <div  
             id="elementD"
             data-kontent-element-codename="element-codename"
             data-kontent-disable-features="highlight"
@@ -130,11 +130,13 @@ describe('customElements.ts', () => {
 
       const elementA = fixture.querySelector('#elementA') as HTMLElement;
       const elementF = fixture.querySelector('#elementF') as HTMLElement;
+      const elementC = fixture.querySelector('#elementC') as HTMLElement;
 
       const result = getAugmentableDescendants(container, defaultConfig);
-      expect(result.length).toBe(2);
+      expect(result.length).toBe(3);
       expect(result).toContain(elementA);
       expect(result).toContain(elementF);
+      expect(result).toContain(elementC);
     });
   });
 
@@ -242,7 +244,7 @@ describe('customElements.ts', () => {
 
       const item = document.createElement('div');
       item.setAttribute(DataAttribute.ItemId, 'id');
-      expect(shouldElementHaveHighlight(item, defaultConfig)).toBe(false);
+      expect(shouldElementHaveHighlight(item, defaultConfig)).toBe(true);
     });
   });
 });
