@@ -89,17 +89,17 @@ export function getTotalScrollOffset(node: HTMLElement | null): [number, number]
     return [0, 0];
   }
 
-  const calculateOffset = (currentNode: HTMLElement, offsetNode: Element): [number, number] => {
-    if (currentNode.isSameNode(offsetNode) || !currentNode.parentElement) {
+  const calculateOffset = (currentNode: HTMLElement | null): [number, number] => {
+    if (offsetParent.isSameNode(currentNode) || !currentNode) {
       return [0, 0];
     }
 
-    const [scrollTop, scrollLeft] = calculateOffset(currentNode.parentElement, offsetNode);
+    const [scrollTop, scrollLeft] = calculateOffset(currentNode.parentElement);
 
     return [scrollTop + currentNode.scrollTop, scrollLeft + currentNode.scrollLeft];
   };
 
-  return calculateOffset(node, offsetParent);
+  return calculateOffset(node.parentElement);
 }
 
 export function getElementAncestors(element: HTMLElement): ReadonlyArray<HTMLElement> {
