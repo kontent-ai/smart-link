@@ -99,7 +99,7 @@ class KontentSmartLinkSDK {
       setLogLevel(level);
     }
 
-    // need to use .assing to prevent changing the reference of the configuration object
+    // need to use .assign to prevent changing the reference of the configuration object
     Object.assign(this.configuration, configuration);
   };
 
@@ -136,7 +136,7 @@ class KontentSmartLinkSDK {
     };
 
     this.iframeCommunicator.sendMessageWithResponse(IFrameMessageType.Initialized, messageData, () => {
-      this.configuration = { ...this.configuration, isInsideWebSpotlight: true };
+      Object.assign(this.configuration, { isInsideWebSpotlight: true });
       this.queryPresenceIntervalCleanup?.();
       this.nodeSmartLinkProvider.disable();
 
