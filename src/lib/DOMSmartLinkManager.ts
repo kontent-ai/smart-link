@@ -246,20 +246,20 @@ export class DOMSmartLinkManager {
       elementRect: targetNode.getBoundingClientRect(),
     };
 
-    if (validateElementClickMessageData(messageData)) {
+    if ('elementCodename' in messageData && validateElementClickMessageData(messageData)) {
       if (isInsideWebSpotlight) {
         this.iframeCommunicator.sendMessage(IFrameMessageType.ElementClicked, messageData, messageMetadata);
       } else {
         const link = buildKontentLink(messageData);
         window.open(link, '_blank');
       }
-    } else if (validateContentComponentClickMessageData(messageData)) {
+    } else if ('contentComponentId' in messageData && validateContentComponentClickMessageData(messageData)) {
       if (isInsideWebSpotlight) {
         this.iframeCommunicator.sendMessage(IFrameMessageType.ContentComponentClicked, messageData, messageMetadata);
       } else {
         logWarn('Edit buttons for content components are only functional inside Web Spotlight.');
       }
-    } else if (validateContentItemClickEditMessageData(messageData)) {
+    } else if ('itemId' in messageData && validateContentItemClickEditMessageData(messageData)) {
       if (isInsideWebSpotlight) {
         this.iframeCommunicator.sendMessage(IFrameMessageType.ContentItemClicked, messageData, messageMetadata);
       } else {
