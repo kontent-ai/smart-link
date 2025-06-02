@@ -24,7 +24,7 @@ import {
 } from '../web-components/KSLAddButtonElement';
 import { IFrameCommunicator } from './IFrameCommunicator';
 import { isInsideWebSpotlightPreviewIFrame, KSLConfiguration } from '../utils/configuration';
-import { buildKontentLink } from '../utils/link';
+import { buildItemLink, buildKontentLink } from '../utils/link';
 import { logWarn } from './Logger';
 import { InvalidEnvironmentError } from '../utils/errors';
 import { DeepPartial } from 'src/utils/typeUtils';
@@ -263,7 +263,8 @@ export class DOMSmartLinkManager {
       if (isInsideWebSpotlight) {
         this.iframeCommunicator.sendMessage(IFrameMessageType.ContentItemClicked, messageData, messageMetadata);
       } else {
-        logWarn('Add buttons for content items are only functional inside Web Spotlight.');
+        const link = buildItemLink(messageData.projectId, messageData.languageCodename, messageData.itemId);
+        window.open(link, '_blank');
       }
     } else {
       logWarn(
