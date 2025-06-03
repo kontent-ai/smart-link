@@ -5,7 +5,7 @@ export const SingleSmartLink: React.FC = () => {
     <button
       type="button"
       className="btn btn-info"
-      data-kontent-project-id="p"
+      data-kontent-environment-id="p"
       data-kontent-language-codename="l"
       data-kontent-item-id="i"
       data-kontent-component-id="c"

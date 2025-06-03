@@ -46,7 +46,7 @@ export const OverflowComponent: React.FC<OverflowProps> = ({
         maxHeight: '390px',
         maxWidth: '390px',
       }}
-      data-kontent-project-id="p"
+      data-kontent-environment-id="p"
       data-kontent-language-codename="l"
       data-kontent-item-id="i"
       data-kontent-component-id="c"

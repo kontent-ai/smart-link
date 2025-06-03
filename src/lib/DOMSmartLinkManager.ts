@@ -238,7 +238,7 @@ export class DOMSmartLinkManager {
 
     const messageData: Partial<IElementClickedMessageData> = {
       ...data,
-      projectId: data.projectId ?? this.configuration.defaultDataAttributes.projectId,
+      projectId: data.projectId ?? this.configuration.defaultDataAttributes.environmentId,
       languageCodename: data.languageCodename ?? this.configuration.defaultDataAttributes.languageCodename,
     };
 
@@ -281,7 +281,7 @@ export class DOMSmartLinkManager {
     const messageData: DeepPartial<IAddButtonInitialMessageData> = {
       ...data,
       languageCodename: data.languageCodename ?? this.configuration.defaultDataAttributes.languageCodename,
-      projectId: data.projectId ?? this.configuration.defaultDataAttributes.projectId,
+      projectId: data.projectId ?? this.configuration.defaultDataAttributes.environmentId,
     };
 
     const messageMetadata: IClickedMessageMetadata = {
@@ -319,7 +319,7 @@ export class DOMSmartLinkManager {
     const messageData: DeepPartial<IAddActionMessageData> = {
       ...data,
       languageCodename: data.languageCodename ?? this.configuration.defaultDataAttributes.languageCodename,
-      projectId: data.projectId ?? this.configuration.defaultDataAttributes.projectId,
+      projectId: data.projectId ?? this.configuration.defaultDataAttributes.environmentId,
     };
 
     const messageMetadata: IClickedMessageMetadata = {

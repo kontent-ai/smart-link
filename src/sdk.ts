@@ -127,7 +127,7 @@ class KontentSmartLinkSDK {
     const messageData: ISDKInitializedMessageData = {
       enabled,
       languageCodename: this.configuration.defaultDataAttributes.languageCodename ?? null,
-      projectId: this.configuration.defaultDataAttributes.projectId ?? null,
+      projectId: this.configuration.defaultDataAttributes.environmentId ?? null,
       supportedFeatures: {
         previewIFrameCurrentUrlHandler: true,
         refreshHandler: true,

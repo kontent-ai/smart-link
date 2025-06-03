@@ -12,7 +12,7 @@ describe('dataAttributes.ts', () => {
       // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
       fixture.setHtml(`
         <div 
-          data-kontent-project-id="8ec75bbd-c1b9-4d10-8ac8-a7f985109301" 
+          data-kontent-environment-id="8ec75bbd-c1b9-4d10-8ac8-a7f985109301" 
           data-kontent-language-codename="en-us"
         >
            <div 
@@ -42,7 +42,7 @@ describe('dataAttributes.ts', () => {
       // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
       fixture.setHtml(`
         <div 
-          data-kontent-project-id="a5a45323-4a00-4258-be3d-5d16b529969a" 
+          data-kontent-environment-id="a5a45323-4a00-4258-be3d-5d16b529969a" 
           data-kontent-language-codename="cs"
         >
            <div data-kontent-item-id="ad81ad4f-f574-4460-ba67-1a14164ad987">
@@ -66,7 +66,7 @@ describe('dataAttributes.ts', () => {
     it('should parse data attributes for edit item button', () => {
       // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
       fixture.setHtml(`
-        <div data-kontent-project-id="285dd2ad-3a16-428f-820a-84e3eb4de3b3">
+        <div data-kontent-environment-id="285dd2ad-3a16-428f-820a-84e3eb4de3b3">
            <div data-kontent-language-codename="nl">
               <div data-kontent-item-id="4a5e4e01-d8b4-4d06-a0ff-42ac7e1b4f11"/>
            </div>
@@ -87,7 +87,7 @@ describe('dataAttributes.ts', () => {
     it('should ignore optional attributes out of their scope', () => {
       // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
       fixture.setHtml(`
-        <div data-kontent-project-id="4e870857-9059-4f2a-9079-618200fedff2">
+        <div data-kontent-environment-id="4e870857-9059-4f2a-9079-618200fedff2">
             <div data-kontent-language-codename="hr">
                 <div data-kontent-item-id="e35acd87-9911-4b0b-be74-521ae9a85421">
                     <div data-kontent-component-id="3024f2d5-effc-49b1-b4d1-0d732e49d7fc">
@@ -117,7 +117,7 @@ describe('dataAttributes.ts', () => {
     it('should work when all attributes are set on the same node', () => {
       // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
       fixture.setHtml(`
-        <div data-kontent-project-id="4e870857-9059-4f2a-9079-618200fedff2">
+        <div data-kontent-environment-id="4e870857-9059-4f2a-9079-618200fedff2">
             <div data-kontent-language-codename="hr">
                 <div data-kontent-item-id="e35acd87-9911-4b0b-be74-521ae9a85421">
                     <div data-kontent-component-id="3024f2d5-effc-49b1-b4d1-0d732e49d7fc">
@@ -125,7 +125,7 @@ describe('dataAttributes.ts', () => {
                             <div data-kontent-item-id="345fb42f-e243-4de0-83cd-a109799d0973">
                                 <div data-kontent-element-codename="comments">
                                     <div
-                                      data-kontent-project-id="c1321744-70e6-45d7-99e3-212bda160b23"
+                                      data-kontent-environment-id="c1321744-70e6-45d7-99e3-212bda160b23"
                                       data-kontent-language-codename="en-us"
                                       data-kontent-item-id="765a23d8-ac25-4f1d-9f39-7267d3d59690"
                                       data-kontent-component-id="10a56a56-d045-4e15-be72-333d4effa21a"
@@ -182,7 +182,7 @@ describe('dataAttributes.ts', () => {
       // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
       fixture.setHtml(`
         <div 
-            data-kontent-project-id="8ec75bbd-c1b9-4d10-8ac8-a7f985109301" 
+            data-kontent-environment-id="8ec75bbd-c1b9-4d10-8ac8-a7f985109301" 
             data-kontent-language-codename="en-us"
         >
           <div
@@ -220,7 +220,7 @@ describe('dataAttributes.ts', () => {
       // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
       fixture.setHtml(`
         <div 
-            data-kontent-project-id="8ec75bbd-c1b9-4d10-8ac8-a7f985109301" 
+            data-kontent-environment-id="8ec75bbd-c1b9-4d10-8ac8-a7f985109301" 
             data-kontent-language-codename="en-us"
         >
           <div
@@ -262,7 +262,7 @@ describe('dataAttributes.ts', () => {
       fixture.setHtml(`
       <div>
         <div
-            data-kontent-project-id="6db25ade-c2d6-43d2-ad9f-91e6cf614065"
+            data-kontent-environment-id="6db25ade-c2d6-43d2-ad9f-91e6cf614065"
             data-kontent-language-codename="cs"
             data-kontent-item-id="af1cea9a-aeed-429f-ac86-a0c78a939197"
             data-kontent-component-id="dcc91efe-7205-4ebf-b470-e934dbc31c38"
@@ -300,7 +300,7 @@ describe('dataAttributes.ts', () => {
       // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
       fixture.setHtml(`
         <div 
-            data-kontent-project-id="8ec75bbd-c1b9-4d10-8ac8-a7f985109301" 
+            data-kontent-environment-id="8ec75bbd-c1b9-4d10-8ac8-a7f985109301" 
             data-kontent-language-codename="en-us"
         >
           <div
