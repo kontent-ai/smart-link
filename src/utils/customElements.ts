@@ -23,16 +23,13 @@ export function getAugmentableDescendants(
 ): NodeListOf<HTMLElement> {
   const isInsideWebSpotlight = isInsideWebSpotlightPreviewIFrame(configuration);
 
-  return isInsideWebSpotlight
+  return configuration.debug || isInsideWebSpotlight
     ? node.querySelectorAll(AllAugmentableElementsSelector)
     : node.querySelectorAll(AugmentableElementsSelector);
 }
 
 /**
  * Checks if HTML element could be augmented (have highlights or add buttons near them).
- *
- * @param {HTMLElement | null} element
- * @returns {boolean}
  */
 export function isElementAugmentable(element: HTMLElement | null, configuration: KSLConfiguration): boolean {
   return shouldElementHaveHighlight(element, configuration) || shouldElementHaveAddButton(element, configuration);
@@ -40,9 +37,6 @@ export function isElementAugmentable(element: HTMLElement | null, configuration:
 
 /**
  * Check if node should have highlights based on its data-attributes.
- *
- * @param {HTMLElement | null} element
- * @returns {boolean}
  */
 export function shouldElementHaveHighlight(element: HTMLElement | null, configuration: KSLConfiguration): boolean {
   const highlightType = getHighlightTypeForElement(element);
@@ -55,21 +49,18 @@ export function shouldElementHaveHighlight(element: HTMLElement | null, configur
       return true;
     case HighlightType.ContentComponent:
     default: {
-      return isInsideWebSpotlightPreviewIFrame(configuration);
+      return configuration.debug || isInsideWebSpotlightPreviewIFrame(configuration);
     }
   }
 }
 
 /**
  * Check if node should have a add button based on its data-attributes.
- *
- * @param {HTMLElement | null} element
- * @returns {boolean}
  */
 export function shouldElementHaveAddButton(element: HTMLElement | null, configuration: KSLConfiguration): boolean {
   // add button should only be visible inside Web Spotlight
   return (
-    (isInsideWebSpotlightPreviewIFrame(configuration) &&
+    ((isInsideWebSpotlightPreviewIFrame(configuration) || configuration.debug) &&
       element &&
       element.hasAttribute(MetadataAttribute.AddButton)) ??
     false
