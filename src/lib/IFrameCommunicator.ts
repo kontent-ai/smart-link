@@ -1,5 +1,5 @@
 import { isInsideIFrame } from '../utils/iframe';
-import { Callback, EventHandler, EventManager } from './EventManager';
+import { addListener, Callback, emitEvents, EventHandler, EventListeners, removeListener } from '../utils/events';
 import {
   IAddActionMessageData,
   IAddButtonInitialMessageData,
@@ -16,46 +16,43 @@ import {
   ISDKStatusMessageData,
   IUpdateMessageData,
 } from './IFrameCommunicatorTypes';
-import { createUuid } from '../utils/createUuid';
+import { createRequestId } from '../utils/request';
 import { InvalidEnvironmentError } from '../utils/errors';
 
-export type IFrameMessageMap = {
-  readonly [IFrameMessageType.Initialized]: EventHandler<ISDKInitializedMessageData, undefined, Callback>;
-  readonly [IFrameMessageType.Status]: EventHandler<ISDKStatusMessageData>;
-  readonly [IFrameMessageType.ElementClicked]: EventHandler<IElementClickedMessageData, IClickedMessageMetadata>;
-  readonly [IFrameMessageType.ContentItemClicked]: EventHandler<
-    IContentItemClickedMessageData,
-    IClickedMessageMetadata
-  >;
-  readonly [IFrameMessageType.ContentComponentClicked]: EventHandler<
+export type IFrameMessageMap = Readonly<{
+  [IFrameMessageType.Initialized]: EventHandler<ISDKInitializedMessageData, undefined, Callback>;
+  [IFrameMessageType.Status]: EventHandler<ISDKStatusMessageData>;
+  [IFrameMessageType.ElementClicked]: EventHandler<IElementClickedMessageData, IClickedMessageMetadata>;
+  [IFrameMessageType.ContentItemClicked]: EventHandler<IContentItemClickedMessageData, IClickedMessageMetadata>;
+  [IFrameMessageType.ContentComponentClicked]: EventHandler<
     IContentComponentClickedMessageData,
     IClickedMessageMetadata
   >;
-  readonly [IFrameMessageType.AddInitial]: EventHandler<
+  [IFrameMessageType.AddInitial]: EventHandler<
     IAddButtonInitialMessageData,
     IClickedMessageMetadata,
     Callback<IAddButtonPermissionsServerModel>
   >;
-  readonly [IFrameMessageType.AddAction]: EventHandler<IAddActionMessageData, IClickedMessageMetadata>;
-  readonly [IFrameMessageType.RefreshPreview]: EventHandler<IRefreshMessageData, IRefreshMessageMetadata>;
-  readonly [IFrameMessageType.UpdatePreview]: EventHandler<IUpdateMessageData>;
-  readonly [IFrameMessageType.PreviewIFrameCurrentUrl]: EventHandler;
-  readonly [IFrameMessageType.PreviewIFrameCurrentUrlResponse]: EventHandler<IPreviewIFrameCurrentUrlMessageData>;
-};
+  [IFrameMessageType.AddAction]: EventHandler<IAddActionMessageData, IClickedMessageMetadata>;
+  [IFrameMessageType.RefreshPreview]: EventHandler<IRefreshMessageData, IRefreshMessageMetadata>;
+  [IFrameMessageType.UpdatePreview]: EventHandler<IUpdateMessageData>;
+  [IFrameMessageType.PreviewIFrameCurrentUrl]: EventHandler;
+  [IFrameMessageType.PreviewIFrameCurrentUrlResponse]: EventHandler<IPreviewIFrameCurrentUrlMessageData>;
+}>;
 
-export interface IFrameMessage<TMessageType extends keyof IFrameMessageMap> {
-  readonly type: TMessageType;
-  readonly data: Parameters<IFrameMessageMap[TMessageType]>[0];
-  readonly metadata?: Parameters<IFrameMessageMap[TMessageType]>[1];
-  readonly requestId?: string;
-}
+type IFrameMessage<TMessageType extends keyof IFrameMessageMap> = Readonly<{
+  type: TMessageType;
+  data: Parameters<IFrameMessageMap[TMessageType]>[0];
+  metadata?: Parameters<IFrameMessageMap[TMessageType]>[1];
+  requestId?: string;
+}>;
 
 export class IFrameCommunicator {
-  private readonly events: EventManager<IFrameMessageMap> = new EventManager<IFrameMessageMap>();
+  private events: EventListeners<IFrameMessageMap> = new Map();
   private readonly callbacks: Map<string, Callback<any>> = new Map();
 
   public initialize(): void {
-    if (typeof window === 'undefined') {
+    if (!window) {
       throw InvalidEnvironmentError('IFrameCommunicator can only be initialized in a browser environment.');
     }
 
@@ -63,17 +60,9 @@ export class IFrameCommunicator {
   }
 
   public destroy(): void {
-    this.events.removeAllListeners();
+    this.events = new Map();
     window.removeEventListener('message', this.onMessage, true);
   }
-
-  public addMessageListener = <M extends keyof IFrameMessageMap>(type: M, listener: IFrameMessageMap[M]): void => {
-    this.events.on(type, listener);
-  };
-
-  public removeMessageListener = <M extends keyof IFrameMessageMap>(type: M, listener: IFrameMessageMap[M]): void => {
-    this.events.off(type, listener);
-  };
 
   public sendMessageWithResponse = <M extends keyof IFrameMessageMap>(
     type: M,
@@ -81,8 +70,12 @@ export class IFrameCommunicator {
     callback: Parameters<IFrameMessageMap[M]>[2],
     metadata?: Parameters<IFrameMessageMap[M]>[1]
   ): void => {
-    const requestId = createUuid();
-    this.registerCallback(requestId, callback);
+    const requestId = createRequestId();
+
+    if (callback) {
+      this.callbacks.set(requestId, callback);
+    }
+
     this.sendMessage(type, data, metadata, requestId);
   };
 
@@ -100,22 +93,22 @@ export class IFrameCommunicator {
     window.parent.postMessage(message, '*');
   };
 
+  public addMessageListener = <M extends keyof IFrameMessageMap>(type: M, listener: IFrameMessageMap[M]): void => {
+    addListener(this.events, type, listener);
+  };
+
+  public removeMessageListener = <M extends keyof IFrameMessageMap>(type: M, listener: IFrameMessageMap[M]): void => {
+    removeListener(this.events, type, listener);
+  };
+
   private onMessage = (event: MessageEvent): void => {
     if (!event.data) return;
     const message = event.data as IFrameMessage<any>;
-    this.events.emit(message.type, message.data, message.metadata);
+    emitEvents(this.events, message.type, message.data, message.metadata);
 
     if (message.requestId) {
       this.executeCallback(message.requestId, message.data);
     }
-  };
-
-  private registerCallback = (requestId: string, callback?: Callback<any>): void => {
-    if (!callback) {
-      return;
-    }
-
-    this.callbacks.set(requestId, callback);
   };
 
   private executeCallback = <TData>(requestId: string, data: TData): void => {

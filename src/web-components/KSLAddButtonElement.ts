@@ -4,8 +4,7 @@ import { assert } from '../utils/assert';
 import { KSLPopoverElement } from './KSLPopoverElement';
 import { ElementPositionOffset, KSLPositionedElement } from './abstract/KSLPositionedElement';
 import { KSLContainerElement } from './KSLContainerElement';
-import { createTemplateForCustomElement } from '../utils/node';
-import { DeepPartial, MetadataAttribute, parseAddButtonDataAttributes } from '../utils/dataAttributes';
+import { createTemplateForCustomElement } from '../utils/domElement';
 import {
   AddButtonAction,
   AddButtonElementType,
@@ -16,8 +15,11 @@ import {
   IAddButtonPermissionsServerModel,
 } from '../lib/IFrameCommunicatorTypes';
 import { AsyncCustomEvent } from '../utils/events';
-import { Logger } from '../lib/Logger';
+import { logError } from '../lib/Logger';
 import { BaseZIndex } from './constants/zIndex';
+import { DeepPartial } from '../utils/typeUtils';
+import { MetadataAttribute } from '../utils/dataAttributes/attributes';
+import { parseAddButtonDataAttributes } from '../utils/dataAttributes/parser';
 
 const ContentIsPublishedTooltip = 'Content is published';
 const DefaultTooltipMessage = 'Insert...';
@@ -266,7 +268,7 @@ export class KSLAddButtonElement extends KSLPositionedElement {
         this.displayPopover(response);
       }
     } catch (reason) {
-      Logger.error(reason);
+      logError(reason);
 
       this.buttonRef.loading = false;
       this.buttonRef.disabled = true;

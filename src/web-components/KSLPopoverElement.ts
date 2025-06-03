@@ -1,5 +1,5 @@
 import { KSLPopUpElement } from './abstract/KSLPopUpElement';
-import { createTemplateForCustomElement } from '../utils/node';
+import { createTemplateForCustomElement } from '../utils/domElement';
 import { Colors } from './tokens/colors';
 import { Shadows } from './tokens/shadows';
 
