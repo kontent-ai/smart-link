@@ -33,14 +33,14 @@ export type KSLConfiguration = KSLPublicConfiguration & KSLPrivateConfiguration;
 
 type DefaultDataAttributes = Readonly<{
   languageCodename?: string;
-  projectId?: string;
+  environmentId?: string;
 }>;
 
 export const defaultConfiguration: KSLConfiguration = {
   debug: false,
   defaultDataAttributes: {
     languageCodename: undefined,
-    projectId: undefined,
+    environmentId: undefined,
   },
   forceWebSpotlightMode: false,
   isInsideWebSpotlight: false,

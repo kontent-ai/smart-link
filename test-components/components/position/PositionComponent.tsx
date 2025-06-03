@@ -22,7 +22,7 @@ export const PositionComponent: React.FC<PositionComponentProps> = ({
         width: '400px',
         height: '400px',
       }}
-      data-kontent-project-id="p"
+      data-kontent-environment-id="p"
       data-kontent-language-codename="l"
     >
       <div
