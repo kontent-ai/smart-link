@@ -18,7 +18,7 @@ export type EditButtonClickedData =
   | IElementClickedMessageData;
 
 type ParserTokenKey =
-  | 'projectId'
+  | 'environmentId'
   | 'languageCodename'
   | 'itemId'
   | 'contentComponentId'
@@ -52,7 +52,7 @@ export function parseEditButtonDataAttributes(target: HTMLElement): DeepPartial<
   const parsed = parseDataAttributes(pattern, target);
 
   return {
-    projectId: parsed.get('projectId'),
+    projectId: parsed.get('environmentId'),
     languageCodename: parsed.get('languageCodename'),
     itemId: parsed.get('itemId'),
     ...(parsed.has('contentComponentId') && { contentComponentId: parsed.get('contentComponentId') }),
@@ -71,7 +71,7 @@ export function parseAddButtonDataAttributes(target: HTMLElement): DeepPartial<I
   const parsed = parseDataAttributes(pattern, target);
 
   return {
-    projectId: parsed.get('projectId'),
+    projectId: parsed.get('environmentId'),
     languageCodename: parsed.get('languageCodename'),
     itemId: parsed.get('itemId'),
     ...(parsed.get('contentComponentId') && { contentComponentId: parsed.get('contentComponentId') }),
@@ -178,7 +178,7 @@ function parseDataAttributes(
 
 const baseParserPattern: DataAttributesParserPattern = [
   { key: 'languageCodename', dataAttributes: [DataAttribute.LanguageCodename] },
-  { key: 'projectId', dataAttributes: [DataAttribute.ProjectId] },
+  { key: 'environmentId', dataAttributes: [DataAttribute.EnvironmentId] },
 ] as const;
 
 // EDIT BUTTON PARSING PATTERNS

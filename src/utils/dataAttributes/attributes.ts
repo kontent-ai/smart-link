@@ -10,7 +10,7 @@ export enum DataAttribute {
   ComponentId = 'data-kontent-component-id',
   ItemId = 'data-kontent-item-id',
   LanguageCodename = 'data-kontent-language-codename',
-  ProjectId = 'data-kontent-project-id',
+  EnvironmentId = 'data-kontent-environment-id',
 }
 
 /**

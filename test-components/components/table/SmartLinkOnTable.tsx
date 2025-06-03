@@ -13,7 +13,7 @@ export const SmartLinkOnTable: React.FC<TableProps> = ({
 }) => (
   <table
     className="table table-bordered"
-    data-kontent-project-id="p"
+    data-kontent-environment-id="p"
     data-kontent-language-codename="l"
     data-kontent-item-id="i"
     {...(tableSmartLink && { 'data-kontent-element-codename': 'e' })}

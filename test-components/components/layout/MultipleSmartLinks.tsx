@@ -4,7 +4,7 @@ export const MultipleSmartLinks: React.FC = () => {
   return (
     <nav
       className="navbar navbar-expand-lg navbar-light bg-light"
-      data-kontent-project-id="p"
+      data-kontent-environment-id="p"
       data-kontent-language-codename="l"
       data-kontent-item-id="i"
       data-kontent-element-codename="e"
