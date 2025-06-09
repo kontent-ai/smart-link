@@ -8,12 +8,11 @@ import { logWarn } from '../lib/Logger';
 import { Colors } from './tokens/colors';
 import { Shadows } from './tokens/shadows';
 import { BaseZIndex } from './constants/zIndex';
-import { DeepPartial } from '../utils/typeUtils';
-import { EditButtonClickedData, parseEditButtonDataAttributes } from '../utils/dataAttributes/parser';
 import { getHighlightTypeForElement, HighlightType } from '../utils/dataAttributes/elementHighlight';
+import { parseEditButtonDataAttributes, ParseResult } from '../utils/dataAttributes/parser';
 
 interface IKSLHighlightElementEventData {
-  readonly data: DeepPartial<EditButtonClickedData>;
+  readonly data: ParseResult;
   readonly targetNode: HTMLElement;
 }
 
@@ -223,7 +222,7 @@ export class KSLHighlightElement extends KSLPositionedElement {
     this.dispatchEditEvent(dataAttributes);
   };
 
-  private dispatchEditEvent = (data: DeepPartial<EditButtonClickedData>): void => {
+  private dispatchEditEvent = (data: ParseResult): void => {
     assert(this.targetRef, 'Target node is not set for this highlight element.');
 
     const customEvent = new CustomEvent<IKSLHighlightElementEventData>('ksl:highlight:edit', {

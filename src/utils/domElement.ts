@@ -102,18 +102,6 @@ export function getTotalScrollOffset(node: HTMLElement | null): [number, number]
   return calculateOffset(node.parentElement);
 }
 
-export function getElementAncestors(element: HTMLElement): ReadonlyArray<HTMLElement> {
-  const ancestors = [];
-
-  let parent = element.parentElement;
-  while (parent !== null) {
-    ancestors.push(parent);
-    parent = parent.parentElement;
-  }
-
-  return ancestors;
-}
-
 export function createTemplateForCustomElement(html: string): HTMLTemplateElement {
   const template = document.createElement('template');
   template.innerHTML = html;

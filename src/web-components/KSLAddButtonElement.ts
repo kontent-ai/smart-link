@@ -10,16 +10,13 @@ import {
   AddButtonElementType,
   AddButtonPermission,
   AddButtonPermissionCheckResult,
-  IAddActionMessageData,
-  IAddButtonInitialMessageData,
   IAddButtonPermissionsServerModel,
 } from '../lib/IFrameCommunicatorTypes';
 import { AsyncCustomEvent } from '../utils/events';
 import { logError } from '../lib/Logger';
 import { BaseZIndex } from './constants/zIndex';
-import { DeepPartial } from '../utils/typeUtils';
 import { MetadataAttribute } from '../utils/dataAttributes/attributes';
-import { parseAddButtonDataAttributes } from '../utils/dataAttributes/parser';
+import { parseAddButtonDataAttributes, ParseResult } from '../utils/dataAttributes/parser';
 
 const ContentIsPublishedTooltip = 'Content is published';
 const DefaultTooltipMessage = 'Insert...';
@@ -32,8 +29,8 @@ enum PopoverButtonId {
   InsertLinkedItem = 'insert-linked-item',
 }
 
-interface IKSLAddButtonElementEventData<TMessageData> {
-  readonly data: DeepPartial<TMessageData>;
+interface IKSLAddButtonElementEventData<TMessageData = object> {
+  readonly data: ParseResult & TMessageData;
   readonly targetNode: HTMLElement;
 }
 
@@ -41,8 +38,8 @@ interface IKSLAddButtonElementInitialEventReason {
   readonly message: string;
 }
 
-type KSLAddButtonElementInitialEventData = IKSLAddButtonElementEventData<IAddButtonInitialMessageData>;
-type KSLAddButtonElementActionEventData = IKSLAddButtonElementEventData<IAddActionMessageData>;
+type KSLAddButtonElementInitialEventData = IKSLAddButtonElementEventData;
+type KSLAddButtonElementActionEventData = IKSLAddButtonElementEventData<{ action: AddButtonAction }>;
 
 export type KSLAddButtonElementActionEvent = CustomEvent<KSLAddButtonElementActionEventData>;
 export type KSLAddButtonElementInitialAsyncEvent = AsyncCustomEvent<
