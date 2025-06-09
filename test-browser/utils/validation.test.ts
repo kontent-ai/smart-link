@@ -1,142 +1,198 @@
 import { expect, it, describe } from 'vitest';
-import {
-  validateContentItemClickEditMessageData,
-  validateElementClickMessageData,
-  validateContentComponentClickMessageData,
-  validateAddInitialMessageData,
-  validateAddActionMessageData,
-} from '../../src/utils/validation';
-import {
-  AddButtonAction,
-  IContentItemClickedMessageData,
-  IElementClickedMessageData,
-  IContentComponentClickedMessageData,
-  IAddButtonInitialMessageData,
-  IAddActionMessageData,
-  InsertPositionPlacement,
-} from '../../src/lib/IFrameCommunicatorTypes';
+import { validateAddInitialMessageData, validateEditButtonMessageData } from '../../src/utils/messageValidation';
+import { InsertPositionPlacement } from '../../src/lib/IFrameCommunicatorTypes';
+import { ParseResult } from '../../src/utils/dataAttributes/parser';
 
-describe('validateContentItemClickEditMessageData', () => {
-  it('should return true for valid data', () => {
-    const validData: Partial<IContentItemClickedMessageData> = {
-      projectId: 'test-project',
-      languageCodename: 'en-US',
-      itemId: 'test-item',
-    };
-
-    expect(validateContentItemClickEditMessageData(validData)).toBe(true);
-  });
-
-  it('should return false for invalid data', () => {
-    const invalidData: Partial<IContentItemClickedMessageData> = {
-      projectId: 'test-project',
-    };
-
-    expect(validateContentItemClickEditMessageData(invalidData)).toBe(false);
-  });
+// Helper to create mock ParseResult objects
+const createMockParseResult = (parsed: Partial<ParseResult['parsed']>): ParseResult => ({
+  parsed,
+  debugData: [],
 });
 
-describe('validateElementClickMessageData', () => {
-  it('should return true for valid data', () => {
-    const validData: Partial<IElementClickedMessageData> = {
-      projectId: 'test-project',
+// Helper to create mock configuration
+const mockConfig = {
+  languageCodename: 'en-US',
+  environmentId: '  test-project',
+};
+
+describe('validateEditButtonMessageData', () => {
+  it('should return contentItem type for valid content item data', () => {
+    const data = createMockParseResult({
+      itemId: 'test-item',
       languageCodename: 'en-US',
+      environmentId: 'test-project',
+    });
+
+    const result = validateEditButtonMessageData(data, mockConfig);
+
+    expect(result.type).toBe('contentItem');
+    if (result.type === 'contentItem') {
+      expect(result.data.itemId).toBe('test-item');
+      expect(result.data.languageCodename).toBe('en-US');
+      expect(result.data.projectId).toBe('test-project');
+    }
+  });
+
+  it('should return element type for valid element data', () => {
+    const data = createMockParseResult({
       itemId: 'test-item',
       elementCodename: 'test-element',
-    };
+      languageCodename: 'en-US',
+      environmentId: 'test-project',
+    });
 
-    expect(validateElementClickMessageData(validData)).toBe(true);
+    const result = validateEditButtonMessageData(data, mockConfig);
+
+    expect(result.type).toBe('element');
+    if (result.type === 'element') {
+      expect(result.data.itemId).toBe('test-item');
+      expect(result.data.elementCodename).toBe('test-element');
+      expect(result.data.languageCodename).toBe('en-US');
+      expect(result.data.projectId).toBe('test-project');
+    }
   });
 
-  it('should return false when elementCodename is missing', () => {
-    const invalidData: Partial<IElementClickedMessageData> = {
-      projectId: 'test-project',
-      languageCodename: 'en-US',
-      itemId: 'test-item',
-    };
-
-    expect(validateElementClickMessageData(invalidData)).toBe(false);
-  });
-});
-
-describe('validateContentComponentClickMessageData', () => {
-  it('should return true for valid data', () => {
-    const validData: Partial<IContentComponentClickedMessageData> = {
-      projectId: 'test-project',
-      languageCodename: 'en-US',
+  it('should return contentComponent type for valid content component data', () => {
+    const data = createMockParseResult({
       itemId: 'test-item',
       contentComponentId: 'test-component',
-    };
+      languageCodename: 'en-US',
+      environmentId: 'test-project',
+    });
 
-    expect(validateContentComponentClickMessageData(validData)).toBe(true);
+    const result = validateEditButtonMessageData(data, mockConfig);
+
+    expect(result.type).toBe('contentComponent');
+    if (result.type === 'contentComponent') {
+      expect(result.data.itemId).toBe('test-item');
+      expect(result.data.contentComponentId).toBe('test-component');
+      expect(result.data.languageCodename).toBe('en-US');
+      expect(result.data.projectId).toBe('test-project');
+    }
   });
 
-  it('should return false when contentComponentId is missing', () => {
-    const invalidData: Partial<IContentComponentClickedMessageData> = {
-      projectId: 'test-project',
+  it('should return error type for missing required data', () => {
+    const data = createMockParseResult({
       languageCodename: 'en-US',
+    });
+
+    const result = validateEditButtonMessageData(data, mockConfig);
+
+    expect(result.type).toBe('error');
+    if (result.type === 'error') {
+      expect(result.missing).toContain('itemId');
+    }
+  });
+
+  it('should use configuration defaults when data attributes are missing', () => {
+    const data = createMockParseResult({
       itemId: 'test-item',
+    });
+
+    const config = {
+      languageCodename: 'default-lang',
+      environmentId: 'default-env',
     };
 
-    expect(validateContentComponentClickMessageData(invalidData)).toBe(false);
+    const result = validateEditButtonMessageData(data, config);
+
+    expect(result.type).toBe('contentItem');
+    if (result.type === 'contentItem') {
+      expect(result.data.languageCodename).toBe('default-lang');
+      expect(result.data.projectId).toBe('default-env');
+      expect(result.data.itemId).toBe('test-item');
+    }
   });
 });
 
 describe('validateAddInitialMessageData', () => {
-  it('should return true for valid data', () => {
-    const validData: Partial<IAddButtonInitialMessageData> = {
-      projectId: 'test-project',
-      languageCodename: 'en-US',
+  it('should return success for valid data with placement after', () => {
+    const data = createMockParseResult({
       itemId: 'test-item',
       elementCodename: 'test-element',
-      insertPosition: {
-        placement: InsertPositionPlacement.After,
-        targetId: 'target-1',
-      },
-    };
+      placement: 'after',
+      targetId: 'target-1',
+      languageCodename: 'en-US',
+      environmentId: 'test-project',
+    });
 
-    expect(validateAddInitialMessageData(validData)).toBe(true);
+    const result = validateAddInitialMessageData(data, mockConfig);
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.itemId).toBe('test-item');
+      expect(result.data.elementCodename).toBe('test-element');
+      expect(result.data.insertPosition.placement).toBe(InsertPositionPlacement.After);
+      if ('targetId' in result.data.insertPosition) {
+        expect(result.data.insertPosition.targetId).toBe('target-1');
+      }
+    }
   });
 
-  it('should return false when required fields are missing', () => {
-    const invalidData: Partial<IAddButtonInitialMessageData> = {
-      projectId: 'test-project',
-      languageCodename: 'en-US',
-    };
-
-    expect(validateAddInitialMessageData(invalidData)).toBe(false);
-  });
-});
-
-describe('validateAddActionMessageData', () => {
-  it('should return true for valid data', () => {
-    const validData: Partial<IAddActionMessageData> = {
-      projectId: 'test-project',
-      languageCodename: 'en-US',
+  it('should return success for valid data with placement end', () => {
+    const data = createMockParseResult({
       itemId: 'test-item',
       elementCodename: 'test-element',
-      insertPosition: {
-        placement: InsertPositionPlacement.After,
-        targetId: 'target-1',
-      },
-      action: AddButtonAction.CreateComponent,
-    };
+      placement: 'end',
+      languageCodename: 'en-US',
+      environmentId: 'test-project',
+    });
 
-    expect(validateAddActionMessageData(validData)).toBe(true);
+    const result = validateAddInitialMessageData(data, mockConfig);
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.insertPosition.placement).toBe(InsertPositionPlacement.End);
+    }
   });
 
-  it('should return false when action is missing', () => {
-    const invalidData: Partial<IAddActionMessageData> = {
-      projectId: 'test-project',
+  it('should return failure when required fields are missing', () => {
+    const data = createMockParseResult({
       languageCodename: 'en-US',
+      environmentId: 'test-project',
+    });
+
+    const result = validateAddInitialMessageData(data, mockConfig);
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.missing).toContain('itemId');
+      expect(result.missing).toContain('elementCodename');
+    }
+  });
+
+  it('should return failure when targetId is missing for after/before placement', () => {
+    const data = createMockParseResult({
       itemId: 'test-item',
       elementCodename: 'test-element',
-      insertPosition: {
-        placement: InsertPositionPlacement.After,
-        targetId: 'target-1',
-      },
-    };
+      placement: 'after',
+      languageCodename: 'en-US',
+      environmentId: 'test-project',
+    });
 
-    expect(validateAddActionMessageData(invalidData)).toBe(false);
+    const result = validateAddInitialMessageData(data, mockConfig);
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.missing).toContain('targetId');
+    }
+  });
+
+  it('should include contentComponentId when provided', () => {
+    const data = createMockParseResult({
+      itemId: 'test-item',
+      elementCodename: 'test-element',
+      contentComponentId: 'test-component',
+      placement: 'end',
+      languageCodename: 'en-US',
+      environmentId: 'test-project',
+    });
+
+    const result = validateAddInitialMessageData(data, mockConfig);
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.contentComponentId).toBe('test-component');
+    }
   });
 });

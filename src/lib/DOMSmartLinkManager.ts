@@ -1,23 +1,14 @@
 import { isElementWebComponent } from '../web-components/components';
 import {
   AddButtonElementType,
-  IAddActionMessageData,
-  IAddButtonInitialMessageData,
   IAddButtonPermissionsServerModel,
   IClickedMessageMetadata,
-  IElementClickedMessageData,
   IFrameMessageType,
 } from './IFrameCommunicatorTypes';
 import { IRenderer, SmartLinkRenderer } from './SmartLinkRenderer';
 import { KSLHighlightElementEvent } from '../web-components/KSLHighlightElement';
 import { getAugmentableDescendants, isElementAugmentable } from '../utils/customElements';
-import {
-  validateAddActionMessageData,
-  validateAddInitialMessageData,
-  validateContentComponentClickMessageData,
-  validateContentItemClickEditMessageData,
-  validateElementClickMessageData,
-} from '../utils/validation';
+import { validateAddInitialMessageData, validateEditButtonMessageData } from '../utils/messageValidation';
 import {
   KSLAddButtonElementActionEvent,
   KSLAddButtonElementInitialAsyncEvent,
@@ -25,9 +16,8 @@ import {
 import { IFrameCommunicator } from './IFrameCommunicator';
 import { isInsideWebSpotlightPreviewIFrame, KSLConfiguration } from '../utils/configuration';
 import { buildItemLink, buildKontentLink } from '../utils/link';
-import { logWarn } from './Logger';
+import { logError, logWarn } from './Logger';
 import { InvalidEnvironmentError } from '../utils/errors';
-import { DeepPartial } from 'src/utils/typeUtils';
 
 export class DOMSmartLinkManager {
   private readonly mutationObserver: MutationObserver;
@@ -236,40 +226,53 @@ export class DOMSmartLinkManager {
     const isInsideWebSpotlight = isInsideWebSpotlightPreviewIFrame(this.configuration);
     const { data, targetNode } = event.detail;
 
-    const messageData: Partial<IElementClickedMessageData> = {
-      ...data,
-      projectId: data.projectId ?? this.configuration.defaultDataAttributes.environmentId,
-      languageCodename: data.languageCodename ?? this.configuration.defaultDataAttributes.languageCodename,
-    };
-
     const messageMetadata: IClickedMessageMetadata = {
       elementRect: targetNode.getBoundingClientRect(),
     };
 
-    if ('elementCodename' in messageData && validateElementClickMessageData(messageData)) {
+    const validationResult = validateEditButtonMessageData(data, this.configuration.defaultDataAttributes);
+
+    if (validationResult.type === 'error') {
+      logError(
+        `Required attribute was not found: ${validationResult.missing[0]}. Skipped parsing these attributes: ${validationResult.missing.slice(1).join(', ')}`
+      );
+      logError('Debug info: ', validationResult.debug);
+      logError('Skipping edit button click');
+      return;
+    }
+
+    if (validationResult.type === 'element') {
       if (isInsideWebSpotlight) {
-        this.iframeCommunicator.sendMessage(IFrameMessageType.ElementClicked, messageData, messageMetadata);
+        this.iframeCommunicator.sendMessage(IFrameMessageType.ElementClicked, validationResult.data, messageMetadata);
       } else {
-        const link = buildKontentLink(messageData);
+        const link = buildKontentLink(validationResult.data);
         window.open(link, '_blank');
       }
-    } else if ('contentComponentId' in messageData && validateContentComponentClickMessageData(messageData)) {
+    } else if (validationResult.type === 'contentComponent') {
       if (isInsideWebSpotlight) {
-        this.iframeCommunicator.sendMessage(IFrameMessageType.ContentComponentClicked, messageData, messageMetadata);
+        this.iframeCommunicator.sendMessage(
+          IFrameMessageType.ContentComponentClicked,
+          validationResult.data,
+          messageMetadata
+        );
       } else {
         logWarn('Edit buttons for content components are only functional inside Web Spotlight.');
       }
-    } else if ('itemId' in messageData && validateContentItemClickEditMessageData(messageData)) {
+    } else {
       if (isInsideWebSpotlight) {
-        this.iframeCommunicator.sendMessage(IFrameMessageType.ContentItemClicked, messageData, messageMetadata);
+        this.iframeCommunicator.sendMessage(
+          IFrameMessageType.ContentItemClicked,
+          validationResult.data,
+          messageMetadata
+        );
       } else {
-        const link = buildItemLink(messageData.projectId, messageData.languageCodename, messageData.itemId);
+        const link = buildItemLink(
+          validationResult.data.projectId,
+          validationResult.data.languageCodename,
+          validationResult.data.itemId
+        );
         window.open(link, '_blank');
       }
-    } else {
-      logWarn(
-        'Some required attributes are not found or the edit button for this type of element is not yet supported.'
-      );
     }
   };
 
@@ -278,62 +281,68 @@ export class DOMSmartLinkManager {
     const { eventData, onResolve, onReject } = event.detail;
     const { data, targetNode } = eventData;
 
-    const messageData: DeepPartial<IAddButtonInitialMessageData> = {
-      ...data,
-      languageCodename: data.languageCodename ?? this.configuration.defaultDataAttributes.languageCodename,
-      projectId: data.projectId ?? this.configuration.defaultDataAttributes.environmentId,
-    };
-
     const messageMetadata: IClickedMessageMetadata = {
       elementRect: targetNode.getBoundingClientRect(),
     };
 
-    if (validateAddInitialMessageData(messageData)) {
-      if (!isInsideWebSpotlight) {
-        logWarn('Add buttons are only functional inside Web Spotlight.');
-        onReject({ message: 'Add buttons are only functional inside Web Spotlight' });
-        return;
-      }
+    const messageDataValidation = validateAddInitialMessageData(data, this.configuration.defaultDataAttributes);
 
-      this.iframeCommunicator.sendMessageWithResponse(
-        IFrameMessageType.AddInitial,
-        messageData,
-        (response?: IAddButtonPermissionsServerModel) => {
-          if (!response || response.elementType === AddButtonElementType.Unknown) {
-            return onReject({ message: 'Something went wrong' });
-          }
-
-          return onResolve(response);
-        },
-        messageMetadata
-      );
-    } else {
-      onReject({ message: 'Required data attributes are missing' });
+    if (!messageDataValidation.success) {
+      const [first, ...rest] = messageDataValidation.missing;
+      onReject({
+        message: `Could not find required data attribute: '${first}'.${
+          rest.length > 0 ? ` All attributes higher in hierarchy were never searched for: [${rest.join(', ')}]` : ''
+        }`,
+      });
+      return;
     }
+
+    if (!isInsideWebSpotlight) {
+      onReject({ message: 'Add buttons are only functional inside Web Spotlight' });
+      return;
+    }
+
+    this.iframeCommunicator.sendMessageWithResponse(
+      IFrameMessageType.AddInitial,
+      messageDataValidation.data,
+      (response?: IAddButtonPermissionsServerModel) => {
+        if (!response || response.elementType === AddButtonElementType.Unknown) {
+          return onReject({ message: 'Something went wrong' });
+        }
+
+        return onResolve(response);
+      },
+      messageMetadata
+    );
   };
 
   private onAddActionClick = (event: KSLAddButtonElementActionEvent): void => {
     const isInsideWebSpotlight = isInsideWebSpotlightPreviewIFrame(this.configuration);
     const { data, targetNode } = event.detail;
 
-    const messageData: DeepPartial<IAddActionMessageData> = {
-      ...data,
-      languageCodename: data.languageCodename ?? this.configuration.defaultDataAttributes.languageCodename,
-      projectId: data.projectId ?? this.configuration.defaultDataAttributes.environmentId,
-    };
-
     const messageMetadata: IClickedMessageMetadata = {
       elementRect: targetNode.getBoundingClientRect(),
     };
 
-    if (validateAddActionMessageData(messageData)) {
-      if (!isInsideWebSpotlight) {
-        logWarn('Add buttons are only functional inside Web Spotlight.');
-        return;
-      }
+    const messageDataValidation = validateAddInitialMessageData(data, this.configuration.defaultDataAttributes);
 
-      this.iframeCommunicator.sendMessage(IFrameMessageType.AddAction, messageData, messageMetadata);
+    if (!messageDataValidation.success) {
+      return;
     }
+
+    if (!isInsideWebSpotlight) {
+      logWarn('Add buttons are only functional inside Web Spotlight.');
+      return;
+    }
+
+    this.iframeCommunicator.sendMessage(
+      IFrameMessageType.AddAction,
+      {
+        ...messageDataValidation.data,
+        action: data.action,
+      },
+      messageMetadata
+    );
   };
 }
 
