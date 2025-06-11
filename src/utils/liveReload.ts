@@ -16,11 +16,22 @@ import {
   OptionallyAsync,
 } from './liveReload/optionallyAsync';
 
+/**
+ * Applies an update to a content item synchronously.
+ * This function takes a content item and an update message, and returns a new content item with the updates applied.
+ * The update is applied recursively to all linked items within the content item.
+ */
 export const applyUpdateOnItem = <Elements extends IContentItemElements>(
   item: IContentItem<Elements>,
   update: IUpdateMessageData
 ): IContentItem<Elements> => evaluateOptionallyAsync(applyUpdateOnItemOptionallyAsync(item, update), null);
 
+/**
+ * Applies an update to a content item asynchronously and loads newly added linked items.
+ * This function takes a content item, an update message, and a function to fetch linked items,
+ * and returns a promise that resolves to a new content item with the updates applied.
+ * The update is applied recursively to all linked items within the content item.
+ */
 export const applyUpdateOnItemAndLoadLinkedItems = <Elements extends IContentItemElements>(
   item: IContentItem<Elements>,
   update: IUpdateMessageData,
