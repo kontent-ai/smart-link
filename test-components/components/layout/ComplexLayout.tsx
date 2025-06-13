@@ -9,7 +9,12 @@ type ComplexLayoutProps = {
 export const ComplexLayout: React.FC<ComplexLayoutProps> = ({ containerStyle, scrollOffset }) => {
   useScroll(scrollOffset);
   return (
-    <div id="container" style={containerStyle} data-kontent-project-id="project-id" data-kontent-language-codename="en">
+    <div
+      id="container"
+      style={containerStyle}
+      data-kontent-environment-id="project-id"
+      data-kontent-language-codename="en"
+    >
       <div
         data-kontent-item-id="page-id"
         className="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm"

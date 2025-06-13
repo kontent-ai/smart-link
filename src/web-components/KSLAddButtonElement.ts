@@ -4,20 +4,19 @@ import { assert } from '../utils/assert';
 import { KSLPopoverElement } from './KSLPopoverElement';
 import { ElementPositionOffset, KSLPositionedElement } from './abstract/KSLPositionedElement';
 import { KSLContainerElement } from './KSLContainerElement';
-import { createTemplateForCustomElement } from '../utils/node';
-import { DeepPartial, MetadataAttribute, parseAddButtonDataAttributes } from '../utils/dataAttributes';
+import { createTemplateForCustomElement } from '../utils/domElement';
 import {
   AddButtonAction,
   AddButtonElementType,
   AddButtonPermission,
   AddButtonPermissionCheckResult,
-  IAddActionMessageData,
-  IAddButtonInitialMessageData,
   IAddButtonPermissionsServerModel,
 } from '../lib/IFrameCommunicatorTypes';
 import { AsyncCustomEvent } from '../utils/events';
-import { Logger } from '../lib/Logger';
+import { logError } from '../lib/Logger';
 import { BaseZIndex } from './constants/zIndex';
+import { MetadataAttribute } from '../utils/dataAttributes/attributes';
+import { parseAddButtonDataAttributes, ParseResult } from '../utils/dataAttributes/parser';
 
 const ContentIsPublishedTooltip = 'Content is published';
 const DefaultTooltipMessage = 'Insert...';
@@ -30,8 +29,8 @@ enum PopoverButtonId {
   InsertLinkedItem = 'insert-linked-item',
 }
 
-interface IKSLAddButtonElementEventData<TMessageData> {
-  readonly data: DeepPartial<TMessageData>;
+interface IKSLAddButtonElementEventData<TMessageData = object> {
+  readonly data: ParseResult & TMessageData;
   readonly targetNode: HTMLElement;
 }
 
@@ -39,8 +38,8 @@ interface IKSLAddButtonElementInitialEventReason {
   readonly message: string;
 }
 
-type KSLAddButtonElementInitialEventData = IKSLAddButtonElementEventData<IAddButtonInitialMessageData>;
-type KSLAddButtonElementActionEventData = IKSLAddButtonElementEventData<IAddActionMessageData>;
+type KSLAddButtonElementInitialEventData = IKSLAddButtonElementEventData;
+type KSLAddButtonElementActionEventData = IKSLAddButtonElementEventData<{ action: AddButtonAction }>;
 
 export type KSLAddButtonElementActionEvent = CustomEvent<KSLAddButtonElementActionEventData>;
 export type KSLAddButtonElementInitialAsyncEvent = AsyncCustomEvent<
@@ -266,7 +265,7 @@ export class KSLAddButtonElement extends KSLPositionedElement {
         this.displayPopover(response);
       }
     } catch (reason) {
-      Logger.error(reason);
+      logError(reason);
 
       this.buttonRef.loading = false;
       this.buttonRef.disabled = true;

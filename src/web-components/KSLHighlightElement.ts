@@ -3,21 +3,16 @@ import { IconName } from './KSLIconElement';
 import { assert } from '../utils/assert';
 import { ElementPositionOffset, KSLPositionedElement } from './abstract/KSLPositionedElement';
 import { KSLContainerElement } from './KSLContainerElement';
-import { createTemplateForCustomElement } from '../utils/node';
-import {
-  DeepPartial,
-  EditButtonClickedData,
-  getHighlightTypeForElement,
-  HighlightType,
-  parseEditButtonDataAttributes,
-} from '../utils/dataAttributes';
-import { Logger } from '../lib/Logger';
+import { createTemplateForCustomElement } from '../utils/domElement';
+import { logWarn } from '../lib/Logger';
 import { Colors } from './tokens/colors';
 import { Shadows } from './tokens/shadows';
 import { BaseZIndex } from './constants/zIndex';
+import { getHighlightTypeForElement, HighlightType } from '../utils/dataAttributes/elementHighlight';
+import { parseEditButtonDataAttributes, ParseResult } from '../utils/dataAttributes/parser';
 
 interface IKSLHighlightElementEventData {
-  readonly data: DeepPartial<EditButtonClickedData>;
+  readonly data: ParseResult;
   readonly targetNode: HTMLElement;
 }
 
@@ -188,7 +183,7 @@ export class KSLHighlightElement extends KSLPositionedElement {
     }
 
     if (!(this.offsetParent instanceof KSLContainerElement)) {
-      Logger.warn('KSLHighlightElement: should be located inside KSLContainerElement to be positioned properly.');
+      logWarn('KSLHighlightElement: should be located inside KSLContainerElement to be positioned properly.');
     }
 
     const offsetParentRect = this.offsetParent.getBoundingClientRect();
@@ -227,7 +222,7 @@ export class KSLHighlightElement extends KSLPositionedElement {
     this.dispatchEditEvent(dataAttributes);
   };
 
-  private dispatchEditEvent = (data: DeepPartial<EditButtonClickedData>): void => {
+  private dispatchEditEvent = (data: ParseResult): void => {
     assert(this.targetRef, 'Target node is not set for this highlight element.');
 
     const customEvent = new CustomEvent<IKSLHighlightElementEventData>('ksl:highlight:edit', {

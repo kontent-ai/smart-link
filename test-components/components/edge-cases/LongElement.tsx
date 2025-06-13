@@ -6,7 +6,7 @@ export const LongElement: React.FC = () => {
   return (
     <div
       className="border border-secondary bg-light"
-      data-kontent-project-id="p"
+      data-kontent-environment-id="p"
       data-kontent-language-codename="l"
       data-kontent-item-id="i"
     >

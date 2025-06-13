@@ -1,7 +1,7 @@
 import { KSLCustomElement } from './abstract/KSLCustomElement';
 import { KSLAddButtonElement } from './KSLAddButtonElement';
 import { KSLHighlightElement } from './KSLHighlightElement';
-import { createTemplateForCustomElement, getRenderingRootMetadata, getTotalScrollOffset } from '../utils/node';
+import { createTemplateForCustomElement, getRenderingRootMetadata, getTotalScrollOffset } from '../utils/domElement';
 import { IPositionable } from './abstract/KSLPositionedElement';
 import { BaseZIndex } from './constants/zIndex';
 
