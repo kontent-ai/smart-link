@@ -102,24 +102,12 @@ export class DOMSmartLinkManager {
   };
 
   private listenToGlobalEvents = (): void => {
-    window.addEventListener('scroll', this.augmentVisibleElements, { capture: true });
-    window.addEventListener('resize', this.augmentVisibleElements, { passive: true });
-
-    window.addEventListener('animationend', this.augmentVisibleElements, { passive: true, capture: true });
-    window.addEventListener('transitionend', this.augmentVisibleElements, { passive: true, capture: true });
-
     window.addEventListener('ksl:add-button:initial', this.onAddInitialClick, { capture: true });
     window.addEventListener('ksl:add-button:action', this.onAddActionClick, { capture: true });
     window.addEventListener('ksl:highlight:edit', this.onEditElement, { capture: true });
   };
 
   private unlistenToGlobalEvents = (): void => {
-    window.removeEventListener('scroll', this.augmentVisibleElements, { capture: true });
-    window.removeEventListener('resize', this.augmentVisibleElements);
-
-    window.removeEventListener('animationend', this.augmentVisibleElements, { capture: true });
-    window.removeEventListener('transitionend', this.augmentVisibleElements, { capture: true });
-
     window.removeEventListener('ksl:add-button:initial', this.onAddInitialClick, { capture: true });
     window.removeEventListener('ksl:add-button:action', this.onAddActionClick, { capture: true });
     window.removeEventListener('ksl:highlight:edit', this.onEditElement, { capture: true });
