@@ -30,63 +30,25 @@ export class SmartLinkRenderer implements IRenderer {
       return;
     }
 
-    const newAddButtonByElement = new Map<HTMLElement, KSLAddButtonElement>();
-    const newHighlightByElement = new Map<HTMLElement, KSLHighlightElement>();
+    const { newAddButtonByElement, newHighlightByElement } = this.processVisibleElements(
+      visibleElements,
+      this.addButtonByElement,
+      this.highlightByElement
+    );
 
-    // Group elements by their rendering roots to avoid unnecessary re-calculations (e.g. reposition container only once
-    // instead of repositioning it for every child, calculating bounding client rects, etc.).
-    const elementsByRenderingRoot = groupElementsByRenderingRoot(visibleElements);
-
-    for (const [root, elements] of elementsByRenderingRoot.entries()) {
-      const container = this.createContainerIfNotExist(root);
-      container.adjustPosition();
-
-      for (const element of elements) {
-        // This check is needed to prevent highlight rendering for the "flat" elements (height or/and width === 0),
-        // because those elements are basically invisible and cannot be clicked.
-        const isFlat = element.offsetHeight === 0 || element.offsetHeight === 0;
-
-        if (!isFlat && shouldElementHaveHighlight(element, this.configuration)) {
-          const highlight = this.highlightByElement.get(element) ?? container.createHighlightForElement(element);
-          highlight.adjustPosition();
-
-          // We are creating a new highlight by element map to be able to compare it with an old one to find out
-          // which elements have been removed before renders and remove their highlights from the DOM.
-          newHighlightByElement.set(element, highlight);
-          this.highlightByElement.delete(element);
-        }
-
-        if (shouldElementHaveAddButton(element, this.configuration)) {
-          const button = this.addButtonByElement.get(element) ?? container.createAddButtonForElement(element);
-          button.adjustPosition();
-
-          // We are creating a new add button by element map to be able to compare it with an old one to find out
-          // which elements have been removed before renders and remove their add buttons from the DOM.
-          newAddButtonByElement.set(element, button);
-          this.addButtonByElement.delete(element);
-        }
-      }
-    }
-
-    // All highlights that are left in the old highlightByElement map are the remnants of the old render.
-    // We check if they are still observed and relevant for the renderer and if not they can be removed.
-    for (const [element, highlight] of this.highlightByElement.entries()) {
+    // Remove highlights that are not observed anymore as they might be removed from the DOM.
+    for (const [element, highlight] of newHighlightByElement) {
       if (!observedElements.has(element)) {
         highlight.remove();
-        this.highlightByElement.delete(element);
-      } else {
-        newHighlightByElement.set(element, highlight);
+        newHighlightByElement.delete(element);
       }
     }
 
-    // All add buttons that are left in the old addButtonByElement map are the remnants of the old render.
-    // We check if they are still observed and relevant for the renderer and if not they can be removed.
-    for (const [element, addButton] of this.addButtonByElement.entries()) {
+    // Remove add buttons that are not observed anymore as they might be removed from the DOM.
+    for (const [element, addButton] of newAddButtonByElement) {
       if (!observedElements.has(element)) {
         addButton.remove();
-        this.addButtonByElement.delete(element);
-      } else {
-        newAddButtonByElement.set(element, addButton);
+        newAddButtonByElement.delete(element);
       }
     }
 
@@ -108,19 +70,16 @@ export class SmartLinkRenderer implements IRenderer {
   };
 
   public clear = (): void => {
-    for (const [element, addButton] of this.addButtonByElement.entries()) {
+    for (const [, addButton] of this.addButtonByElement.entries()) {
       addButton.remove();
-      this.addButtonByElement.delete(element);
     }
 
-    for (const [element, highlight] of this.highlightByElement.entries()) {
+    for (const [, highlight] of this.highlightByElement.entries()) {
       highlight.remove();
-      this.highlightByElement.delete(element);
     }
 
-    for (const [root, container] of this.containerByRenderingRoot.entries()) {
+    for (const [, container] of this.containerByRenderingRoot.entries()) {
       container.remove();
-      this.containerByRenderingRoot.delete(root);
     }
 
     this.highlightByElement = new Map<HTMLElement, KSLHighlightElement>();
@@ -129,21 +88,67 @@ export class SmartLinkRenderer implements IRenderer {
     this.defaultContainer.innerHTML = '';
   };
 
+  private processVisibleElements = (
+    visibleElements: Set<HTMLElement>,
+    addButtonByElement: Map<HTMLElement, KSLAddButtonElement>,
+    highlightByElement: Map<HTMLElement, KSLHighlightElement>
+  ): {
+    newAddButtonByElement: Map<HTMLElement, KSLAddButtonElement>;
+    newHighlightByElement: Map<HTMLElement, KSLHighlightElement>;
+  } => {
+    // Group elements by their rendering roots to avoid unnecessary re-calculations (e.g. reposition container only once
+    // instead of repositioning it for every child, calculating bounding client rects, etc.).
+    const elementsByRenderingRoot = groupElementsByRenderingRoot(visibleElements);
+
+    return Array.from(elementsByRenderingRoot.entries()).reduce(
+      (acc, [root, elements]) => {
+        const container = this.createContainerIfNotExist(root);
+        container.adjustPosition();
+
+        for (const element of elements) {
+          // This check is needed to prevent highlight rendering for the "flat" elements (height or/and width === 0),
+          // because those elements are basically invisible and cannot be clicked.
+          const isFlat = element.offsetHeight === 0 || element.offsetHeight === 0;
+
+          if (!isFlat && shouldElementHaveHighlight(element, this.configuration)) {
+            const highlight = acc.newHighlightByElement.get(element) ?? container.createHighlightForElement(element);
+            highlight.adjustPosition();
+
+            acc.newHighlightByElement.set(element, highlight);
+          }
+
+          if (shouldElementHaveAddButton(element, this.configuration)) {
+            const addButton = acc.newAddButtonByElement.get(element) ?? container.createAddButtonForElement(element);
+            addButton.adjustPosition();
+
+            acc.newAddButtonByElement.set(element, addButton);
+          }
+        }
+
+        return acc;
+      },
+      {
+        newAddButtonByElement: new Map<HTMLElement, KSLAddButtonElement>(addButtonByElement),
+        newHighlightByElement: new Map<HTMLElement, KSLHighlightElement>(highlightByElement),
+      }
+    );
+  };
+
   private createContainerIfNotExist = (root: HTMLElement | null): KSLContainerElement => {
     // if root is not specified or root is body
     if (!root || root === document.body) {
       return this.defaultContainer;
     }
 
-    let container = this.containerByRenderingRoot.get(root);
+    const container = this.containerByRenderingRoot.get(root);
     if (container) {
       return container;
     }
 
-    container = document.createElement(KSLContainerElement.is);
-    root.appendChild(container);
-    this.containerByRenderingRoot.set(root, container);
-    return container;
+    const newContainer = document.createElement(KSLContainerElement.is);
+    root.appendChild(newContainer);
+    this.containerByRenderingRoot.set(root, newContainer);
+    return newContainer;
   };
 }
 
