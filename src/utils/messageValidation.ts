@@ -1,4 +1,4 @@
-import { logDebugGroupCollapsed, logDebug, logDebugGroupEnd } from '../lib/Logger';
+import { logGroupCollapsed, logGroupEnd, logInfo } from '../lib/Logger';
 import {
   IAddButtonInitialMessageData,
   IContentComponentClickedMessageData,
@@ -231,22 +231,22 @@ export function validateAddInitialMessageData(
 }
 
 const printDebugData = (debugData: ParseResult['debugData'], message: string) => {
-  logDebugGroupCollapsed(message);
+  logGroupCollapsed(message);
   debugData.forEach((item) => {
-    logDebugGroupCollapsed(item.element);
+    logGroupCollapsed(item.element);
     if (item.parsedAttributes.length > 0) {
-      logDebug('Resolved attributes:');
+      logInfo('Resolved attributes:');
       item.parsedAttributes.forEach((attr) => {
-        logDebug(`${attr.token}: ${attr.dataAttribute}: ${attr.value}`);
+        logInfo(`${attr.token}: ${attr.dataAttribute}: ${attr.value}`);
       });
     }
     if (item.skippedAttributes.length > 0) {
-      logDebug('Parsed Kontent.ai attributes:');
+      logInfo('Parsed Kontent.ai attributes:');
       item.skippedAttributes.forEach((attr) => {
-        logDebug(`${attr.dataAttribute}: ${attr.value}`);
+        logInfo(`${attr.dataAttribute}: ${attr.value}`);
       });
     }
-    logDebugGroupEnd();
+    logGroupEnd();
   });
-  logDebugGroupEnd();
+  logGroupEnd();
 };
