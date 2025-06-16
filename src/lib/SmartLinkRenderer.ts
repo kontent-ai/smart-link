@@ -5,13 +5,13 @@ import { KSLAddButtonElement } from '../web-components/KSLAddButtonElement';
 import { shouldElementHaveHighlight, shouldElementHaveAddButton } from '../utils/customElements';
 import { KSLConfiguration } from '../utils/configuration';
 
-export interface IRenderer {
+export type Renderer = {
   readonly destroy: () => void;
   readonly clear: () => void;
   readonly render: (visibleElements: Set<HTMLElement>, observedElements: Set<HTMLElement>) => void;
-}
+};
 
-export class SmartLinkRenderer implements IRenderer {
+export class SmartLinkRenderer implements Renderer {
   private readonly defaultContainer: KSLContainerElement;
   private containerByRenderingRoot: Map<HTMLElement, KSLContainerElement>;
   private highlightByElement: Map<HTMLElement, KSLHighlightElement>;
