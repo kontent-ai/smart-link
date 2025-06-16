@@ -58,7 +58,6 @@ export function shouldElementHaveHighlight(element: HTMLElement | null, configur
  * Check if node should have a add button based on its data-attributes.
  */
 export function shouldElementHaveAddButton(element: HTMLElement | null, configuration: KSLConfiguration): boolean {
-  // add button should only be visible inside Web Spotlight
   return (
     ((isInsideWebSpotlightPreviewIFrame(configuration) || configuration.debug) &&
       element &&
