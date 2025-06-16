@@ -7,7 +7,7 @@ import { createTemplateForCustomElement } from '../utils/domElement';
 import { logWarn } from '../lib/Logger';
 import { Colors } from './tokens/colors';
 import { Shadows } from './tokens/shadows';
-import { BaseZIndex } from './constants/zIndex';
+import { BaseZIndex } from './tokens/zIndex';
 import { getHighlightTypeForElement, HighlightType } from '../utils/dataAttributes/elementHighlight';
 import { parseEditButtonDataAttributes, ParseResult } from '../utils/dataAttributes/parser';
 

@@ -14,7 +14,7 @@ import {
 } from '../lib/IFrameCommunicatorTypes';
 import { AsyncCustomEvent } from '../utils/events';
 import { logError } from '../lib/Logger';
-import { BaseZIndex } from './constants/zIndex';
+import { BaseZIndex } from './tokens/zIndex';
 import { MetadataAttribute } from '../utils/dataAttributes/attributes';
 import { parseAddButtonDataAttributes, ParseResult } from '../utils/dataAttributes/parser';
 
