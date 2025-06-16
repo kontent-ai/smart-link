@@ -33,8 +33,6 @@ const webComponentTags: ReadonlyArray<string> = webComponents.map((component) =>
 
 /**
  * Define all web components if it is possible.
- *
- * @returns {Promise<void[]>}
  */
 export function defineAllRequiredWebComponents(): Promise<CustomElementConstructor[]> {
   const allDefined = webComponents.map((webComponent) => webComponent.define());
@@ -43,9 +41,6 @@ export function defineAllRequiredWebComponents(): Promise<CustomElementConstruct
 
 /**
  * Check if element is a web component based on its tag name.
- *
- * @param {HTMLElement} element
- * @returns {boolean}
  */
 export function isElementWebComponent(element: HTMLElement): boolean {
   return webComponentTags.includes(element.tagName.toLowerCase());
