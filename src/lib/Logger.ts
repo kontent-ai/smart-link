@@ -59,8 +59,8 @@ export function logDebug(...args: unknown[]): void {
  * Creates a collapsed console group for debug logging.
  * Note: This function is impure as it depends on the module-scoped logLevel variable.
  */
-export function logDebugGroupCollapsed(...args: unknown[]): void {
-  if (logLevel <= LogLevel.Debug) {
+export function logGroupCollapsed(...args: unknown[]): void {
+  if (logLevel <= LogLevel.Info) {
     console.groupCollapsed(...args);
   }
 }
@@ -69,8 +69,8 @@ export function logDebugGroupCollapsed(...args: unknown[]): void {
  * Creates an expanded console group for debug logging.
  * Note: This function is impure as it depends on the module-scoped logLevel variable.
  */
-export function logDebugGroup(...args: unknown[]): void {
-  if (logLevel <= LogLevel.Debug) {
+export function logGroup(...args: unknown[]): void {
+  if (logLevel <= LogLevel.Info) {
     console.group(...args);
   }
 }
@@ -79,8 +79,8 @@ export function logDebugGroup(...args: unknown[]): void {
  * Ends the current console group for debug logging.
  * Note: This function is impure as it depends on the module-scoped logLevel variable.
  */
-export function logDebugGroupEnd(): void {
-  if (logLevel <= LogLevel.Debug) {
+export function logGroupEnd(): void {
+  if (logLevel <= LogLevel.Info) {
     console.groupEnd();
   }
 }
