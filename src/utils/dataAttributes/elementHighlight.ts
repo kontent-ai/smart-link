@@ -9,9 +9,6 @@ export enum HighlightType {
 
 /**
  * Get HighlightType based on the HTML element data-attributes.
- *
- * @param {HTMLElement | null} element
- * @returns {HighlightType}
  */
 export function getHighlightTypeForElement(element: HTMLElement | null): HighlightType {
   if (!element || isFeatureDisabledForElement(element, DisableableFeature.Highlight)) {
