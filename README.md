@@ -7,57 +7,46 @@
 
 ###### [Usage](#usage) | [Contributing](https://github.com/kontent-ai/.github/blob/main/CONTRIBUTING.md) | [Troubleshooting](https://github.com/kontent-ai/smart-link/blob/master/TROUBLESHOOTING.md) | [Breaking changes](https://github.com/kontent-ai/smart-link/blob/master/BREAKING.md) | [Release guide](https://github.com/kontent-ai/smart-link/wiki/How-to-release-a-new-version-of-Smart-Link-SDK)
 
-Kontent.ai Smart Link SDK simplifies and enhances the process of editing and managing web content
-in [Web Spotlight](https://kontent.ai/features/webspotlight/) by embedding "smart links" into your web pages.
-These smart links, defined by specific [HTML data attributes](https://www.w3schools.com/tags/att_data-.asp) you set,
-create a direct bridge to the Kontent.ai CMS. This allows content creators and editors to quickly navigate
-from the preview website to the corresponding content in the Kontent.ai platform for editing or previewing.
+Kontent.ai Smart Link SDK simplifies and enhances the process of editing and managing web content in [Live Preview](https://kontent.ai/features/live-preview/) by embedding "smart links" into your web pages. These smart links, defined by specific [HTML data attributes](https://www.w3schools.com/tags/att_data-.asp) you set,
+create a direct bridge to the Kontent.ai CMS. This allows content creators and editors to quickly navigate from the preview website to the corresponding content in the Kontent.ai platform.
 
-:warning: **Important note:** Kontent.ai Smart Link SDK is **a browser-only SDK**, which means that the Node.js
-environment is not currently supported. Make sure to always initialize the Smart Link SDK in a browser context.
+> [!WARNING] 
+> **Important note:** Kontent.ai Smart Link SDK is **a browser-only SDK**. Make sure to always initialize the Smart Link SDK in a browser context.
+
+## Features
+
+- ✏️ **Edit Smart Links:** Quickly navigate from your website's preview to the corresponding content in Kontent.ai.
+- ➕ **Add Smart Links:** Simplify the addition of modular content directly from your preview.
+- 🔄️ **Automatic Reloads/Rebuilds:** Set up the automatic webpages reloads when your content is ready in the Delivery Preview API, ensuring your preview always reflects the latest saved changes.
+- 👀 **Live Preview:** Experience real-time content changes even before they're saved.
 
 ## Table of Contents
 
 * [Features](#features)
 * [Installation](#installation)
-* [Usage](#usage)
-    * [Quickstart](#quickstart)
-    * [Data attributes](#data-attributes)
-    * [Smart links](#smart-links)
-    * [SDK initialization](#sdk-initialization)
-        * [Configuration](#configuration)
-        * [Customization](#customization)
+* [Quickstart](#quickstart)
+* [Data attributes](#data-attributes)
+    * [Available data attributes](#available-data-attributes)
+    * [Data attributes hierarchy](#data-attributes-hierarchy)
+    * [Smart Links](#smart-links)
+* [SDK initialization](#sdk-initialization)
+    * [Configuration](#configuration)
     * [Preview autorefresh in Web Spotlight](#preview-autorefresh-in-web-spotlight)
     * [Live preview in Web Spotlight](#live-preview-in-web-spotlight)
+    * [Combining autorefresh and live preview](#combining-autorefresh-and-live-preview)
     * [Outside Web Spotlight](#outside-web-spotlight)
     * [Inside Web Spotlight](#inside-web-spotlight)
-* [Examples](#examples)
-    * [HTML & UMD & CDN](#html--umd--cdn)
-    * [ES6](#es6)
-    * [React](#react)
-        * [Creating the SmartLink context](#creating-the-smartlink-context)
-        * [Optimizing content updates in React with custom refresh logic](#optimizing-content-updates-in-react-with-custom-refresh-logic)
-        * [Triggering SSG rebuilds with custom refresh logic](#triggering-ssg-rebuilds-with-custom-refresh-logic)
-        * [Live Preview in Your Application](#live-preview-in-your-application)
+    * [Customization](#customization)
 * [Known issues](#known-issues)
     * [Nested iframes](#nested-iframes)
     * [SameSite cookie in Next.js app](#samesite-cookie-in-nextjs-app)
+* [Examples](#examples)
+    * [HTML & UMD & CDN](#html--umd--cdn)
+    * [React](#react)
 * [Tests](#tests)
     * [Unit tests](#unit-tests)
     * [Visual regression tests](#visual-regression-tests)
-* [Breaking changes](#breaking-changes)
-* [Feedback & Contribution](#feedback--contribution)
-
-## Features
-
-- ✏️ **Edit Smart Links:** Quickly navigate from your website's preview to the corresponding content in Kontent.ai,
-  making content editing seamless and efficient.
-- ➕ **Add Smart Links:** Simplify the addition of modular content directly from your preview, enhancing content
-  management without leaving the web context.
-- 🔄️ **Automatic Reloads/Rebuilds:** Set up the automatic webpages reloads when your content is ready in the Delivery
-  Preview API, ensuring your preview always reflects the latest saved changes.
-- 👀 **Live Preview:** Experience real-time content changes even before they're saved, enabling a dynamic editing process
-  that boosts productivity.
+    * [Updating Visual Regression Tests](#updating-visual-regression-tests)
 
 ## Installation
 
@@ -71,34 +60,27 @@ npm i @kontent-ai/smart-link
 
 ### jsdelivr
 
-When you include the UMD bundle of this library in the `script` tag of your HTML page, an SDK becomes available
-under the `kontentSmartLink` global variable. Minified version of js bundle can be found in the `dist/bundles` folder.
+When you include the UMD bundle of this library in the `script` tag of your HTML page, an SDK becomes available under the `kontentSmartLink` global variable.
 
 - `dist/bundles/kontent-smart-link.min.js`
 
 ##### kontent-smart-link.min.js
-
-![Gzip browser bundle](https://img.badgesize.io/https://unpkg.com/@kontent-ai/smart-link@latest/dist/kontent-smart-link.min.js?compression=gzip)
+![Gzip browser bundle](https://img.badgesize.io/https://app.unpkg.com/@kontent-ai/smart-link@4.0.3/files/dist/bundles/kontent-smart-link.min.js?compression=gzip)
 
 ```html
-
 <script type='text/javascript'
         src='https://cdn.jsdelivr.net/npm/@kontent-ai/smart-link@latest/dist/bundles/kontent-smart-link.min.js'></script>
 ```
 
-To prevent potential issues from arising due to breaking changes, it is recommended to replace `@latest` with a specific
-version number.
+> [!NOTE] 
+> To prevent potential issues from arising due to breaking changes, it is recommended to replace `@latest` with a specific version number.
 
-## Usage
-
-### Quickstart
+## Quickstart
 
 To integrate the Kontent.ai Smart Link SDK into your web project and enable smart link injection, follow these steps:
 
-1. **Include SDK:** Add the SDK to your project. You can do this by installing it from npm or embedding
-   the UMD bundle in the `script` tag of your HTML page.
-2. **Specify HTML data attributes:** Define the HTML data attributes on your webpage elements where you want
-   the smart links to appear. Detailed guidance on setting these attributes can be found [here](#data-attributes).
+1. **Include SDK:** Add the SDK to your project.
+2. **Specify HTML data attributes:** Define the HTML data attributes on your webpage elements where you want the smart links to appear. Detailed guidance on setting these attributes can be found [here](#data-attributes).
     ```html
     <main data-kontent-project-id='00000000-0000-0000-0000-000000000000' data-kontent-language-codename='default'>
       <div data-kontent-item-id='00000000-0000-0000-0000-000000000000'>
@@ -116,27 +98,21 @@ To integrate the Kontent.ai Smart Link SDK into your web project and enable smar
       },
    });
    ```
-4. **Set up the custom autorefresh behavior (optional):** The automatic page refresh feature after content is available
-   on Delivery Preview API is enabled out of the box. However, in some situations you may need to define some custom
-   behavior. You can read more about it [here](#preview-autorefresh-in-web-spotlight).
-5. **Set up the live preview (optional):** Make sure your website know how to react to the live preview messages from
-   Kontent.ai. You can read more about live preview [here](#live-preview-in-web-spotlight).
 
 For more complex examples, check the [Examples](#examples) section.
 
-### Data attributes
+## Data attributes
 
-The Kontent.ai Smart Link SDK relies heavily on manually specified data attributes in your HTML markup to function
-properly. These attributes are essential for the SDK to identify where and how to integrate smart links into
-your content, they also enable the SDK to access necessary information, such as the Kontent.ai project ID and element
-codenames. **It's important to note that the SDK does not automatically insert these data attributes into your HTML.
-You are responsible for adding them manually.**
+The Kontent.ai Smart Link SDK relies on manually specified data attributes in your HTML markup. These attributes are essential for the SDK to identify where and how to integrate smart links into your content. They also enable the SDK to access necessary information, such as the Kontent.ai environment ID and element codenames.
 
-#### Available data attributes
+> [!NOTE] 
+> **It's important to note that the SDK does not automatically insert these data attributes into your HTML. You are responsible for adding them manually.**
+
+### Available data attributes
 
 | Attribute                                 |                                                                                                     Value                                                                                                      | Description                                                                                                                                                 |
 |-------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|-------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `data-kontent-project-id`                 |                                                                                                      guid                                                                                                      | Kontent.ai environment ID.                                                                                                                                  |
+| `data-kontent-environment-id`                 |                                                                                                      guid                                                                                                      | Kontent.ai environment ID.                                                                                                                                  |
 | `data-kontent-language-codename`          |                                                                                                     string                                                                                                     | Kontent.ai language codename.                                                                                                                               |
 | `data-kontent-item-id`                    |                                                                                                      guid                                                                                                      | Content item ID.                                                                                                                                            |
 | `data-kontent-component-id`               |                                                                                                      guid                                                                                                      | [Content component](https://kontent.ai/learn/tutorials/write-and-collaborate/structure-your-content/structure-your-content#a-create-single-use-content) ID. |
@@ -146,172 +122,169 @@ You are responsible for adding them manually.**
 | `data-kontent-add-button-render-position` | `bottom-start` &#124; `bottom` &#124; `bottom-end` &#124; `left-start` &#124; `left` &#124; `left-end` &#124; `top-start` &#124; `top` &#124; `top-end` &#124; `right-start` &#124; `right` &#124; `right-end` | Specifies visual location of add button.                                                                                                                    |
 | `data-kontent-disable-features`           |                                                                                                  `highlight`                                                                                                   | Specifies that the selected node should not have highlight (which includes edit smart links). Useful when there are too many smart links on your page.      |
 
-#### Data attributes hierarchy
+### Data attributes hierarchy
 
-Setting up data attributes in a hierarchical structure is a strategic approach to simplify your integration
-with the Kontent.ai Smart Link SDK. This method eliminates the need to repeat attributes across multiple elements,
-making your code cleaner and more maintainable.
+The SDK processes data attributes in a hierarchical structure. While the SDK internally parses these attributes from the most nested (bottom) to the least nested (top), we recommend implementing them in your HTML from top to bottom. This means starting with the highest-level container elements and working your way down to the most specific elements. Here's how:
 
-##### Hierarchical setup explained:
+- **Environment-Level Attributes:** Begin by assigning the `data-kontent-environment-id` attribute to a high-level element, such as the `<body>` tag. Similarly, assign the `data-kontent-language-codename` alongside the environment id ID to establish the language context for all contained elements.
 
-- **Project-Level Attributes:** Begin by assigning the `data-kontent-project-id` attribute to a high-level element,
-  such as the `<body>` tag. That approach ensures that all elements within the body inherit this project identifier,
-  linking them to your specific Kontent.ai project. Similarly, if your content is published in a single language,
-  assign the `data-kontent-language-codename` alongside the project ID to establish the language context for all
-  contained elements.
-- **Content-Specific Attributes:** Next, identify elements representing individual content items or components within
-  your webpage. Assign each a `data-kontent-item-id`, making these elements recognizable to the SDK as distinct
-  pieces of content. For elements corresponding to specific fields or components within these elements, use
-  the `data-kontent-element-codename` to map each directly to its counterpart in Kontent.ai.
-- **Nested Content:** In scenarios involving rich text or linked items that contain additional content elements,
-  continue this hierarchical assignment. Place relevant item or component IDs on their respective container elements.
-- **[Content Components](https://kontent.ai/learn/create/add-structure-to-your-content/single-use-content-no-problem):**
-  Unlike standard content items, content components are designed to be used within a specific rich text element
-  and do not appear as standalone items in you Content Inventory. To effectively integrate these content components
-  with the Kontent.ai Smart Link SDK, it's essential to mark them with the `data-kontent-component-id` attribute
-  within your HTML, ensuring it's correctly linked to its parent content item in the CMS.
+> [!NOTE] 
+> The environment ID and language codename can also be configured during SDK initialization. See the [Configuration section](#configuration) for details on setting these values programmatically.
 
-### Smart links
+- **Content-Specific Attributes:** After setting environment attributes, mark your content items and their elements:
+  - Use `data-kontent-item-id` on elements that represent entire content items
+  - Use `data-kontent-element-codename` on elements that represent specific fields within those items 
+  - Use `data-kontent-component-id` on elements that represent content components within rich text elements
 
-The Kontent.ai Smart Link SDK supports four distinct types of smart links, each designed to enhance
-your content editing workflow. These smart links are powered by the data attributes from the previous section and
-primarily function within the Web Spotlight preview iframe.
+  This mapping allows the SDK to connect your HTML elements directly to their corresponding content in Kontent.ai.
 
-#### Edit element smart link
+- **Nested Content:** For rich text or linked items containing additional content:
+  - For linked items: Mark nested content with `data-kontent-item-id` to represent each nested item
+  - For rich text: Mark content components with `data-kontent-component-id` to represent reusable components within the rich text
+  - Continue this pattern for any deeper nesting levels
 
-This smart link enables direct editing of a content item's specific element within the preview. When clicked:
 
-- **Inside Web Spotlight:** Opens the In-Context editor, focusing on the selected element.
-- **Outside Web Spotlight:** Redirects to the corresponding item in the Kontent.ai editor.
+### Smart Links
 
-**Data Attributes:** `data-kontent-project-id`, `data-kontent-language-codename`, `data-kontent-item-id`,
-`data-kontent-component-id?` (optional), and `data-kontent-element-codename`.
+Smart links create clickable overlays on your content that connect directly to Kontent.ai's editing interface. Think of them as "edit buttons" or "add buttons" that appear when you hover over content elements.
+
+| Smart Link Type | Purpose | Works Outside Web Spotlight? | Key Attributes |
+|----------------|---------|---------------------------|---------------|
+| **Element Edit** | Edit specific content elements | ✅ Yes | `data-kontent-element-codename` |
+| **Item Edit** | Edit content items | ✅ Yes | `data-kontent-item-id` |
+| **Component Edit** | Edit content components | ❌ Web Spotlight only | `data-kontent-component-id` |
+| **Add Content** | Add new content/components | ❌ Web Spotlight only | `data-kontent-add-button` |
+
+**What happens when clicked:**
+- **Outside Web Spotlight:** Redirects to Kontent.ai item editor
+- **Inside Web Spotlight:** Opens in-context editor for that specific field
+
+---
+
+#### Smart Links Explained
+
+1. **Set up your page context**
+Every smart link needs to know which project and language it's working with:
 
 ```html
-
-<div data-kontent-project-id='00000000-0000-0000-0000-000000000000' data-kontent-language-codename='default'>
-  <section data-kontent-item-id='00000000-0000-0000-0000-000000000000'>
-    <div data-kontent-element-codename='codename'>Content</div>
-  </section>
-</div>
+<!-- Set these once at a high level (like <body> or main container) -->
+<main data-kontent-environment-id='1d50a0f7-9033-48f3-a96e-7771c73f9683' 
+      data-kontent-language-codename='default'>
+  <!-- Your content goes here -->
+</main>
 ```
 
-#### Edit content component smart link
-
-This smart link enables direct editing of content components within the preview. It triggers the In-Context editor
-and brings the component into view.
-
-**Availability:** Exclusive to the Web Spotlight environment.
-
-**Data attributes:** `data-kontent-project-id`, `data-kontent-language-codename`, `data-kontent-item-id`,
-and `data-kontent-component-id`.
+2. **Make a text field editable**
+The most common use case - clicking text to edit it:
 
 ```html
-
-<div data-kontent-project-id='00000000-0000-0000-0000-000000000000' data-kontent-language-codename='default'>
-  <section data-kontent-item-id='00000000-0000-0000-0000-000000000000'>
-    <div data-kontent-component-id='00000000-0000-0000-0000-000000000000'>
-      <div>Article</div>
-      <div>Content</div>
+<main data-kontent-environment-id='1d50a0f7-9033-48f3-a96e-7771c73f9683' 
+      data-kontent-language-codename='default'>
+  <!-- Edit Button on content item with specified ID -->
+  <article data-kontent-item-id='af858748-f48a-4169-9b35-b10c9d3984ef'>
+    <!-- Edit Button on "title" element -->
+    <h1 data-kontent-element-codename='title'>How to Use Smart Links</h1>
+    <!-- Edit Button on "content" element -->
+    <div data-kontent-element-codename='content'>
+      Smart links make editing content incredibly easy...
     </div>
-  </section>
-</div>
+  </article>
+</main>
 ```
 
-#### Edit content item smart link
+#### Content Components
 
-This smart link enables the editing of entire content items through a preview click, opening the In-Context editor.
-
-**Availability:** Exclusive to the Web Spotlight environment.
-
-**Data attributes:** `data-kontent-project-id`, `data-kontent-language-codename`, and `data-kontent-item-id`.
+Content components are reusable pieces within rich text. Each needs its own ID:
 
 ```html
-
-<div data-kontent-project-id='00000000-0000-0000-0000-000000000000' data-kontent-language-codename='default'>
-  <section data-kontent-item-id='00000000-0000-0000-0000-000000000000'>
-    <div>Article</div>
-    <div>Content</div>
-  </section>
-</div>
+<main data-kontent-environment-id='1d50a0f7-9033-48f3-a96e-7771c73f9683' 
+      data-kontent-language-codename='default'>
+      
+  <article data-kontent-item-id='af858748-f48a-4169-9b35-b10c9d3984ef'>
+    
+    <!-- Edit button on rich text element -->
+    <div data-kontent-element-codename='article_content'>
+      
+      <!-- Edit button on component with that ID -->
+      <blockquote data-kontent-component-id='51a90561-9084-4d32-9e34-80da7c88c202'>
+        <!-- Edit button on "quote_text" element inside component -->
+        <p data-kontent-element-codename='quote_text'>
+          "Smart links revolutionized our content workflow."
+        </p>
+      </blockquote>
+      
+      <!-- Another content component -->
+      <figure data-kontent-component-id='23e657d2-e4ce-4878-a77d-365db46c956d'>
+        <img data-kontent-element-codename='image' src="..." alt="...">
+      </figure>
+    </div>
+  </article>
+</main>
 ```
 
-#### Add content smart link
+---
 
-This smart link enables the addition of new modular content directly within your page's preview,
-supporting both rich-text and linked item elements.
+#### Adding New Modular Content
 
-**Availability:** Exclusive to the Web Spotlight environment.
+Add buttons let editors insert new linked items/components directly in the preview:
 
-##### Fixed add content smart link
-
-Fixed add content smart link positions new content at predetermined points of
-the target rich-text or linked items (`start` or `end`).
-
-**Data attributes:** `data-kontent-project-id`, `data-kontent-language-codename`, `data-kontent-item-id`,
-`data-kontent-component-id?` (optional),
-`data-kontent-element-codename` (codename of the rich-text or linked items element),
-`data-kontent-add-button`, `data-kontent-add-button-render-position?`, `data-kontent-add-button-insert-position=start|end`.
-
+**Adding to the end of a list:**
 ```html
-
-<div data-kontent-project-id='00000000-0000-0000-0000-000000000000' data-kontent-language-codename='default'>
-  <section data-kontent-item-id='00000000-0000-0000-0000-000000000000'>
-    <div
-      data-kontent-element-codename='rich-text-element-codename'
+<!-- Navigation menu that editors can extend -->
+<nav data-kontent-item-id='6ea11626-336d-47e5-9f35-2d44fa1ad6d6'>
+  <ul data-kontent-element-codename='navigation_items'
       data-kontent-add-button
-      data-kontent-render-position='bottom'
-      data-kontent-insert-position='end'
-    >
-      ...
-    </div>
-  </section>
-</div>
+      data-kontent-add-button-render-position='bottom'
+      data-kontent-add-button-insert-position='end'>
+    
+    <li data-kontent-component-id='036acd8f-5e6d-4023-b0f8-a4b8e0b573b1'>
+      <a data-kontent-element-codename='link_text'>Home</a>
+    </li>
+    <li data-kontent-component-id='f539f1bc-9dc4-4df5-8876-dbb1de5ae6eb'>
+      <a data-kontent-element-codename='link_text'>About</a>
+    </li>
+    
+    <!-- Add button appears here -->
+  </ul>
+</nav>
 ```
 
-##### Relative add content smart link
-
-Relative add content smart link allows new content to be placed relative to existing elements (`before` or `after`).
-For example, you can insert a new content component before or after the existing content component in rich-text element.
-To turn add content smart link into a relative one, you need to set `data-kontent-insert-position`
-to `before` or `after` and provide target id on the same node
-using `data-kontent-item-id` or `data-kontent-component-id` attribute.
-
-**Data attributes:** `data-kontent-project-id`, `data-kontent-language-codename`, `data-kontent-item-id`,
-`data-kontent-component-id?` (optional),
-`data-kontent-element-codename` (codename of the rich-text or linked items element),
-`data-kontent-item-id|data-kontent-component-id` (target item), `data-kontent-add-button`,
-`data-kontent-add-button-render-position?`, `data-kontent-add-button-insert-position=before|after`.
-
+**Adding before/after specific linked items:**
 ```html
-
-<div data-kontent-project-id='00000000-0000-0000-0000-000000000000' data-kontent-language-codename='default'>
-  <section data-kontent-item-id='00000000-0000-0000-0000-000000000000'>
-    <div data-kontent-element-codename='rich-text-element-codename'>
-      <div
-        data-kontent-component-id='00000000-0000-0000-0000-000000000000'
-        data-kontent-add-button
-        data-kontent-render-position='start'
-        data-kontent-insert-position='before'
-      >...
-      </div>
-    </div>
-  </section>
-</div>
+<!-- Article sections where editors can insert new linked item sections -->
+<article data-kontent-item-id='af858748-f48a-4169-9b35-b10c9d3984ef'>
+  <div data-kontent-element-codename='article_sections'>
+    
+    <!-- Existing linked item section with "add before" button -->
+    <section data-kontent-item-id='12345678-1234-1234-1234-123456789012'
+             data-kontent-add-button
+             data-kontent-add-button-render-position='top-start'
+             data-kontent-add-button-insert-position='before'>
+      <h2 data-kontent-element-codename='section_title'>Introduction</h2>
+      <p data-kontent-element-codename='section_content'>...</p>
+    </section>
+    
+    <!-- Another linked item section with "add after" button -->
+    <section data-kontent-item-id='87654321-4321-4321-4321-210987654321'
+             data-kontent-add-button
+             data-kontent-add-button-render-position='bottom-end'
+             data-kontent-add-button-insert-position='after'>
+      <h2 data-kontent-element-codename='section_title'>Conclusion</h2>
+      <p data-kontent-element-codename='section_content'>...</p>
+    </section>
+  </div>
+</article>
 ```
 
-### SDK initialization
+## SDK initialization
 
-To activate the Kontent.ai Smart Link SDK on your website, you need to initialize it after setting up all required
-data attributes. The SDK offers two methods for initialization:
+To activate the Kontent.ai Smart Link SDK on your website, you need to initialize it after setting up all required data attributes. The SDK offers two methods for initialization:
 
-- `initialize`: Instantly initializes the SDK, making it ready to use. This method is ideal when your webpage
-  is fully loaded or when SDK initialization occurs after the document's `DOMContentLoaded` event.
+- `initialize`: Instantly initializes the SDK, making it ready to use. This method is ideal when your webpage is fully loaded or when SDK initialization occurs after the document's `DOMContentLoaded` event.
     ```ts
     const instance = KontentSmartLink.initialize({ queryParam: "preview" });
     ```
-- `initializeOnLoad`: Delays SDK initialization until the entire page has loaded. This approach is particularly useful
-  for including the SDK in the `<head>` of your webpage, ensuring that all page elements are fully loaded before
+- `initializeOnLoad`: Delays SDK initialization until the entire page has loaded. This approach is particularly useful for including the SDK in the `<head>` of your webpage, ensuring that all page elements are fully loaded before
   initialization begins.
     ```ts
     KontentSmartLink.initializeOnLoad().then(instance => {
@@ -319,14 +292,11 @@ data attributes. The SDK offers two methods for initialization:
     });
     ```
 
-Both methods return an SDK instance, with `initializeOnLoad` returning a promise that resolves to an instance.
-It is important to manage this instance appropriately:
+Both methods return an SDK instance, with `initializeOnLoad` returning a promise that resolves to an instance. It is important to manage this instance appropriately:
 
 - **Accessing the SDK instance:** Store the returned instance if you need to access SDK methods after initialization.
-- **Resource management:** The SDK leverages event listeners, timeouts, and observers to function properly. To prevent
-  memory leaks or unintended behavior always invoke the `.destroy()` method on the SDK instance before re-initializing
-  the SDK. This is crucial in single-page applications or dynamic webpages where content might be loaded multiple
-  times without a full page refresh.
+
+- **Resource management:** The SDK leverages event listeners, timeouts, and observers to function properly. To prevent memory leaks or unintended behavior always invoke the `.destroy()` method on the SDK instance before re-initializing the SDK.
     ```ts
     useEffect(() => {
       const instance = KontentSmartLink.initialize();
@@ -334,38 +304,123 @@ It is important to manage this instance appropriately:
     })
     ```
 
-#### Configuration
+#### Outside Web Spotlight
 
-Customize how the SDK operated on your preview website with optional configuration arguments passed during
-initialization. Configuration can be adjusted post-initialization using the `setConfiguration` method.
+When used outside of Web Spotlight, the SDK leverages URL query parameters to manage the activation of smart links. By default, it looks for the `ksl-enabled` parameter in the webpage URL. However, this parameter can be customized using the `queryParam` option during SDK initialization. The features that could be used outside of Web Spotlight are limited.
+
+#### Inside Web Spotlight
+
+If the SDK detects that it is run inside an iframe, it attempts to connect to Web Spotlight through iframe messages early during initialization. Upon successful communication with Web Spotlight, the SDK disables query parameter
+reliance and activates additional functionalities designed for in-context editing and preview.
+
+
+### Configuration
+
+Customize how the SDK operate on your preview website with optional configuration arguments passed during initialization. Configuration can be adjusted post-initialization using the `setConfiguration` method.
 
 | Attribute             |                           Default                           | Description                                                                                                                                                                                                                                                                                                                                                    |
 |-----------------------|:-----------------------------------------------------------:|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| debug                 |                            false                            | Set to `true` to enable detailed logging, aiding in development and troubleshooting. Note: This may impact performance.                                                                                                                                                                                                                                        
-| defaultDataAttributes | ```{ projectId: undefined, languageCodename: undefined }``` | Define default values for essential data attributes to streamline setup.                                                                                                                                                                                                                                                                                       |
-| queryParam            |                        `ksl-enabled`                        | Name of the query parameter that must be present in the URL to turn the smart link injection on. It is not necessary for query parameter to have a truthy value (just the presence of this query parameter is checked). If set to falsy value ('', null), the smart link injection will always be enabled. Query parameter is only used outside Web Spotlight. |
+| debug                 |                            false                            | Set to `true` to enable detailed logging, aiding in development and troubleshooting.                                                                                                                                                                                         
+| defaultDataAttributes | ```{ environmentId: undefined, languageCodename: undefined }``` | Define default values for essential data attributes to streamline setup.                                                                                                                                                                                                                                                                                       |
+| queryParam            |                        `ksl-enabled`                        | Name of the query parameter that must be present in the URL to turn the smart link injection on. Only the presence of this query parameter is checked. Query parameter is only used outside Web Spotlight. |
+
+
+### Preview autorefresh in Web Spotlight
+
+Maintaining an up-to-date preview is essential when editing content in Web Spotlight using the in-context editor. The Kontent.ai Smart Link SDK introduces a preview autorefresh feature from version 2.2.0 onwards, ensuring your preview automatically updates after your changes are saved without manual refreshes.
+
+#### Prerequisites for autorefresh
+
+To enable autorefresh in your preview web app, ensure:
+
+1. **SDK Version:** Your application is using version 2.2.0 or higher of the Smart Link SDK.
+2. **API Header:** The `X-KC-Wait-For-Loading-New-Content` header is set to `true` for requests to the Delivery Preview API.
+
+#### Implementing a custom refresh handler
+
+There are scenarios where a full page refresh may not be ideal, such as when using a static site generator or when aiming to update only a portion of the page. To accommodate diverse needs, the Smart Link SDK offers the capability to define a custom refresh handler.
+
+This custom handler overrides the default refresh behavior, allowing for tailored refresh logic based on your specific requirements. Implement it as follows:
+
+```ts
+import KontentSmartLink, { IRefreshMessageData } from '@kontent-ai/smart-link';
+
+const sdk = KontentSmartLink.initialize();
+
+sdk.on(KontentSmartLinkEvent.Refresh, (data, metadata, originalRefresh) => {
+  // Implement your custom refresh logic here
+});
+```
+
+You can then unregister the custom handler using the `.off` method.
+
+For more complex example, check the [Examples](#examples) section.
+
+
+### Live preview in Web Spotlight
+
+As of version 3.2.0, the Kontent.ai Smart Link SDK introduces support for live preview within Web Spotlight. This feature enhances the content editing experience by providing real-time updates within your preview environment through iframe communication immediately after edits are made in the in-context editor.
+
+> [!Note]
+> The live preview requires manual integration to function. Your preview website will not automatically update with changes; it is your responsibility to implement how these updates are processed and displayed in your application.
+
+#### Implementing live preview in your application
+
+To set up live preview, listen for update events from the SDK. These events are triggered after content is edited in Kontent.ai, providing you with the updated data. 
+In a typical SPA, you would fetch the data from the Delivery API and store them in memory. When the SDK triggers an update event, you would then update the stored items in memory to display the latest content. 
+To easily apply the updates on you items, SDKs provide you wtih helper functions:
+  - `applyUpdateOnItem` - A function that applies the update data directly to a content item, modifying its elements, content components, and existing linked items according to the changes made in the editor.
+
+  - `applyUpdateOnItemAndLoadLinkedItems` - A function that applies updates to the content item and attempts to load newly added linked items using the provided callback function. The callback function should handle loading the items from the Delivery API, including any polling logic needed since newly added items may not be immediately available.
+
+```ts
+import KontentSmartLink, { KontentSmartLinkEvent, applyUpdateOnItem, applyUpdateOnItemAndLoadLinkedItems } from '@kontent-ai/smart-link';
+
+const setItems = (items: ...) => {} // setItems logic
+
+// Initialize the SDK
+const sdk = KontentSmartLink.initialize({ ... });
+
+const fetchItemsFromDeliveryApi = (itemCodenames: ReadonlyArray<string>) => client.items().inFilter(system.codename, items).toAllPromise().then(res => res.data.items);
+
+// Listen for updates and apply them to your application
+sdk.on(KontentSmartLinkEvent.Update, (data: IUpdateMessageData) => {
+  // Use this data to update your application state or UI as needed e.g.:
+  setItems((items) => items.map(item => applyUpdateOnItem(item, data)));
+  // or
+  Promise.all(items.map(item => applyUpdateOnItemAndLoadLinkedItems(item, data, fetchItemsFromDeliveryApi)))
+    .then(setItems);
+});
+```
+
+For more complex example, check the [Examples](#examples) section.
+
+### Combining autorefresh and live preview
+
+While autorefresh ensures that content updates are accurately reflected post-save, live preview offers the advantage of immediate visual feedback before changes are saved. To maximize content management efficiency, we recommend using live preview for instant editing feedback and relying on autorefresh to confirm that all changes are correctly saved
+and displayed. This combination provides a seamless editing experience, allowing content editors to preview changes in real-time and ensuring that the final content displayed is up-to-date with the Delivery Preview API.
 
 #### Customization
 
 The following [custom CSS properties](https://developer.mozilla.org/en-US/docs/Web/CSS/--*) can be used to customize the
 visuals of the SDK output.
 
-| Custom property                         |                                                 Default                                                  | Description                                                                                        |
-|-----------------------------------------|:--------------------------------------------------------------------------------------------------------:|----------------------------------------------------------------------------------------------------|
-| --ksl-color-background-default          |                                         `rgba(255, 255, 255, 1)`                                         | Default background color used in toolbar and popover.                                              |
-| --ksl-color-background-default-disabled |                                         `rgba(223, 223, 223, 1)`                                         | Disabled background color for buttons inside toolbar and popover.                                  |
-| --ksl-color-background-default-hover    |                                         `rgba(21, 21, 21, 0.1)`                                          | Hover background color for buttons inside toolbar and popover.                                     |
-| --ksl-color-background-default-selected |                                         `rgba(255, 240, 239, 1)`                                         | Selected background color for buttons inside toolbar and popover.                                  |
-| --ksl-color-background-secondary        |                                          `rgba(20, 22, 25, 1)`                                           | Secondary background color used in tooltips.                                                       |
-| --ksl-color-primary                     |                                          `rgba(219, 60, 0, 1)`                                           | Primary color used as a hover border color in highlights and as a background color in add buttons. |
-| --ksl-color-primary-hover               |                                          `rgba(149, 48, 0, 1)`                                           | Primary color used as a hover background color in add buttons.                                     |
-| --ksl-color-primary-transparent         |                                         `rgba(219, 60, 0, 0.5)`                                          | Primary color with transparency used as a default border color in highlights.                      |
-| --ksl-color-text-default                |                                         `rgba(255, 255, 255, 1)`                                         | Text color used on a default background (buttons inside toolbar and popover).                      |
-| --ksl-color-text-default-disabled       |                                         `rgba(140, 140, 140, 1)`                                         | Disabled text color used on a default background.                                                  |
-| --ksl-color-text-secondary              |                                          `rgba(21, 21, 21, 1)`                                           | Text color used inside tooltips and add buttons.                                                   |
-| --ksl-shadow-default                    |                     `0 8px 32px rgba(16, 33, 60, 0.24), 0 0 8px rgba(0, 0, 0, 0.03)`                     | Default shadow for toolbar.                                                                        |
-| --ksl-shadow-primary                    | `0 8px 10px rgba(219, 60, 0, 0.2), 0 6px 20px rgba(219, 60, 0, 0.12), 0 8px 14px rgba(219, 60, 0, 0.14)` | Shadow for add buttons.                                                                            |
-| --ksl-z-index                           |                                                  `9000`                                                  | Base value of z-index used for calculation of individual values for each ksl-element type          |
+| Custom property | Default | Description |
+|-----------------|---------|-------------|
+| --ksl-color-background-default | `rgba(255, 255, 255, 1)` | Default background color used in toolbar and popover. |
+| --ksl-color-background-default-disabled | `rgba(223, 223, 223, 1)` | Disabled background color for buttons inside toolbar and popover. |
+| --ksl-color-background-default-hover | `rgba(21, 21, 21, 0.1)` | Hover background color for buttons inside toolbar and popover. |
+| --ksl-color-background-default-selected | `rgba(255, 240, 239, 1)` | Selected background color for buttons inside toolbar and popover. |
+| --ksl-color-background-secondary | `rgba(20, 22, 25, 1)` | Secondary background color used in tooltips. |
+| --ksl-color-primary | `rgba(219, 60, 0, 1)` | Primary color used as a hover border color in highlights and as a background color in add buttons. |
+| --ksl-color-primary-hover | `rgba(149, 48, 0, 1)` | Primary color used as a hover background color in add buttons. |
+| --ksl-color-primary-transparent | `rgba(219, 60, 0, 0.5)` | Primary color with transparency used as a default border color in highlights. |
+| --ksl-color-text-default | `rgba(255, 255, 255, 1)` | Text color used on a default background (buttons inside toolbar and popover). |
+| --ksl-color-text-default-disabled | `rgba(140, 140, 140, 1)` | Disabled text color used on a default background. |
+| --ksl-color-text-secondary | `rgba(21, 21, 21, 1)` | Text color used inside tooltips and add buttons. |
+| --ksl-shadow-default | `0 8px 32px rgba(16, 33, 60, 0.24), 0 0 8px rgba(0, 0, 0, 0.03)` | Default shadow for toolbar. |
+| --ksl-shadow-primary | `0 8px 10px rgba(219, 60, 0, 0.2), 0 6px 20px rgba(219, 60, 0, 0.12), 0 8px 14px rgba(219, 60, 0, 0.14)` | Shadow for add buttons. |
+| --ksl-z-index | `9000` | Base value of z-index used for calculation of individual values for each ksl-element type |
 
 These styles can be applied globally using the :root selector or scoped to specific elements for more precise theming.
 
@@ -388,196 +443,52 @@ These styles can be applied globally using the :root selector or scoped to speci
 }
 ```
 
-### Preview autorefresh in Web Spotlight
+## Known issues
 
-Maintaining an up-to-date preview is essential when editing content in Web Spotlight using the in-context editor.
-The Kontent.ai Smart Link SDK introduces a preview autorefresh feature from version 2.2.0 onwards, ensuring your preview
-automatically updates after your changes are saved without manual refreshes.
+### Nested iframes
 
-#### Prerequisites for autorefresh
+In scenarios where your content is displayed within nested iframes (e.g. to simulate different device resolutions, or to handle redirects to the right preview website based on the item), the SDK's initialization messages may not reach the top-level Web Spotlight iframe directly, affecting functionality. To address this, follow the guidance provided
+in [this issue](https://github.com/kontent-ai/smart-link/issues/16).
 
-To enable autorefresh in your preview web app, ensure:
+### SameSite cookie in Next.js app
 
-1. **SDK Version:** Your application is using the latest version of the Smart Link SDK.
-2. **API Header:** The `X-KC-Wait-For-Loading-New-Content` header is set to `true` for requests to the Delivery
-   Preview API.
+Next.js developers may encounter an issue with `SameSite` cookies not being set correctly. This can be solved by
+utilizing the code snippet below in
+your [API route handling preview](https://nextjs.org/docs/advanced-features/preview-mode) file to replace `SameSite=Lax`
+to `SameSite=None; Secure;` right after `res.setPreviewData` call.
 
-With these conditions met, Web Spotlight automatically refreshes the preview once your changes are ready on Delivery
-Preview API, streamlining the editing process.
+```js
+const setCookieSameSite = (res, value) => {
+  const cookies = res.getHeader("Set-Cookie");
+  const updatedCookies = cookies?.map((cookie) =>
+    cookie.replace(
+      "SameSite=Lax",
+      `SameSite=${value}; Secure;`
+    )
+  )
+  res.setHeader(
+    "Set-Cookie",
+    updatedCookies
+  );
+};
 
-#### Advanced: Implementing a custom refresh handler
+export default function handler(req, res) {
+  // ...
+  res.setPreviewData({})
 
-There are scenarios where a full page refresh may not be ideal, such as when using a static site generator or when
-aiming to update only a portion of the page. To accommodate diverse needs, the Smart Link SDK offers the capability
-to define a custom refresh handler.
-
-This custom handler overrides the default refresh behavior, allowing for tailored refresh logic based on your
-specific requirements. Implement it as follows:
-
-```ts
-import { IRefreshMessageData } from './IFrameCommunicatorTypes';
-
-const sdk = KontentSmartLink.initialize();
-
-sdk.on(KontentSmartLinkEvent.Refresh, (data, metadata, originalRefresh) => {
-  // Implement your custom refresh logic here
-});
-```
-
-You can then unregister the custom handler using the `.off` method.
-
-For more complex example, check the [Examples](#examples) section.
-
-##### Parameters for the custom refresh handler
-
-| Argument         | Type                                                                                          | Description                                                                                                                 |
-|------------------|-----------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
-| Data             | { projectId: string, languageCodename: string, updatedItemCodename: string } &#124; undefined | Provides details on the updated item that caused autorefresh. It is only available when refresh is triggered automatically. |
-| Metadata         | { manualRefresh: boolean }                                                                    | Manual refresh is set to `true` when the refresh was user-initiated.                                                        |
-| Original refresh | () => void                                                                                    | The SDK's default refresh function.                                                                                         |
-
-### Live preview in Web Spotlight
-
-As of version 3.2.0, the Kontent.ai Smart Link SDK introduces support for live preview within Web Spotlight.
-This feature enhances the content editing experience by providing real-time updates within your preview environment
-through iframe communication immediately after edits are made in the in-context editor.
-
-**Note:** The live preview requires manual integration to function. Your preview website will not automatically
-update with changes; it is your responsibility to implement how these updates are processed and displayed in your
-application.
-
-#### Implementing live preview in your application
-
-To set up live preview, listen for update events from the SDK. These events are triggered after content is
-edited in Kontent.ai, providing you with the updated data. 
-In a typical application, you would fetch the data from the Delivery API and store them in memory.
-When the SDK triggers an update event, you would then update the stored items in memory to display the latest content.
-To easily apply the updates on you items, you can use `applyUpdateOnItem` or `applyUpdateOnItemAndLoadLinkedItems` functions from the SDK.
-
-```ts
-import KontentSmartLink, { KontentSmartLinkEvent, applyUpdateOnItem, applyUpdateOnItemAndLoadLinkedItems } from '@kontent-ai/smart-link';
-
-// Initialize the SDK
-const sdk = KontentSmartLink.initialize({ ... });
-
-const fetchItemsFromDeliveryApi = (itemCodenames: ReadonlyArray<string>) => client.items().inFilter(system.codename, items).toAllPromise().then(res => res.data.items);
-
-// Listen for updates and apply them to your application
-sdk.on(KontentSmartLinkEvent.Update, (data: IUpdateMessageData) => {
-  // Use this data to update your application state or UI as needed e.g.:
-  setItems((items) => items.map(item => applyUpdateOnItem(item, data)));
-  // or
-  Promise.all(items.map(item => applyUpdateOnItemAndLoadLinkedItems(item, data, fetchItemsFromDeliveryApi)))
-    .then(setItems);
-});
-```
-
-For more complex example, check the [Examples](#examples) section.
-
-#### Data contract
-
-The `Update` event delivers data of type `IUpdateMessageData`, containing detailed information about the updated
-content elements:
-
-```ts
-interface IUpdateMessageData {
-  projectId: string;
-  variant: {
-    id: string;
-    codename: string;
-  };
-  item: {
-    id: string;
-    codename: string;
-  };
-  elements: ReadonlyArray<{
-    element: {
-      id: string;
-      codename: string;
-    };
-    type: ElementType,
-    data: Omit<Element, 'type' | 'name'>
-  }>;
+  // THIS NEEDED TO BE ADDED
+  setCookieSameSite(res, "None");
+  // ...
 }
 ```
-
-You can find [ElementType](https://github.com/kontent-ai/delivery-sdk-js/blob/v14.6.0/lib/elements/element-type.ts)
-and [Element](https://github.com/kontent-ai/delivery-sdk-js/blob/v14.6.0/lib/elements/elements.ts) definition in
-@kontent-ai/delivery-sdk repository.
-
-##### Modular content in live preview
-
-Live preview updates for content items that include linked items only provide the codenames of these linked items.
-To fully update your application with changes to these linked items, you may need to fetch their full details from the
-Delivery Preview API after receiving the live update message. This ensures that all parts of your content are up-to-date.
-You can use the `applyUpdateOnItemAndLoadLinkedItems` function to simplify this process.
-The function uses the provided loader to load any items added in the update message and applies the update to the item.
-
-Content components within rich text elements, however, are directly included in the live update messages. This means
-changes to these components are immediately reflected in the live preview, without needing additional fetches.
-
-#### Combining autorefresh and live preview
-
-While autorefresh ensures that content updates are accurately reflected post-save, live preview offers the advantage
-of immediate visual feedback before changes are saved. To maximize content management efficiency, we recommend using
-live preview for instant editing feedback and relying on autorefresh to confirm that all changes are correctly saved
-and displayed. This combination provides a seamless editing experience, allowing content editors to preview changes
-in real-time and ensuring that the final content displayed is up-to-date with the Delivery Preview API.
-
-### Outside Web Spotlight
-
-When used outside of Web Spotlight, the SDK leverages URL query parameters to manage the activation of smart links.
-By default, it looks for the `ksl-enabled` parameter in the webpage URL. However, this parameter can be customized
-using the `queryParam` option during SDK initialization.
-
-The SDK only checks for the presence of this query parameter, disregarding its value. As such, any of the following
-configurations are considered valid:
-
-- `?ksl-enabled=true`
-- `?ksl-enabled=false`
-- `?ksl-enabled`
-
-The features that could be used outside of Web Spotlight are limited.
-For detailed information about the types of smart links that are supported in this context,
-please refer to the [Smart Links](#smart-links) section.
-
-### Inside Web Spotlight
-
-If the SDK detects that it is run inside an iframe, it attempts to connect to Web Spotlight through iframe messages
-early during initialization. Upon successful communication with Web Spotlight, the SDK disables query parameter
-reliance and activates additional functionalities designed for in-context editing and preview.
-
-#### Iframe communication
-
-The SDK and Web Spotlight exchange a series of messages for various interactions, from initialization to content
-editing and refresh requests. All message types are listed below.
-
-| Message                                         |                                                                                                                            Data                                                                                                                            | Origin | Description                                                                                             |
-|-------------------------------------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:------:|---------------------------------------------------------------------------------------------------------|
-| kontent-smart-link:initialized                  |                                                                           <code>{ projectId: string &#124; null, languageCodename: string &#124; null, enabled: boolean }</code>                                                                           |  SDK   | This message is sent by the SDK when it is initialized.                                                 |
-| kontent-smart-link:initialized:response         |                                                                                                                             -                                                                                                                              |  Host  | This message is sent by the host as a response to initialized message.                                  |
-| kontent-smart-link:status                       |                                                                                                             <code>{ enabled: boolean }</code>                                                                                                              |  Host  | This message is used to toggle the SDK features.                                                        |
-| kontent-smart-link:element:clicked              |                                                             <code>{ projectId: string, languageCodename: string, itemId: string, contentComponentId?: string, elementCodename: string }</code>                                                             |  SDK   | This message is sent by the SDK when element with `data-kontent-element-codename` attribute is clicked. |
-| kontent-smart-link:content-component:clicked    |                                                                          <code>{ projectId: string, languageCodename: string, itemId: string, contentComponentId: string }</code>                                                                          |  SDK   | This message is sent by the SDK when element with `data-kontent-component-id` attribute is clicked.     |
-| kontent-smart-link:content-item:clicked         |                                                                                        <code>{ projectId: string, languageCodename: string, itemId: string }</code>                                                                                        |  SDK   | This message is sent by the SDK when element with `data-kontent-item-id` attribute is clicked.          |
-| kontent-smart-link:add:initial                  |         <code>{ projectId: string, languageCodename: string, itemId: string, contentComponentId?: string, elementCodename: string, insertPosition: { targetId?: string, placement: 'start' &#124; 'end' &#124; 'before' &#124; 'after', } }</code>         |  SDK   | This message is sent by the SDK when add button is clicked.                                             |
-| kontent-smart-link:add:initial:response         |                                                        <code>{ elementType: 'LinkedItems' &#124; 'RichText' &#124; 'Unknown', isParentPublished: boolean, permissions: Map<string,string> }</code>                                                         |  Host  | This message is sent by the host as a response to initial add button click.                             |
-| kontent-smart-link:add:action                   | <code>{ projectId: string, languageCodename: string, itemId: string, contentComponentId?: string, elementCodename: string, action: string, insertPosition: { targetId?: string, placement: 'start' &#124; 'end' &#124; 'before' &#124; 'after', } }</code> |  SDK   | This message is sent by the SDK when add button action is clicked.                                      |
-| kontent-smart-link:preview:refresh              |                                                                         <code>{ projectId: string, languageCodename: string, updatedItemCodename: string }</code> &#124; undefined                                                                         |  Host  | This message is sent when preview has to be refreshed.                                                  |
-| kontent-smart-link:preview:current-url          |                                                                                                                             -                                                                                                                              |  Host  | This message is sent by host as a request to get URL of current iframe.                                 |
-| kontent-smart-link:preview:current-url:response |                                                                                                            <code>{ previewUrl: string }</code>                                                                                                             |  SDK   | This message is sent by SDK as a response on the `kontent-smart-link:preview:current-url` message.      |
-| kontent-smart-link:preview:update               |                                                                                                              [Data contract](#data-contract)                                                                                                               |  Host  | This message is sent by host when an element value has been changed in the in-context editor.           |
 
 ## Examples
 
 ### HTML & UMD & CDN
 
-This example demonstrates how to quickly integrate the Kontent.ai Smart Link SDK into a webpage using a CDN. It's
-ideal for static sites or projects without a build process, allowing you to enhance your preview with smart link
-capabilities using straightforward HTML and JavaScript.
+This example demonstrates how to quickly integrate the Kontent.ai Smart Link SDK into a webpage using a CDN. It's ideal for static sites or projects without a build process, allowing you to enhance your preview with smart link capabilities using straightforward HTML and JavaScript.
 
 ```html
-
 <html>
   <head>
     <title>Kontent.ai Smart Link - HTML example</title>
@@ -650,33 +561,6 @@ capabilities using straightforward HTML and JavaScript.
 ```
 
 **Note:** Make sure to replace `@4.0.0` with the latest SDK version for improved features and fixes.
-
-### ES6
-
-For projects using modern JavaScript frameworks or build systems, this example illustrates how to import and initialize
-the Kontent.ai Smart Link SDK within an ES6 module. This approach is well-suited for applications built with tools
-like Webpack, Rollup, or when working within SPA frameworks like React, Vue, or Angular.
-
-```js
-import KontentSmartLink, { KontentSmartLinkEvent } from "@kontent-ai/smart-link";
-
-// This is just an example of SDK initialization inside ES6 module.
-// HTML markup should still contain all necessary data-attributes.
-const kontentSmartLink = KontentSmartLink.initialize({
-  debug: true,
-  defaultDataAttributes: {
-    projectId: "1d50a0f7-9033-48f3-a96e-7771c73f9683",
-    languageCodename: "default",
-  },
-  queryParam: "ksl-preview"
-});
-
-kontentSmartLink.on(KontentSmartLinkEvent.Update, (data) => {
-  // Update content of the page using data
-});
-```
-
-**Tip:** Adjust `defaultDataAttributes` according to your Kontent.ai project's ID and language codename.
 
 ### React
 
@@ -964,47 +848,6 @@ export const ContentItemComponent = ({ codename }) => {
 };
 ```
 
-## Known issues
-
-### Nested iframes
-
-In scenarios where your content is displayed within nested iframes (e.g. to simulate different device resolutions, or
-to handle redirects to the right preview website based on the item), the SDK's initialization messages may not reach
-the top-level Web Spotlight iframe directly, affecting functionality. To address this, follow the guidance provided
-in [this issue](https://github.com/kontent-ai/smart-link/issues/16).
-
-### SameSite cookie in Next.js app
-
-Next.js developers may encounter an issue with `SameSite` cookies not being set correctly. This can be solved by
-utilizing the code snippet below in
-your [API route handling preview](https://nextjs.org/docs/advanced-features/preview-mode) file to replace `SameSite=Lax`
-to `SameSite=None; Secure;` right after `res.setPreviewData` call.
-
-```js
-const setCookieSameSite = (res, value) => {
-  const cookies = res.getHeader("Set-Cookie");
-  const updatedCookies = cookies?.map((cookie) =>
-    cookie.replace(
-      "SameSite=Lax",
-      `SameSite=${value}; Secure;`
-    )
-  )
-  res.setHeader(
-    "Set-Cookie",
-    updatedCookies
-  );
-};
-
-export default function handler(req, res) {
-  // ...
-  res.setPreviewData({})
-
-  // THIS NEEDED TO BE ADDED
-  setCookieSameSite(res, "None");
-  // ...
-}
-```
-
 ## Tests
 
 ### Unit tests
@@ -1035,10 +878,3 @@ Follow these steps if you need to update the screenshots:
 4. Once the workflow completes, download the generated artifact containing the updated screenshots.
 5. Copy the updated screenshots into the repository.
 
-## Breaking changes
-
-All breaking changes can be found in [a separate markdown file](BREAKING.md).
-
-## Feedback & Contribution
-
-Feedback & Contributions are welcomed. Feel free to take/start an issue & submit PR.
