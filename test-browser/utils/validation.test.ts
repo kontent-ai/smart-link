@@ -2,6 +2,7 @@ import { expect, it, describe } from 'vitest';
 import { validateAddInitialMessageData, validateEditButtonMessageData } from '../../src/utils/messageValidation';
 import { InsertPositionPlacement } from '../../src/lib/IFrameCommunicatorTypes';
 import { ParseResult } from '../../src/utils/dataAttributes/parser';
+import { KSLConfiguration } from '../../src/utils/configuration';
 
 // Helper to create mock ParseResult objects
 const createMockParseResult = (parsed: Partial<ParseResult['parsed']>): ParseResult => ({
@@ -10,9 +11,15 @@ const createMockParseResult = (parsed: Partial<ParseResult['parsed']>): ParseRes
 });
 
 // Helper to create mock configuration
-const mockConfig = {
-  languageCodename: 'en-US',
-  environmentId: '  test-project',
+const mockConfig: KSLConfiguration = {
+  debug: false,
+  defaultDataAttributes: {
+    languageCodename: 'en-US',
+    environmentId: 'test-project',
+  },
+  forceWebSpotlightMode: false,
+  queryParam: 'ksl-enabled',
+  isInsideWebSpotlight: false,
 };
 
 describe('validateEditButtonMessageData', () => {
@@ -89,9 +96,15 @@ describe('validateEditButtonMessageData', () => {
       itemId: 'test-item',
     });
 
-    const config = {
-      languageCodename: 'default-lang',
-      environmentId: 'default-env',
+    const config: KSLConfiguration = {
+      debug: false,
+      defaultDataAttributes: {
+        languageCodename: 'default-lang',
+        environmentId: 'default-env',
+      },
+      forceWebSpotlightMode: false,
+      queryParam: 'ksl-enabled',
+      isInsideWebSpotlight: false,
     };
 
     const result = validateEditButtonMessageData(data, config);

@@ -117,26 +117,26 @@ export type EditButtonMessageDataResult =
 
 export const validateEditButtonMessageData = (
   data: ParseResult,
-  configurationDataAttributes: KSLConfiguration['defaultDataAttributes']
+  configuration: KSLConfiguration
 ): EditButtonMessageDataResult => {
   const getValidationResult = () => {
     if ('elementCodename' in data.parsed) {
       return {
         type: 'element',
-        validationResult: validateElementClickMessageData(data, configurationDataAttributes),
+        validationResult: validateElementClickMessageData(data, configuration.defaultDataAttributes),
       } as const;
     }
 
     if ('contentComponentId' in data.parsed) {
       return {
         type: 'contentComponent',
-        validationResult: validateContentComponentClickMessageData(data, configurationDataAttributes),
+        validationResult: validateContentComponentClickMessageData(data, configuration.defaultDataAttributes),
       } as const;
     }
 
     return {
       type: 'contentItem',
-      validationResult: validateContentItemClickEditMessageData(data, configurationDataAttributes),
+      validationResult: validateContentItemClickEditMessageData(data, configuration.defaultDataAttributes),
     } as const;
   };
 
@@ -148,6 +148,10 @@ export const validateEditButtonMessageData = (
       type: 'error',
       missing: validationResult.missing,
     };
+  }
+
+  if (configuration.debug) {
+    printDebugData(data.debugData, '[KSL]: Parsed edit button data attributes');
   }
 
   if (type === 'element') {
@@ -199,9 +203,9 @@ const getPlacement = (placement: string | null | undefined) => {
 
 export function validateAddInitialMessageData(
   data: ParseResult,
-  configurationDataAttributes: KSLConfiguration['defaultDataAttributes']
+  configuration: KSLConfiguration
 ): ValidationResult<IAddButtonInitialMessageData> {
-  const configData = validateConfigurationDataAttributes(data, configurationDataAttributes);
+  const configData = validateConfigurationDataAttributes(data, configuration.defaultDataAttributes);
   const placement = validatePlacement(data);
 
   if (!data.parsed.itemId || !data.parsed.elementCodename || !placement.success || !configData.success) {
@@ -215,6 +219,10 @@ export function validateAddInitialMessageData(
         ...(configData.success ? [] : configData.missing),
       ] as NonEmptyArray<ParserTokenKey>,
     };
+  }
+
+  if (configuration.debug) {
+    printDebugData(data.debugData, '[KSL]: Parsed add button data attributes');
   }
 
   return {
