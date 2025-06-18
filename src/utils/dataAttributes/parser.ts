@@ -1,3 +1,4 @@
+import { logDebug } from '../../lib/Logger';
 import {
   IContentComponentClickedMessageData,
   IContentItemClickedMessageData,
@@ -45,6 +46,9 @@ export function parseEditButtonDataAttributes(target: HTMLElement): ParseResult 
   const type = getHighlightTypeForElement(target);
   const pattern = getEditButtonDataAttributesPattern(type);
 
+  logDebug('Parsing edit button data attributes for element: ', target);
+  logDebug('Parsing values from data attributes using this pattern: ', pattern);
+
   return parseDataAttributes(pattern, target);
 }
 
@@ -56,6 +60,9 @@ export function parseEditButtonDataAttributes(target: HTMLElement): ParseResult 
 export function parseAddButtonDataAttributes(target: HTMLElement): ParseResult {
   const position = target.getAttribute(DataAttribute.AddButtonInsertPosition);
   const pattern = getAddButtonDataAttributesPattern(position);
+
+  logDebug('Parsing add button data attributes for element: ', target);
+  logDebug('Parsing values from data attributes following this pattern: ', pattern);
 
   return parseDataAttributes(pattern, target);
 }

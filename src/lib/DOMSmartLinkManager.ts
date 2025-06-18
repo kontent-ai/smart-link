@@ -218,7 +218,7 @@ export class DOMSmartLinkManager {
       elementRect: targetNode.getBoundingClientRect(),
     };
 
-    const validationResult = validateEditButtonMessageData(data, this.configuration.defaultDataAttributes);
+    const validationResult = validateEditButtonMessageData(data, this.configuration);
 
     if (validationResult.type === 'error') {
       logError(
@@ -273,7 +273,9 @@ export class DOMSmartLinkManager {
       elementRect: targetNode.getBoundingClientRect(),
     };
 
-    const messageDataValidation = validateAddInitialMessageData(data, this.configuration.defaultDataAttributes);
+    console.log('data', data);
+
+    const messageDataValidation = validateAddInitialMessageData(data, this.configuration);
 
     if (!messageDataValidation.success) {
       const [first, ...rest] = messageDataValidation.missing;
@@ -295,6 +297,7 @@ export class DOMSmartLinkManager {
       messageDataValidation.data,
       (response?: IAddButtonPermissionsServerModel) => {
         if (!response || response.elementType === AddButtonElementType.Unknown) {
+          console.log('response', JSON.stringify(response));
           return onReject({ message: 'Something went wrong' });
         }
 
@@ -312,7 +315,7 @@ export class DOMSmartLinkManager {
       elementRect: targetNode.getBoundingClientRect(),
     };
 
-    const messageDataValidation = validateAddInitialMessageData(data, this.configuration.defaultDataAttributes);
+    const messageDataValidation = validateAddInitialMessageData(data, this.configuration);
 
     if (!messageDataValidation.success) {
       return;

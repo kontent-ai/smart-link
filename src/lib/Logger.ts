@@ -51,7 +51,7 @@ export function logInfo(...args: unknown[]): void {
  */
 export function logDebug(...args: unknown[]): void {
   if (logLevel <= LogLevel.Debug) {
-    console.log(...args);
+    console.log(`[KSL][Debug]: `, ...args);
   }
 }
 
