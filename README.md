@@ -141,7 +141,7 @@ The SDK processes data attributes in a hierarchical structure. While the SDK int
   - For rich text: Mark content components with `data-kontent-component-id` to represent reusable components within the rich text
   - Continue this pattern for any deeper nesting levels
 
-> [!INFO]
+> [!NOTE]
 > The Smart Link SDK provides helper functions to simplify the creation of data attributes. For more information, see the [data attribute helper functions](./src/utils/dataAttributes/helpers.ts).
 
 
@@ -277,6 +277,9 @@ Add buttons let editors insert new linked items/components directly in the previ
 </article>
 ```
 
+> [!NOTE]
+> For a demonstration of Smart Link buttons, check out the [samples/smartlink.html](./samples/smartlink.html) file in this repository which showcases different button types and positions.
+
 ## SDK initialization
 
 To activate the Kontent.ai Smart Link SDK on your website, you need to initialize it after setting up all required data attributes. The SDK offers two methods for initialization:
@@ -369,7 +372,7 @@ For more complex example, check the [Examples](#examples) section.
 
 As of version 3.2.0, the Kontent.ai Smart Link SDK introduces support for live reload within Live Preview. This feature enhances the content editing experience by providing real-time updates within your preview environment through iframe communication immediately after edits are made in the in-context editor.
 
-> [!Note]
+> [!NOTE]
 > The live reload requires manual integration to function. Your preview website will not automatically update with changes; it is your responsibility to implement how these updates are processed and displayed in your application.
 
 #### Implementing live reload in your application
@@ -510,7 +513,7 @@ This example demonstrates how to quickly integrate the Kontent.ai Smart Link SDK
     <title>Kontent.ai Smart Link - HTML example</title>
     <!-- Include the SDK from a CDN -->
     <script type='text/javascript'
-            src='https://cdn.jsdelivr.net/npm/@kontent-ai/smart-link@4.0.0/dist/bundles/kontent-smart-link.min.js'></script>
+            src='https://cdn.jsdelivr.net/npm/@kontent-ai/smart-link@latest/dist/bundles/kontent-smart-link.min.js'></script>
     <script type='text/javascript'>
       // Initialize the SDK upon page load
       kontentSmartLink.KontentSmartLink.initializeOnLoad({ queryParam: 'preview' }).then((sdk) => {
@@ -575,8 +578,6 @@ This example demonstrates how to quickly integrate the Kontent.ai Smart Link SDK
   </body>
 </html>
 ```
-
-**Note:** Make sure to replace `@4.0.0` with the latest SDK version for improved features and fixes.
 
 </details>
 
@@ -729,7 +730,7 @@ const YourComponent: React.FC = () => {
   return <div>{data}</div>;
 };
 ```
-
+f
 #### Live Preview in Your Application
 
 Using the `useLivePreview` hook we defined in the previous example, you can enhance your application with real-time
