@@ -18,7 +18,7 @@ export type EventHandler<TEventData = undefined, TEventMetadata = undefined, TEv
 
 type EventMap = Record<string, (...args: any[]) => void>;
 
-export type EventListeners<Events extends EventMap> = Map<keyof Events, Set<Events[any]>>;
+export type EventListeners<Events extends EventMap> = Map<keyof Events, Set<Events[keyof Events]>>;
 
 /**
  * Adds an event listener for a given event. This function is not pure as it modifies the provided eventListeners map.
@@ -54,7 +54,7 @@ export const emitEvents = <Events extends EventMap, E extends keyof Events>(
 ): void => {
   const actualEventListeners = eventListeners.get(event);
   if (actualEventListeners && actualEventListeners.size > 0) {
-    actualEventListeners.forEach((callback: Events[E]) => {
+    actualEventListeners.forEach((callback) => {
       callback(...args);
     });
   }
