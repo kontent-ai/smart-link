@@ -35,7 +35,7 @@ export type KontentSmartLinkEventMap = Readonly<{
 class KontentSmartLinkSDK {
   private configuration: KSLConfiguration = defaultConfiguration;
   private readonly iframeCommunicator: IFrameCommunicator;
-  private readonly nodeSmartLinkProvider: DOMSmartLinkManager;
+  private readonly domSmartLinkManager: DOMSmartLinkManager;
   private events: EventListeners<KontentSmartLinkEventMap>;
   private queryPresenceIntervalCleanup: (() => void) | null = null;
 
@@ -45,7 +45,7 @@ class KontentSmartLinkSDK {
 
     this.iframeCommunicator = new IFrameCommunicator();
 
-    this.nodeSmartLinkProvider = new DOMSmartLinkManager(this.iframeCommunicator, this.configuration);
+    this.domSmartLinkManager = new DOMSmartLinkManager(this.iframeCommunicator, this.configuration);
 
     this.initialize();
   }
@@ -63,10 +63,10 @@ class KontentSmartLinkSDK {
     if (this.configuration.queryParam) {
       this.queryPresenceIntervalCleanup = watchQueryParamPresence(
         this.configuration.queryParam,
-        this.nodeSmartLinkProvider.toggle
+        this.domSmartLinkManager.toggle
       );
     } else {
-      this.nodeSmartLinkProvider.enable();
+      this.domSmartLinkManager.enable();
     }
 
     if (isInsideIFrame()) {
@@ -78,25 +78,24 @@ class KontentSmartLinkSDK {
     this.events = new Map();
     this.queryPresenceIntervalCleanup?.();
     this.iframeCommunicator.destroy();
-    this.nodeSmartLinkProvider.destroy();
+    this.domSmartLinkManager.destroy();
   };
 
   public updateConfiguration = (configuration: Partial<KSLPublicConfiguration>): void => {
     if (configuration.queryParam !== undefined) {
       if (configuration.queryParam === '') {
-        this.nodeSmartLinkProvider.enable();
+        this.domSmartLinkManager.enable();
       } else if (configuration.queryParam !== this.configuration.queryParam) {
         this.queryPresenceIntervalCleanup?.();
         this.queryPresenceIntervalCleanup = watchQueryParamPresence(
           configuration.queryParam,
-          this.nodeSmartLinkProvider.toggle
+          this.domSmartLinkManager.toggle
         );
       }
     }
 
     if (configuration.debug) {
-      const level = configuration.debug ? LogLevel.Debug : LogLevel.Info;
-      setLogLevel(level);
+      setLogLevel(LogLevel.Debug);
     }
 
     // need to use .assign to prevent changing the reference of the configuration object
@@ -138,10 +137,10 @@ class KontentSmartLinkSDK {
     this.iframeCommunicator.sendMessageWithResponse(IFrameMessageType.Initialized, messageData, () => {
       Object.assign(this.configuration, { isInsideWebSpotlight: true });
       this.queryPresenceIntervalCleanup?.();
-      this.nodeSmartLinkProvider.disable();
+      this.domSmartLinkManager.disable();
 
       if (enabled) {
-        this.nodeSmartLinkProvider.enable();
+        this.domSmartLinkManager.enable();
       }
 
       this.iframeCommunicator.addMessageListener(IFrameMessageType.Status, this.handleStatusMessage);
@@ -155,9 +154,9 @@ class KontentSmartLinkSDK {
   };
 
   private handleStatusMessage = (data: ISDKStatusMessageData): void => {
-    if (!data || !this.nodeSmartLinkProvider) return;
+    if (!data || !this.domSmartLinkManager) return;
 
-    this.nodeSmartLinkProvider.toggle(data.enabled);
+    this.domSmartLinkManager.toggle(data.enabled);
 
     KontentSmartLinkSDK.getSettingsStorage().set({
       enabled: data.enabled,

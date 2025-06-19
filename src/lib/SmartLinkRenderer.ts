@@ -5,13 +5,7 @@ import { KSLAddButtonElement } from '../web-components/KSLAddButtonElement';
 import { shouldElementHaveHighlight, shouldElementHaveAddButton } from '../utils/customElements';
 import { KSLConfiguration } from '../utils/configuration';
 
-export type Renderer = {
-  readonly destroy: () => void;
-  readonly clear: () => void;
-  readonly render: (visibleElements: Set<HTMLElement>, observedElements: Set<HTMLElement>) => void;
-};
-
-export class SmartLinkRenderer implements Renderer {
+export class SmartLinkRenderer {
   private readonly defaultContainer: KSLContainerElement;
   private containerByRenderingRoot: Map<HTMLElement, KSLContainerElement>;
   private highlightByElement: Map<HTMLElement, KSLHighlightElement>;
@@ -108,7 +102,7 @@ export class SmartLinkRenderer implements Renderer {
         for (const element of elements) {
           // This check is needed to prevent highlight rendering for the "flat" elements (height or/and width === 0),
           // because those elements are basically invisible and cannot be clicked.
-          const isFlat = element.offsetHeight === 0 || element.offsetHeight === 0;
+          const isFlat = element.offsetHeight === 0 || element.offsetWidth === 0;
 
           if (!isFlat && shouldElementHaveHighlight(element, this.configuration)) {
             const highlight = acc.newHighlightByElement.get(element) ?? container.createHighlightForElement(element);

@@ -5,7 +5,7 @@ import {
   IClickedMessageMetadata,
   IFrameMessageType,
 } from './IFrameCommunicatorTypes';
-import { Renderer, SmartLinkRenderer } from './SmartLinkRenderer';
+import { SmartLinkRenderer } from './SmartLinkRenderer';
 import { KSLHighlightElementEvent } from '../web-components/KSLHighlightElement';
 import { getAugmentableDescendants, isElementAugmentable } from '../utils/customElements';
 import { validateAddInitialMessageData, validateEditButtonMessageData } from '../utils/messageValidation';
@@ -22,7 +22,7 @@ import { InvalidEnvironmentError } from '../utils/errors';
 export class DOMSmartLinkManager {
   private readonly mutationObserver: MutationObserver;
   private readonly intersectionObserver: IntersectionObserver;
-  private readonly renderer: Renderer;
+  private readonly renderer: SmartLinkRenderer;
 
   private enabled = false;
   private renderingTimeoutId = 0;
