@@ -80,7 +80,7 @@ To integrate the Kontent.ai Smart Link SDK into your web project and enable smar
 1. **Include SDK:** Add the SDK to your project.
 2. **Specify HTML data attributes:** Define the HTML data attributes on your webpage elements where you want the smart links to appear. Detailed guidance on setting these attributes can be found [here](#data-attributes).
     ```html
-    <main data-kontent-project-id='00000000-0000-0000-0000-000000000000' data-kontent-language-codename='default'>
+    <main data-kontent-environment-id='00000000-0000-0000-0000-000000000000' data-kontent-language-codename='default'>
       <div data-kontent-item-id='00000000-0000-0000-0000-000000000000'>
         <div data-kontent-element-codename='title'>Title</div>
       </div>
@@ -531,7 +531,7 @@ This example demonstrates how to quickly integrate the Kontent.ai Smart Link SDK
       });
     </script>
   </head>
-  <body data-kontent-project-id='1d50a0f7-9033-48f3-a96e-7771c73f9683' data-kontent-language-codename='en-US'>
+  <body data-kontent-enviroment-id='1d50a0f7-9033-48f3-a96e-7771c73f9683' data-kontent-language-codename='en-US'>
     <!-- Example content with data attributes for smart link injection -->
     <nav class='navigation' data-kontent-item-id='6ea11626-336d-47e5-9f35-2d44fa1ad6d6'>
       <img class='navigation__logo' data-kontent-element-codename='logo' />
@@ -617,8 +617,8 @@ export const SmartLinkProvider: React.FC<PropsWithChildren> = ({ children }) => 
     const instance = KontentSmartLink.initialize({
       queryParam: 'preview',
       defaultDataAttributes: {
-        projectId: 'your-project-id', // Replace 'your-project-id' with your actual project ID
-        languageCodename: 'your-language-codename', // Replace 'your-language-codename' with your actual language codename
+        environmentId: 'your-envrionment-id',
+        languageCodename: 'your-language-codename',
       },
     });
 
@@ -708,7 +708,7 @@ import { IRefreshMessageData, IRefreshMessageMetadata } from '@kontent-ai/smart-
 
 const YourComponent: React.FC = () => {
   const [data, setData] = useState(null);
-  const fetchData = useCallback((projectId, languageCodename, itemCodename) => {
+  const fetchData = useCallback((environmentId, languageCodename, itemCodename) => {
     // Your data fetching logic here using a delivery-sdk or request to Delivery API endpoint
   }, []);
 
@@ -719,8 +719,8 @@ const YourComponent: React.FC = () => {
       originalRefresh();
     } else {
       // For automatic refreshes, refetch data for the updated item only.
-      const { projectId, languageCodename, updatedItemCodename } = data;
-      fetchData(projectId, languageCodename, updatedItemCodename);
+      const { environmentId, languageCodename, updatedItemCodename } = data;
+      fetchData(enviromentId, languageCodename, updatedItemCodename);
     }
   }, [fetchData]);
 
