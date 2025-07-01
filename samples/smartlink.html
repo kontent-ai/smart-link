@@ -11,7 +11,7 @@
 
   <!-- Kontent.ai Smart Link SDK from jsDelivr -->
   <script type="text/javascript"
-    src="https://cdn.jsdelivr.net/npm/kontent-smart-link@latest/dist/bundles/kontent-smart-link.min.js"></script>
+    src="https://cdn.jsdelivr.net/npm/@kontent-ai/smart-link@latest/dist/bundles/kontent-smart-link.min.js"></script>
 </head>
 
 <body class="bg-gray-50 p-8" data-kontent-environment-id="environment-id" data-kontent-language-codename="default">
@@ -183,7 +183,9 @@
 
   <script>
     // Initialize the Kontent.ai Smart Link SDK
-    kontentSmartLink.KontentSmartLink.initialize({
+    const { KontentSmartLink } = window.kontentSmartLink;
+
+    KontentSmartLink.initialize({
       queryParam: '',
       debug: true
     });
