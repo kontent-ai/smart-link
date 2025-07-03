@@ -592,13 +592,14 @@ In a React application, we recommend utilizing React's Context API to create a c
 
 ```tsx
 // src/contexts/SmartLink.tsx
-import React, { PropsWithChildren, useContext, useState, useMemo, useEffect } from 'react';
+import React, { type PropsWithChildren, useContext, useState, useMemo, useEffect, createContext } from 'react';
 import KontentSmartLink, { KontentSmartLinkEvent } from '@kontent-ai/smart-link';
-import {
-  IRefreshMessageData,
-  IRefreshMessageMetadata,
-  IUpdateMessageData,
-} from '@kontent-ai/smart-link/types/lib/IFrameCommunicatorTypes';
+import KontentSmartLink, {
+  KontentSmartLinkEvent,
+  type IRefreshMessageData,
+  type IRefreshMessageMetadata,
+  type IUpdateMessageData,
+} from '@kontent-ai/smart-link';
 
 type SmartLinkContextValue = {
   readonly smartLink?: KontentSmartLink | null;
@@ -611,7 +612,7 @@ const defaultContextValue: SmartLinkContextValue = {
 const SmartLinkContext = createContext<SmartLinkContextValue>(defaultContextValue);
 
 export const SmartLinkProvider: React.FC<PropsWithChildren> = ({ children }) => {
-  const [smartLink, setSmartLink] = useState<KontentSmartLink>(null);
+  const [smartLink, setSmartLink] = useState<KontentSmartLink | null>(null);
 
   useEffect(() => {
     const instance = KontentSmartLink.initialize({
@@ -631,7 +632,7 @@ export const SmartLinkProvider: React.FC<PropsWithChildren> = ({ children }) => 
   const value = useMemo(() => ({ smartLink }), [smartLink]);
 
   return (
-    <SmartLinkContext.Provider>
+    <SmartLinkContext.Provider value={value}>
       {children}
     </SmartLinkContext.Provider>
   );
@@ -671,7 +672,7 @@ export const useLivePreview = (callback: (data: IUpdateMessageData) => void): vo
     if (smartLink) {
       smartLink.on(KontentSmartLinkEvent.Update, callback);
 
-      return () =>smartLink.off(KontentSmartLinkEvent.Update, callback);
+      return () => smartLink.off(KontentSmartLinkEvent.Update, callback);
     }
 
     return;
@@ -702,9 +703,9 @@ Using the custom refresh handler and the `useCustomRefresh` hook we defined in t
 The following example showcases an efficient approach to handling such content updates within a React application.
 
 ```tsx
-import React, { useState, useCallback, useContext } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useCustomRefresh } from '../context/SmartLink'; // Ensure correct import path
-import { IRefreshMessageData, IRefreshMessageMetadata } from '@kontent-ai/smart-link/types/lib/IFrameCommunicatorTypes';
+import type { IRefreshMessageData, IRefreshMessageMetadata } from '@kontent-ai/smart-link';
 
 const YourComponent: React.FC = () => {
   const [data, setData] = useState(null);
@@ -720,7 +721,7 @@ const YourComponent: React.FC = () => {
     } else {
       // For automatic refreshes, refetch data for the updated item only.
       const { environmentId, languageCodename, updatedItemCodename } = data;
-      fetchData(enviromentId, languageCodename, updatedItemCodename);
+      fetchData(environmentId, languageCodename, updatedItemCodename);
     }
   }, [fetchData]);
 
@@ -741,10 +742,10 @@ This example demonstrates setting up a `useLivePreview` hook within a React comp
 items as changes are made in the in-context editor.
 
 ```tsx
-import React, { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useLivePreview } from '../contexts/SmartLinkContext'; // Adjust the import path as needed
-import { IContentItem } from '@kontent-ai/delivery-sdk/lib/models/item-models';
-import { IUpdateMessageData } from '@kontent-ai/smart-link/types/lib/IFrameCommunicatorTypes';
+import { type IUpdateMessageData, applyUpdateOnItem, applyUpdateOnItemAndLoadLinkedItems } from "@kontent-ai/smart-link"
+import type { IContentItem } from '@kontent-ai/delivery-sdk/lib/models/item-models';
 
 const useContentItem = (codename: string) => {
   const [item, setItem] = useState<IContentItem | null>(null);
@@ -752,7 +753,7 @@ const useContentItem = (codename: string) => {
   const deliveryClient = useDeliveryClient();
 
   const handleLiveUpdate = useCallback((data: IUpdateMessageData) => {
-    if (item && data.item.codename === codename) {
+    if (item) {
       setItem(applyUpdateOnItem(item, data));
       // or use applyUpdateOnItemAndLoadLinkedItems to load added linked items
       applyUpdateOnItemAndLoadLinkedItems(item, data, codenamesToFetch => deliveryClient.items(codenamesToFetch).toAllPromise())
@@ -780,7 +781,7 @@ export const ContentItemComponent = ({ codename }) => {
   return (
     <div>
       {/* Render your content item here */}
-      <h2>{item?.name}</h2>
+      <h2>{item?.elements.name}</h2>
       {/* More render logic */}
     </div>
   );
