@@ -1,40 +1,63 @@
-import { IElementClickedMessageData } from '../lib/IFrameCommunicatorTypes';
+export type BuildItemLinkParams = {
+  environmentId: string;
+  languageCodename: string;
+  itemId: string;
+};
 
-export function buildItemLink(environmentId: string, languageCodename: string, itemId: string): string {
-  return `https://app.kontent.ai/goto/edit-item/project/${environmentId}/variant-codename/${languageCodename}/item/${itemId}`;
+export type BuildElementLinkParams = {
+  environmentId: string;
+  languageCodename: string;
+  itemId: string;
+  elementCodename: string;
+};
+
+export type BuildComponentElementLinkParams = {
+  environmentId: string;
+  languageCodename: string;
+  itemId: string;
+  contentComponentId: string;
+  componentElementCodename: string;
+};
+
+export type BuildKontentElementLinkParams = BuildElementLinkParams | BuildComponentElementLinkParams;
+
+/**
+ * Builds a URL that opens the specified content item in the Kontent.ai web application editor.
+ */
+export function buildKontentItemLink(params: BuildItemLinkParams): string {
+  return `https://app.kontent.ai/goto/edit-item/project/${params.environmentId}/variant-codename/${params.languageCodename}/item/${params.itemId}`;
 }
 
-export function buildElementLink(
-  environmentId: string,
-  languageCodename: string,
-  itemId: string,
-  elementCodename: string
-): string {
-  return `${buildItemLink(environmentId, languageCodename, itemId)}/element/${elementCodename}`;
+function buildElementLink(params: BuildElementLinkParams): string {
+  return `${buildKontentItemLink({ environmentId: params.environmentId, languageCodename: params.languageCodename, itemId: params.itemId })}/element/${params.elementCodename}`;
 }
 
-export function buildComponentElementLink(
-  environmentId: string,
-  languageCodename: string,
-  itemId: string,
-  contentComponentId: string,
-  componentElementCodename: string
-): string {
-  return `${buildItemLink(
-    environmentId,
-    languageCodename,
-    itemId
-  )}/component/${contentComponentId}/element/${componentElementCodename}`;
+function buildComponentElementLink(params: BuildComponentElementLinkParams): string {
+  return `${buildKontentItemLink({
+    environmentId: params.environmentId,
+    languageCodename: params.languageCodename,
+    itemId: params.itemId,
+  })}/component/${params.contentComponentId}/element/${params.componentElementCodename}`;
 }
 
-export function buildKontentLink(data: IElementClickedMessageData): string {
-  return data.contentComponentId
-    ? buildComponentElementLink(
-        data.projectId,
-        data.languageCodename,
-        data.itemId,
-        data.contentComponentId,
-        data.elementCodename
-      )
-    : buildElementLink(data.projectId, data.languageCodename, data.itemId, data.elementCodename);
+/**
+ * Builds a URL that opens a specific element within a content item in the Kontent.ai web application editor.
+ * This function can handle both regular content elements and elements within content components.
+ * If an element is within a component, 'contentComponentId' must be provided.
+ */
+export function buildKontentElementLink(data: BuildKontentElementLinkParams): string {
+  return 'contentComponentId' in data
+    ? buildComponentElementLink({
+        environmentId: data.environmentId,
+        languageCodename: data.languageCodename,
+        itemId: data.itemId,
+        contentComponentId: data.contentComponentId,
+        componentElementCodename: data.componentElementCodename,
+      })
+    : buildElementLink({
+        environmentId: data.environmentId,
+        languageCodename: data.languageCodename,
+        itemId: data.itemId,
+        elementCodename: data.elementCodename,
+      });
 }
