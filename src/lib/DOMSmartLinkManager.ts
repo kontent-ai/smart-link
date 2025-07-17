@@ -15,7 +15,7 @@ import {
 } from '../web-components/KSLAddButtonElement';
 import { IFrameCommunicator } from './IFrameCommunicator';
 import { isInsideWebSpotlightPreviewIFrame, KSLConfiguration } from '../utils/configuration';
-import { buildItemLink, buildKontentLink } from '../utils/link';
+import { buildKontentItemLink, buildKontentElementLink } from '../utils/link';
 import { logError, logWarn } from './Logger';
 import { InvalidEnvironmentError } from '../utils/errors';
 
@@ -233,7 +233,12 @@ export class DOMSmartLinkManager {
       if (isInsideWebSpotlight) {
         this.iframeCommunicator.sendMessage(IFrameMessageType.ElementClicked, validationResult.data, messageMetadata);
       } else {
-        const link = buildKontentLink(validationResult.data);
+        const link = buildKontentElementLink({
+          environmentId: validationResult.data.projectId,
+          languageCodename: validationResult.data.languageCodename,
+          itemId: validationResult.data.itemId,
+          elementCodename: validationResult.data.elementCodename,
+        });
         window.open(link, '_blank');
       }
     } else if (validationResult.type === 'contentComponent') {
@@ -254,11 +259,11 @@ export class DOMSmartLinkManager {
           messageMetadata
         );
       } else {
-        const link = buildItemLink(
-          validationResult.data.projectId,
-          validationResult.data.languageCodename,
-          validationResult.data.itemId
-        );
+        const link = buildKontentItemLink({
+          environmentId: validationResult.data.projectId,
+          languageCodename: validationResult.data.languageCodename,
+          itemId: validationResult.data.itemId,
+        });
         window.open(link, '_blank');
       }
     }
