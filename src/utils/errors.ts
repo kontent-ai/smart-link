@@ -1,27 +1,35 @@
-export function AssertionError(message: string): Error {
-  const error = new Error(message);
-  error.name = 'AssertionError';
-
-  return error;
+export class AssertionError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "AssertionError";
+    Object.setPrototypeOf(this, AssertionError.prototype);
+  }
 }
 
-export function NotImplementedError(message: string): Error {
-  const error = new Error(message);
-  error.name = 'NotImplementedError';
-
-  return error;
+export class NotImplementedError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "NotImplementedError";
+    Object.setPrototypeOf(this, NotImplementedError.prototype);
+  }
 }
 
-export function InvalidEnvironmentError(message: string): Error {
-  const error = new Error(message);
-  error.name = 'InvalidEnvironmentError';
-
-  return error;
+export class InvalidEnvironmentError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "InvalidEnvironmentError";
+    Object.setPrototypeOf(this, InvalidEnvironmentError.prototype);
+  }
 }
 
-export function NotInitializedError(message: string): Error {
-  const error = new Error(message);
-  error.name = 'NotInitializedError';
+export class NotInitializedError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "NotInitializedError";
+    Object.setPrototypeOf(this, NotInitializedError.prototype);
+  }
+}
 
-  return error;
+export function throwError(message: string): never {
+  throw new Error(message);
 }

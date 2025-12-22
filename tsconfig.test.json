@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "jsx": "react-jsx",
+    "types": ["react", "react-dom"],
+    "esModuleInterop": true
+  },
+  "include": ["test-browser/**/*", "test-components/**/*"]
+}

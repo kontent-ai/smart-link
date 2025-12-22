@@ -1,8 +1,8 @@
-import { ElementPositionOffset, KSLPositionedElement } from './KSLPositionedElement';
-import { createTemplateForCustomElement, getTotalScrollOffset } from '../../utils/domElement';
-import { Colors } from '../tokens/colors';
-import { Shadows } from '../tokens/shadows';
-import { BaseZIndex } from '../tokens/zIndex';
+import { createTemplateForCustomElement, getTotalScrollOffset } from "../../utils/domElement";
+import { Colors } from "../tokens/colors";
+import { Shadows } from "../tokens/shadows";
+import { BaseZIndex } from "../tokens/zIndex";
+import { ElementPositionOffset, KSLPositionedElement } from "./KSLPositionedElement";
 
 const templateHTML = `
   <style>
@@ -149,19 +149,19 @@ const templateHTML = `
 
 export abstract class KSLPopUpElement extends KSLPositionedElement {
   public get position(): string {
-    return this.getAttribute('position') ?? ElementPositionOffset.Bottom;
+    return this.getAttribute("position") ?? ElementPositionOffset.Bottom;
   }
 
   public set position(value: string) {
-    this.updateAttribute('position', value);
+    this.updateAttribute("position", value);
   }
 
   public get visible(): boolean {
-    return this.hasAttribute('visible');
+    return this.hasAttribute("visible");
   }
 
   public set visible(value: boolean) {
-    this.updateAttribute('visible', value);
+    this.updateAttribute("visible", value);
   }
 
   public static initializeTemplate(): HTMLTemplateElement {
@@ -171,19 +171,19 @@ export abstract class KSLPopUpElement extends KSLPositionedElement {
   public connectedCallback(): void {
     super.connectedCallback();
 
-    if (!this.hasAttribute('role')) {
-      this.setAttribute('role', 'tooltip');
+    if (!this.hasAttribute("role")) {
+      this.setAttribute("role", "tooltip");
     }
 
-    window.addEventListener('resize', this.adjustPosition, { capture: true });
-    window.addEventListener('scroll', this.adjustPosition, { capture: true });
+    window.addEventListener("resize", this.adjustPosition, { capture: true });
+    window.addEventListener("scroll", this.adjustPosition, { capture: true });
   }
 
   public disconnectedCallback(): void {
     super.disconnectedCallback();
 
-    window.removeEventListener('resize', this.adjustPosition, { capture: true });
-    window.removeEventListener('scroll', this.adjustPosition, { capture: true });
+    window.removeEventListener("resize", this.adjustPosition, { capture: true });
+    window.removeEventListener("scroll", this.adjustPosition, { capture: true });
   }
 
   public attachTo = (element: HTMLElement): void => {
@@ -215,30 +215,32 @@ export abstract class KSLPopUpElement extends KSLPositionedElement {
     } else {
       const [scrollOffsetTop, scrollOffsetLeft] = getTotalScrollOffset(this.parentElement);
 
-      thisTop = targetRect.top + topOffset + (isOffsetToBody ? window.pageYOffset : scrollOffsetTop);
-      thisLeft = targetRect.left + leftOffset + (isOffsetToBody ? window.pageXOffset : scrollOffsetLeft);
+      thisTop =
+        targetRect.top + topOffset + (isOffsetToBody ? window.pageYOffset : scrollOffsetTop);
+      thisLeft =
+        targetRect.left + leftOffset + (isOffsetToBody ? window.pageXOffset : scrollOffsetLeft);
     }
 
     if (isOffsetToBody) {
       if (parentRect.top + thisTop + thisRect.height > window.innerHeight) {
-        this.style.bottom = parentRect.height + 'px';
-        this.style.top = 'auto';
+        this.style.bottom = `${parentRect.height}px`;
+        this.style.top = "auto";
       } else {
-        this.style.bottom = 'auto';
-        this.style.top = Math.max(-parentRect.top, thisTop) + 'px';
+        this.style.bottom = "auto";
+        this.style.top = `${Math.max(-parentRect.top, thisTop)}px`;
       }
 
       if (parentRect.left + thisLeft + thisRect.width > window.innerWidth) {
-        this.style.right = '0px';
-        this.style.left = 'auto';
+        this.style.right = "0px";
+        this.style.left = "auto";
       } else {
-        this.style.right = 'auto';
-        this.style.left = Math.max(-parentRect.left, thisLeft) + 'px';
+        this.style.right = "auto";
+        this.style.left = `${Math.max(-parentRect.left, thisLeft)}px`;
       }
     } else {
-      this.style.right = 'auto';
+      this.style.right = "auto";
       this.style.left = `${thisLeft}px`;
-      this.style.bottom = 'auto';
+      this.style.bottom = "auto";
       this.style.top = `${thisTop}px`;
     }
   };

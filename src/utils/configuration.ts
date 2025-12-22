@@ -1,4 +1,4 @@
-import { isInsideIFrame } from './iframe';
+import { isInsideIFrame } from "./iframe";
 
 export type KSLPublicConfiguration = Readonly<{
   /**
@@ -44,9 +44,11 @@ export const defaultConfiguration: KSLConfiguration = {
   },
   forceWebSpotlightMode: false,
   isInsideWebSpotlight: false,
-  queryParam: 'ksl-enabled',
+  queryParam: "ksl-enabled",
 } as const;
 
 export function isInsideWebSpotlightPreviewIFrame(configuration: KSLConfiguration): boolean {
-  return configuration.forceWebSpotlightMode || (isInsideIFrame() && configuration.isInsideWebSpotlight);
+  return (
+    configuration.forceWebSpotlightMode || (isInsideIFrame() && configuration.isInsideWebSpotlight)
+  );
 }

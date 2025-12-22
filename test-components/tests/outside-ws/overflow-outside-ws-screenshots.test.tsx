@@ -1,139 +1,152 @@
-import { expect } from '@playwright/experimental-ct-react';
-import React from 'react';
-import { test } from '../../helpers/withQueryTest';
-import { SmartLinkInitializer } from '../../components/SmartLinkInitializer';
-import { OverflowComponent } from '../../components/overflow/OverflowComponent';
-import { DefaultSdkConfigurationWithoutWs } from '../../components/config';
-import { ElementPositionOffset } from '../../../src/web-components/abstract/KSLPositionedElement';
-import { PositionProperty, OverflowProperty } from '../../helpers/types';
+import { expect } from "@playwright/experimental-ct-react";
+import { ElementPositionOffset } from "../../../src/web-components/abstract/KSLPositionedElement";
+import { DefaultSdkConfigurationWithoutWs } from "../../components/config";
+import { OverflowComponent } from "../../components/overflow/OverflowComponent";
+import { SmartLinkInitializer } from "../../components/SmartLinkInitializer";
+import { OverflowProperty, PositionProperty } from "../../helpers/types";
+import { test } from "../../helpers/withQueryTest";
 
 const testCases = [
   [
-    'Fixed container with hidden overflow',
+    "Fixed container with hidden overflow",
     <OverflowComponent
+      key="overflow-fixed-hidden-no-ws"
       position={PositionProperty.Fixed}
       overflow={OverflowProperty.Hidden}
       buttonPosition={ElementPositionOffset.Bottom}
       scrollOffsets={{}}
     />,
-    'overflow-fixed-hidden.png',
+    "overflow-fixed-hidden.png",
   ],
   [
-    'Fixed container with scrollbars',
+    "Fixed container with scrollbars",
     <OverflowComponent
+      key="overflow-fixed-scroll-no-ws"
       position={PositionProperty.Fixed}
       overflow={OverflowProperty.Scroll}
       buttonPosition={ElementPositionOffset.Bottom}
       scrollOffsets={{}}
     />,
-    'overflow-fixed-scroll.png',
+    "overflow-fixed-scroll.png",
   ],
   [
-    'Fixed container with scrollbars with offset',
+    "Fixed container with scrollbars with offset",
     <OverflowComponent
+      key="overflow-fixed-scroll-offset-no-ws"
       position={PositionProperty.Fixed}
       overflow={OverflowProperty.Scroll}
       buttonPosition={ElementPositionOffset.Bottom}
       scrollOffsets={{ container: [150, 800] }}
     />,
-    'overflow-fixed-scroll-offset.png',
+    "overflow-fixed-scroll-offset.png",
   ],
   [
-    'Fixed container with visible overflow',
+    "Fixed container with visible overflow",
     <OverflowComponent
+      key="overflow-fixed-visible-no-ws"
       position={PositionProperty.Fixed}
       overflow={OverflowProperty.Visible}
       buttonPosition={ElementPositionOffset.Bottom}
       scrollOffsets={{}}
     />,
-    'overflow-fixed-visible.png',
+    "overflow-fixed-visible.png",
   ],
   [
-    'Relative container with hidden overflow',
+    "Relative container with hidden overflow",
     <OverflowComponent
+      key="overflow-relative-hidden-no-ws"
       position={PositionProperty.Relative}
       overflow={OverflowProperty.Hidden}
       buttonPosition={ElementPositionOffset.Bottom}
       scrollOffsets={{}}
     />,
-    'overflow-relative-hidden.png',
+    "overflow-relative-hidden.png",
   ],
   [
-    'Relative container with scrollbars',
+    "Relative container with scrollbars",
     <OverflowComponent
+      key="overflow-relative-scroll-no-ws"
       position={PositionProperty.Relative}
       overflow={OverflowProperty.Scroll}
       buttonPosition={ElementPositionOffset.Bottom}
       scrollOffsets={{}}
     />,
-    'overflow-relative-scroll.png',
+    "overflow-relative-scroll.png",
   ],
   [
-    'Relative container with scrollbars with offset',
+    "Relative container with scrollbars with offset",
     <OverflowComponent
+      key="overflow-relative-scroll-offset-no-ws"
       position={PositionProperty.Relative}
       overflow={OverflowProperty.Scroll}
       buttonPosition={ElementPositionOffset.Bottom}
       scrollOffsets={{ container: [150, 800] }}
     />,
-    'overflow-relative-scroll-offset.png',
+    "overflow-relative-scroll-offset.png",
   ],
   [
-    'Relative container with visible overflow',
+    "Relative container with visible overflow",
     <OverflowComponent
+      key="overflow-relative-visible-no-ws"
       position={PositionProperty.Relative}
       overflow={OverflowProperty.Visible}
       buttonPosition={ElementPositionOffset.Bottom}
       scrollOffsets={{}}
     />,
-    'overflow-relative-visible.png',
+    "overflow-relative-visible.png",
   ],
   [
-    'Static container with hidden overflow',
+    "Static container with hidden overflow",
     <OverflowComponent
+      key="overflow-static-hidden-no-ws"
       position={PositionProperty.Static}
       overflow={OverflowProperty.Hidden}
       buttonPosition={ElementPositionOffset.Bottom}
       scrollOffsets={{}}
     />,
-    'overflow-static-hidden.png',
+    "overflow-static-hidden.png",
   ],
   [
-    'Static container with scrollbars',
+    "Static container with scrollbars",
     <OverflowComponent
+      key="overflow-static-scroll-no-ws"
       position={PositionProperty.Static}
       overflow={OverflowProperty.Scroll}
       buttonPosition={ElementPositionOffset.Bottom}
       scrollOffsets={{}}
     />,
-    'overflow-static-scroll.png',
+    "overflow-static-scroll.png",
   ],
   [
-    'Static container with scrollbars with offset',
+    "Static container with scrollbars with offset",
     <OverflowComponent
+      key="overflow-static-scroll-offset-no-ws"
       position={PositionProperty.Static}
       overflow={OverflowProperty.Scroll}
       buttonPosition={ElementPositionOffset.Bottom}
       scrollOffsets={{ container: [150, 800] }}
     />,
-    'overflow-static-scroll-offset.png',
+    "overflow-static-scroll-offset.png",
   ],
   [
-    'Static container with visible overflow',
+    "Static container with visible overflow",
     <OverflowComponent
+      key="overflow-static-visible-no-ws"
       position={PositionProperty.Static}
       overflow={OverflowProperty.Visible}
       buttonPosition={ElementPositionOffset.Bottom}
       scrollOffsets={{}}
     />,
-    'overflow-static-visible.png',
+    "overflow-static-visible.png",
   ],
 ] as const;
 
 testCases.forEach(([name, component, screenshotName]) => {
   test(name, async ({ mount, page }) => {
     await mount(
-      <SmartLinkInitializer configuration={DefaultSdkConfigurationWithoutWs}>{component}</SmartLinkInitializer>
+      <SmartLinkInitializer configuration={DefaultSdkConfigurationWithoutWs}>
+        {component}
+      </SmartLinkInitializer>,
     );
     await expect(page).toHaveScreenshot(screenshotName);
   });

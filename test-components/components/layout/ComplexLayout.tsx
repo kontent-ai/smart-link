@@ -1,5 +1,5 @@
-import React from 'react';
-import { useScroll, ScrollOffsets } from '../../helpers/useScroll';
+/** biome-ignore-all lint/a11y/useValidAnchor: Using # in href for test cases */
+import { type ScrollOffsets, useScroll } from "../../helpers/useScroll";
 
 type ComplexLayoutProps = {
   containerStyle?: React.CSSProperties;
@@ -33,16 +33,36 @@ export const ComplexLayout: React.FC<ComplexLayoutProps> = ({ containerStyle, sc
           data-kontent-add-button-insert-position="end"
           data-kontent-add-button-render-position="right"
         >
-          <a className="p-2 text-dark" href="#" data-kontent-item-id="item-id" data-kontent-element-codename="name">
+          <a
+            className="p-2 text-dark"
+            href="#"
+            data-kontent-item-id="item-id"
+            data-kontent-element-codename="name"
+          >
             Features
           </a>
-          <a className="p-2 text-dark" href="#" data-kontent-item-id="item-id" data-kontent-element-codename="name">
+          <a
+            className="p-2 text-dark"
+            href="#"
+            data-kontent-item-id="item-id"
+            data-kontent-element-codename="name"
+          >
             Enterprise
           </a>
-          <a className="p-2 text-dark" href="#" data-kontent-item-id="item-id" data-kontent-element-codename="name">
+          <a
+            className="p-2 text-dark"
+            href="#"
+            data-kontent-item-id="item-id"
+            data-kontent-element-codename="name"
+          >
             Support
           </a>
-          <a className="p-2 text-dark" href="#" data-kontent-item-id="item-id" data-kontent-element-codename="name">
+          <a
+            className="p-2 text-dark"
+            href="#"
+            data-kontent-item-id="item-id"
+            data-kontent-element-codename="name"
+          >
             Pricing
           </a>
         </nav>
@@ -64,8 +84,9 @@ export const ComplexLayout: React.FC<ComplexLayoutProps> = ({ containerStyle, sc
           Pricing
         </h1>
         <p className="lead" data-kontent-element-codename="description">
-          Quickly build an effective pricing table for your potential customers with this Bootstrap example. It's built
-          with default Bootstrap components and utilities with little customization.
+          Quickly build an effective pricing table for your potential customers with this Bootstrap
+          example. It's built with default Bootstrap components and utilities with little
+          customization.
         </p>
       </div>
 
@@ -76,9 +97,9 @@ export const ComplexLayout: React.FC<ComplexLayoutProps> = ({ containerStyle, sc
         data-kontent-disable-features="highlight,random-value,random-value-2"
       >
         <div className="card-deck mb-3 text-center">
-          {[1, 2, 3].map((_, index) => (
+          {[1, 2, 3].map((val) => (
             <div
-              key={index}
+              key={`card-${val}`}
               className="card mb-4 shadow-sm"
               data-kontent-component-id="component-id"
               data-kontent-add-button=""

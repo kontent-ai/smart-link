@@ -1,7 +1,6 @@
-import React from 'react';
-import { ElementPositionOffset } from '../../../src/web-components/abstract/KSLPositionedElement';
-import { ScrollOffsets, useScroll } from '../../helpers/useScroll';
-import { OverflowProperty, PositionProperty } from '../../helpers/types';
+import type { ElementPositionOffset } from "../../../src/web-components/abstract/KSLPositionedElement";
+import type { OverflowProperty, PositionProperty } from "../../helpers/types";
+import { type ScrollOffsets, useScroll } from "../../helpers/useScroll";
 
 type NestedOverflowProps = {
   containerOverflow: OverflowProperty;
@@ -28,8 +27,8 @@ export const NestedOverflowComponent: React.FC<NestedOverflowProps> = ({
       style={{
         position: containerPosition,
         overflow: containerOverflow,
-        maxHeight: '390px',
-        maxWidth: '390px',
+        maxHeight: "390px",
+        maxWidth: "390px",
       }}
       data-kontent-environment-id="p"
       data-kontent-language-codename="l"
@@ -44,14 +43,14 @@ export const NestedOverflowComponent: React.FC<NestedOverflowProps> = ({
         style={{
           position: nestedPosition,
           overflow: nestedOverflow,
-          maxHeight: '400px',
+          maxHeight: "400px",
         }}
       >
         <div
           data-kontent-element-codename="e"
           data-kontent-add-button="true"
           data-kontent-add-button-render-position={buttonPosition}
-          style={{ width: '100%' }}
+          style={{ width: "100%" }}
         >
           {`This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.
           This text node overflows its parent. This text node overflows its parent. This text node overflows its parent.

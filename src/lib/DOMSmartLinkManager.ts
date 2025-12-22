@@ -1,23 +1,26 @@
-import { isElementWebComponent } from '../web-components/components';
+import { isInsideWebSpotlightPreviewIFrame, type KSLConfiguration } from "../utils/configuration";
+import { getAugmentableDescendants, isElementAugmentable } from "../utils/customElements";
+import { InvalidEnvironmentError } from "../utils/errors";
+import { buildKontentElementLink, buildKontentItemLink } from "../utils/link";
 import {
-  AddButtonElementType,
-  IAddButtonPermissionsServerModel,
-  IClickedMessageMetadata,
-  IFrameMessageType,
-} from './IFrameCommunicatorTypes';
-import { SmartLinkRenderer } from './SmartLinkRenderer';
-import { KSLHighlightElementEvent } from '../web-components/KSLHighlightElement';
-import { getAugmentableDescendants, isElementAugmentable } from '../utils/customElements';
-import { validateAddInitialMessageData, validateEditButtonMessageData } from '../utils/messageValidation';
-import {
+  validateAddInitialMessageData,
+  validateEditButtonMessageData,
+} from "../utils/messageValidation";
+import { isElementWebComponent } from "../web-components/components";
+import type {
   KSLAddButtonElementActionEvent,
   KSLAddButtonElementInitialAsyncEvent,
-} from '../web-components/KSLAddButtonElement';
-import { IFrameCommunicator } from './IFrameCommunicator';
-import { isInsideWebSpotlightPreviewIFrame, KSLConfiguration } from '../utils/configuration';
-import { buildKontentItemLink, buildKontentElementLink } from '../utils/link';
-import { logError, logWarn } from './Logger';
-import { InvalidEnvironmentError } from '../utils/errors';
+} from "../web-components/KSLAddButtonElement";
+import type { KSLHighlightElementEvent } from "../web-components/KSLHighlightElement";
+import type { IFrameCommunicator } from "./IFrameCommunicator";
+import {
+  AddButtonElementType,
+  type IAddButtonPermissionsServerModel,
+  type IClickedMessageMetadata,
+  IFrameMessageType,
+} from "./IFrameCommunicatorTypes";
+import { logError, logWarn } from "./Logger";
+import { SmartLinkRenderer } from "./SmartLinkRenderer";
 
 export class DOMSmartLinkManager {
   private readonly mutationObserver: MutationObserver;
@@ -31,10 +34,17 @@ export class DOMSmartLinkManager {
 
   constructor(
     private readonly iframeCommunicator: IFrameCommunicator,
-    private readonly configuration: KSLConfiguration
+    private readonly configuration: KSLConfiguration,
   ) {
-    if (window === undefined || MutationObserver === undefined || IntersectionObserver === undefined) {
-      throw InvalidEnvironmentError('NodeSmartLinkProvider can only be initialized in a browser environment.');
+    if (
+      // window === undefined crashes
+      typeof window === "undefined" ||
+      typeof MutationObserver === "undefined" ||
+      typeof IntersectionObserver === "undefined"
+    ) {
+      throw new InvalidEnvironmentError(
+        "NodeSmartLinkProvider can only be initialized in a browser environment.",
+      );
     }
 
     this.mutationObserver = new MutationObserver(this.onDomMutation);
@@ -43,7 +53,7 @@ export class DOMSmartLinkManager {
   }
 
   public toggle = (force?: boolean): void => {
-    const shouldEnable = force ? force : !this.enabled;
+    const shouldEnable = force ?? !this.enabled;
 
     if (shouldEnable) {
       this.enable();
@@ -53,7 +63,9 @@ export class DOMSmartLinkManager {
   };
 
   public enable = (): void => {
-    if (this.enabled) return;
+    if (this.enabled) {
+      return;
+    }
 
     this.startRenderingInterval();
 
@@ -63,7 +75,9 @@ export class DOMSmartLinkManager {
   };
 
   public disable = (): void => {
-    if (!this.enabled) return;
+    if (!this.enabled) {
+      return;
+    }
 
     this.stopRenderingInterval();
 
@@ -102,19 +116,21 @@ export class DOMSmartLinkManager {
   };
 
   private listenToGlobalEvents = (): void => {
-    window.addEventListener('ksl:add-button:initial', this.onAddInitialClick, { capture: true });
-    window.addEventListener('ksl:add-button:action', this.onAddActionClick, { capture: true });
-    window.addEventListener('ksl:highlight:edit', this.onEditElement, { capture: true });
+    window.addEventListener("ksl:add-button:initial", this.onAddInitialClick, { capture: true });
+    window.addEventListener("ksl:add-button:action", this.onAddActionClick, { capture: true });
+    window.addEventListener("ksl:highlight:edit", this.onEditElement, { capture: true });
   };
 
   private unlistenToGlobalEvents = (): void => {
-    window.removeEventListener('ksl:add-button:initial', this.onAddInitialClick, { capture: true });
-    window.removeEventListener('ksl:add-button:action', this.onAddActionClick, { capture: true });
-    window.removeEventListener('ksl:highlight:edit', this.onEditElement, { capture: true });
+    window.removeEventListener("ksl:add-button:initial", this.onAddInitialClick, { capture: true });
+    window.removeEventListener("ksl:add-button:action", this.onAddActionClick, { capture: true });
+    window.removeEventListener("ksl:highlight:edit", this.onEditElement, { capture: true });
   };
 
   private observeDomMutations = (): void => {
-    if (this.enabled) return;
+    if (this.enabled) {
+      return;
+    }
 
     this.mutationObserver.observe(window.document.body, {
       childList: true,
@@ -141,14 +157,18 @@ export class DOMSmartLinkManager {
   };
 
   private observeElementVisibility = (element: HTMLElement): void => {
-    if (this.observedElements.has(element)) return;
+    if (this.observedElements.has(element)) {
+      return;
+    }
 
     this.intersectionObserver.observe(element);
     this.observedElements.add(element);
   };
 
   private unobserveElementVisibility = (element: HTMLElement): void => {
-    if (!this.observedElements.has(element)) return;
+    if (!this.observedElements.has(element)) {
+      return;
+    }
 
     this.intersectionObserver.unobserve(element);
     this.observedElements.delete(element);
@@ -160,28 +180,36 @@ export class DOMSmartLinkManager {
 
     for (const mutation of relevantMutations) {
       for (const node of mutation.addedNodes) {
-        if (!(node instanceof HTMLElement)) continue;
+        if (!(node instanceof HTMLElement)) {
+          continue;
+        }
 
         if (isElementAugmentable(node, this.configuration)) {
           this.observeElementVisibility(node);
         }
 
         for (const element of getAugmentableDescendants(node, this.configuration)) {
-          if (!(element instanceof HTMLElement)) continue;
+          if (!(element instanceof HTMLElement)) {
+            continue;
+          }
 
           this.observeElementVisibility(element);
         }
       }
 
       for (const node of mutation.removedNodes) {
-        if (!(node instanceof HTMLElement)) continue;
+        if (!(node instanceof HTMLElement)) {
+          continue;
+        }
 
         if (isElementAugmentable(node, this.configuration)) {
           this.unobserveElementVisibility(node);
         }
 
         for (const element of getAugmentableDescendants(node, this.configuration)) {
-          if (!(element instanceof HTMLElement)) continue;
+          if (!(element instanceof HTMLElement)) {
+            continue;
+          }
 
           this.unobserveElementVisibility(element);
         }
@@ -220,18 +248,22 @@ export class DOMSmartLinkManager {
 
     const validationResult = validateEditButtonMessageData(data, this.configuration);
 
-    if (validationResult.type === 'error') {
+    if (validationResult.type === "error") {
       logError(
-        `Required attribute was not found: ${validationResult.missing[0]}. Skipped parsing these attributes: ${validationResult.missing.slice(1).join(', ')}`
+        `Required attribute was not found: ${validationResult.missing[0]}. Skipped parsing these attributes: ${validationResult.missing.slice(1).join(", ")}`,
       );
-      logError('Debug info: ', validationResult.debug);
-      logError('Skipping edit button click');
+      logError("Debug info: ", validationResult.debug);
+      logError("Skipping edit button click");
       return;
     }
 
-    if (validationResult.type === 'element') {
+    if (validationResult.type === "element") {
       if (isInsideWebSpotlight) {
-        this.iframeCommunicator.sendMessage(IFrameMessageType.ElementClicked, validationResult.data, messageMetadata);
+        this.iframeCommunicator.sendMessage(
+          IFrameMessageType.ElementClicked,
+          validationResult.data,
+          messageMetadata,
+        );
       } else {
         const link = buildKontentElementLink({
           environmentId: validationResult.data.projectId,
@@ -239,33 +271,31 @@ export class DOMSmartLinkManager {
           itemId: validationResult.data.itemId,
           elementCodename: validationResult.data.elementCodename,
         });
-        window.open(link, '_blank');
+        window.open(link, "_blank");
       }
-    } else if (validationResult.type === 'contentComponent') {
+    } else if (validationResult.type === "contentComponent") {
       if (isInsideWebSpotlight) {
         this.iframeCommunicator.sendMessage(
           IFrameMessageType.ContentComponentClicked,
           validationResult.data,
-          messageMetadata
+          messageMetadata,
         );
       } else {
-        logWarn('Edit buttons for content components are only functional inside Web Spotlight.');
+        logWarn("Edit buttons for content components are only functional inside Web Spotlight.");
       }
+    } else if (isInsideWebSpotlight) {
+      this.iframeCommunicator.sendMessage(
+        IFrameMessageType.ContentItemClicked,
+        validationResult.data,
+        messageMetadata,
+      );
     } else {
-      if (isInsideWebSpotlight) {
-        this.iframeCommunicator.sendMessage(
-          IFrameMessageType.ContentItemClicked,
-          validationResult.data,
-          messageMetadata
-        );
-      } else {
-        const link = buildKontentItemLink({
-          environmentId: validationResult.data.projectId,
-          languageCodename: validationResult.data.languageCodename,
-          itemId: validationResult.data.itemId,
-        });
-        window.open(link, '_blank');
-      }
+      const link = buildKontentItemLink({
+        environmentId: validationResult.data.projectId,
+        languageCodename: validationResult.data.languageCodename,
+        itemId: validationResult.data.itemId,
+      });
+      window.open(link, "_blank");
     }
   };
 
@@ -278,7 +308,7 @@ export class DOMSmartLinkManager {
       elementRect: targetNode.getBoundingClientRect(),
     };
 
-    console.log('data', data);
+    console.log("data", data);
 
     const messageDataValidation = validateAddInitialMessageData(data, this.configuration);
 
@@ -286,14 +316,16 @@ export class DOMSmartLinkManager {
       const [first, ...rest] = messageDataValidation.missing;
       onReject({
         message: `Could not find required data attribute: '${first}'.${
-          rest.length > 0 ? ` All attributes higher in hierarchy were never searched for: [${rest.join(', ')}]` : ''
+          rest.length > 0
+            ? ` All attributes higher in hierarchy were never searched for: [${rest.join(", ")}]`
+            : ""
         }`,
       });
       return;
     }
 
     if (!isInsideWebSpotlight) {
-      onReject({ message: 'Add buttons are only functional inside Web Spotlight' });
+      onReject({ message: "Add buttons are only functional inside Web Spotlight" });
       return;
     }
 
@@ -302,13 +334,13 @@ export class DOMSmartLinkManager {
       messageDataValidation.data,
       (response?: IAddButtonPermissionsServerModel) => {
         if (!response || response.elementType === AddButtonElementType.Unknown) {
-          console.log('response', JSON.stringify(response));
-          return onReject({ message: 'Something went wrong' });
+          console.log("response", JSON.stringify(response));
+          return onReject({ message: "Something went wrong" });
         }
 
         return onResolve(response);
       },
-      messageMetadata
+      messageMetadata,
     );
   };
 
@@ -327,7 +359,7 @@ export class DOMSmartLinkManager {
     }
 
     if (!isInsideWebSpotlight) {
-      logWarn('Add buttons are only functional inside Web Spotlight.');
+      logWarn("Add buttons are only functional inside Web Spotlight.");
       return;
     }
 
@@ -337,24 +369,25 @@ export class DOMSmartLinkManager {
         ...messageDataValidation.data,
         action: data.action,
       },
-      messageMetadata
+      messageMetadata,
     );
   };
 }
 
 const isRelevantMutation = (mutation: MutationRecord): boolean => {
-  const isTypeRelevant = mutation.type === 'childList';
-  const isTargetRelevant = mutation.target instanceof HTMLElement && !isElementWebComponent(mutation.target);
+  const isTypeRelevant = mutation.type === "childList";
+  const isTargetRelevant =
+    mutation.target instanceof HTMLElement && !isElementWebComponent(mutation.target);
 
   if (!isTypeRelevant || !isTargetRelevant) {
     return false;
   }
 
   const hasRelevantAddedNodes = Array.from(mutation.addedNodes).some(
-    (node) => node instanceof HTMLElement && !isElementWebComponent(node)
+    (node) => node instanceof HTMLElement && !isElementWebComponent(node),
   );
   const hasRelevantRemovedNodes = Array.from(mutation.removedNodes).some(
-    (node) => node instanceof HTMLElement && !isElementWebComponent(node)
+    (node) => node instanceof HTMLElement && !isElementWebComponent(node),
   );
 
   return hasRelevantAddedNodes || hasRelevantRemovedNodes;

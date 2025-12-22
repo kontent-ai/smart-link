@@ -6,7 +6,7 @@
  * For table elements (td, th, table), they must be positioned to be considered a rendering root.
  */
 export function groupElementsByRenderingRoot(
-  elements: ReadonlySet<HTMLElement>
+  elements: ReadonlySet<HTMLElement>,
 ): Map<HTMLElement | null, ReadonlySet<HTMLElement>> {
   const results = new Map<HTMLElement | null, Set<HTMLElement>>();
 
@@ -37,7 +37,7 @@ export function getRenderingRootForElement(element: HTMLElement): HTMLElement | 
   // Table HTML element (td, th, table) can be an offset parent of some node, but unless it is positioned it will not be
   // used as a offset parent for the absolute positioned child (highlight). That is why we should ignore those elements and
   // do not use them as parents unless they are positioned. Otherwise, the highlighting might broke for the tables.
-  const isNotTable = !['TD', 'TH', 'TABLE'].includes(parentElement.tagName);
+  const isNotTable = !["TD", "TH", "TABLE"].includes(parentElement.tagName);
 
   return metadata.isPositioned || (metadata.isContentClipped && isNotTable)
     ? parentElement
@@ -65,12 +65,14 @@ export type RenderingRootMetadata = {
 export function getRenderingRootMetadata(root: HTMLElement): RenderingRootMetadata {
   const computedStyles = window.getComputedStyle(root);
 
-  const position = computedStyles.getPropertyValue('position');
-  const overflow = computedStyles.getPropertyValue('overflow');
+  const position = computedStyles.getPropertyValue("position");
+  const overflow = computedStyles.getPropertyValue("overflow");
 
   return {
-    isPositioned: position !== 'static',
-    isContentClipped: overflow.split(' ').some((value) => ['auto', 'scroll', 'clip', 'hidden'].includes(value)),
+    isPositioned: position !== "static",
+    isContentClipped: overflow
+      .split(" ")
+      .some((value) => ["auto", "scroll", "clip", "hidden"].includes(value)),
   };
 }
 
@@ -103,7 +105,7 @@ export function getTotalScrollOffset(node: HTMLElement | null): [number, number]
 }
 
 export function createTemplateForCustomElement(html: string): HTMLTemplateElement {
-  const template = document.createElement('template');
+  const template = document.createElement("template");
   template.innerHTML = html;
   return template;
 }

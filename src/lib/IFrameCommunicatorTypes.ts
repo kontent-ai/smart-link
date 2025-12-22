@@ -1,4 +1,4 @@
-import { ElementUpdateData } from '../models';
+import type { ElementUpdateData } from "../models/ElementUpdateData";
 
 interface ISDKSupportedFeatures {
   readonly previewIFrameCurrentUrlHandler: boolean;
@@ -70,10 +70,10 @@ export interface IPreviewIFrameCurrentUrlMessageData {
 }
 
 export enum InsertPositionPlacement {
-  After = 'after',
-  Before = 'before',
-  End = 'end',
-  Start = 'start',
+  After = "after",
+  Before = "before",
+  End = "end",
+  Start = "start",
 }
 
 interface IRelativeInsertPosition {
@@ -97,9 +97,9 @@ export interface IAddButtonInitialMessageData {
 }
 
 export enum AddButtonAction {
-  CreateComponent = 'CreateComponent',
-  CreateLinkedItem = 'CreateLinkedItem',
-  InsertLinkedItem = 'InsertLinkedItem',
+  CreateComponent = "CreateComponent",
+  CreateLinkedItem = "CreateLinkedItem",
+  InsertLinkedItem = "InsertLinkedItem",
 }
 
 export interface IAddActionMessageData extends IAddButtonInitialMessageData {
@@ -107,23 +107,23 @@ export interface IAddActionMessageData extends IAddButtonInitialMessageData {
 }
 
 export enum AddButtonElementType {
-  LinkedItems = 'LinkedItems',
-  RichText = 'RichText',
-  Unknown = 'Unknown',
+  LinkedItems = "LinkedItems",
+  RichText = "RichText",
+  Unknown = "Unknown",
 }
 
 export enum AddButtonPermission {
-  CreateNew = 'createNew',
-  Edit = 'edit',
-  ViewParent = 'viewParent',
+  CreateNew = "createNew",
+  Edit = "edit",
+  ViewParent = "viewParent",
 }
 
 export enum AddButtonPermissionCheckResult {
-  ItemNotTranslated = 'ItemNotTranslated',
-  Ok = 'Ok',
-  PermissionMissing = 'PermissionMissing',
-  RteWithForbiddenComponents = 'RteWithForbiddenComponents',
-  Unknown = 'Unknown',
+  ItemNotTranslated = "ItemNotTranslated",
+  Ok = "Ok",
+  PermissionMissing = "PermissionMissing",
+  RteWithForbiddenComponents = "RteWithForbiddenComponents",
+  Unknown = "Unknown",
 }
 
 export interface IAddButtonPermissionsServerModel {
@@ -133,21 +133,21 @@ export interface IAddButtonPermissionsServerModel {
 }
 
 export enum IFrameMessageType {
-  ElementClicked = 'kontent-smart-link:element:clicked',
-  ContentItemClicked = 'kontent-smart-link:content-item:clicked',
-  ContentComponentClicked = 'kontent-smart-link:content-component:clicked',
-  Initialized = 'kontent-smart-link:initialized',
-  Status = 'kontent-smart-link:status',
-  AddInitial = 'kontent-smart-link:add:initial',
-  AddAction = 'kontent-smart-link:add:action',
-  RefreshPreview = 'kontent-smart-link:preview:refresh',
-  UpdatePreview = 'kontent-smart-link:preview:update',
-  PreviewIFrameCurrentUrl = 'kontent-smart-link:preview:current-url',
-  PreviewIFrameCurrentUrlResponse = 'kontent-smart-link:preview:current-url:response',
+  ElementClicked = "kontent-smart-link:element:clicked",
+  ContentItemClicked = "kontent-smart-link:content-item:clicked",
+  ContentComponentClicked = "kontent-smart-link:content-component:clicked",
+  Initialized = "kontent-smart-link:initialized",
+  Status = "kontent-smart-link:status",
+  AddInitial = "kontent-smart-link:add:initial",
+  AddAction = "kontent-smart-link:add:action",
+  RefreshPreview = "kontent-smart-link:preview:refresh",
+  UpdatePreview = "kontent-smart-link:preview:update",
+  PreviewIFrameCurrentUrl = "kontent-smart-link:preview:current-url",
+  PreviewIFrameCurrentUrlResponse = "kontent-smart-link:preview:current-url:response",
 }
 
 export enum IFrameResponseType {
-  AddInitialResponse = 'kontent-smart-link:add:initial:response',
+  AddInitialResponse = "kontent-smart-link:add:initial:response",
 }
 
 export interface IFrameResponseMessage {

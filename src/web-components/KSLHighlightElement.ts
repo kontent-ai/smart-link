@@ -1,15 +1,18 @@
-import { ButtonType, KSLButtonElement } from './KSLButtonElement';
-import { IconName } from './KSLIconElement';
-import { assert } from '../utils/assert';
-import { ElementPositionOffset, KSLPositionedElement } from './abstract/KSLPositionedElement';
-import { KSLContainerElement } from './KSLContainerElement';
-import { createTemplateForCustomElement } from '../utils/domElement';
-import { logWarn } from '../lib/Logger';
-import { Colors } from './tokens/colors';
-import { Shadows } from './tokens/shadows';
-import { BaseZIndex } from './tokens/zIndex';
-import { getHighlightTypeForElement, HighlightType } from '../utils/dataAttributes/elementHighlight';
-import { parseEditButtonDataAttributes, ParseResult } from '../utils/dataAttributes/parser';
+import { logWarn } from "../lib/Logger";
+import { assert } from "../utils/assert";
+import {
+  getHighlightTypeForElement,
+  HighlightType,
+} from "../utils/dataAttributes/elementHighlight";
+import { type ParseResult, parseEditButtonDataAttributes } from "../utils/dataAttributes/parser";
+import { createTemplateForCustomElement } from "../utils/domElement";
+import { ElementPositionOffset, KSLPositionedElement } from "./abstract/KSLPositionedElement";
+import { ButtonType, type KSLButtonElement } from "./KSLButtonElement";
+import { KSLContainerElement } from "./KSLContainerElement";
+import { IconName } from "./KSLIconElement";
+import { Colors } from "./tokens/colors";
+import { Shadows } from "./tokens/shadows";
+import { BaseZIndex } from "./tokens/zIndex";
 
 interface IKSLHighlightElementEventData {
   readonly data: ParseResult;
@@ -20,11 +23,11 @@ export type KSLHighlightElementEvent = CustomEvent<IKSLHighlightElementEventData
 
 declare global {
   interface WindowEventMap {
-    'ksl:highlight:edit': KSLHighlightElementEvent;
+    "ksl:highlight:edit": KSLHighlightElementEvent;
   }
 
   interface HTMLElementEventMap {
-    'ksl:highlight:edit': KSLHighlightElementEvent;
+    "ksl:highlight:edit": KSLHighlightElementEvent;
   }
 }
 
@@ -104,7 +107,7 @@ const templateHTML = `
 
 export class KSLHighlightElement extends KSLPositionedElement {
   public static get is() {
-    return 'ksl-highlight' as const;
+    return "ksl-highlight" as const;
   }
 
   public get type(): HighlightType {
@@ -112,11 +115,11 @@ export class KSLHighlightElement extends KSLPositionedElement {
   }
 
   public get selected(): boolean {
-    return this.hasAttribute('selected');
+    return this.hasAttribute("selected");
   }
 
   public set selected(value: boolean) {
-    this.updateAttribute('selected', value);
+    this.updateAttribute("selected", value);
   }
 
   private readonly editButtonRef: KSLButtonElement;
@@ -125,7 +128,7 @@ export class KSLHighlightElement extends KSLPositionedElement {
     super();
 
     assert(this.shadowRoot, 'Shadow root must be always accessible in "open" mode.');
-    this.editButtonRef = this.shadowRoot.querySelector('#ksl-edit') as KSLButtonElement;
+    this.editButtonRef = this.shadowRoot.querySelector("#ksl-edit") as KSLButtonElement;
   }
 
   public static initializeTemplate(): HTMLTemplateElement {
@@ -135,29 +138,29 @@ export class KSLHighlightElement extends KSLPositionedElement {
   private static getEditButtonTooltip(type: HighlightType): string {
     switch (type) {
       case HighlightType.Element:
-        return 'Edit element';
+        return "Edit element";
 
       case HighlightType.ContentComponent:
-        return 'Edit component';
+        return "Edit component";
 
       case HighlightType.ContentItem:
-        return 'Edit item';
+        return "Edit item";
 
-      default:
-        return 'Edit';
+      case HighlightType.None:
+        return "Edit";
     }
   }
 
   public connectedCallback(): void {
     super.connectedCallback();
 
-    this.editButtonRef.addEventListener('click', this.handleEditButtonClick);
+    this.editButtonRef.addEventListener("click", this.handleEditButtonClick);
   }
 
   public disconnectedCallback(): void {
     super.connectedCallback();
 
-    this.editButtonRef.removeEventListener('click', this.handleEditButtonClick);
+    this.editButtonRef.removeEventListener("click", this.handleEditButtonClick);
     this.unregisterTargetNodeListeners();
   }
 
@@ -171,9 +174,9 @@ export class KSLHighlightElement extends KSLPositionedElement {
     this.editButtonRef.tooltipMessage = KSLHighlightElement.getEditButtonTooltip(type);
 
     if (this.targetRef) {
-      this.targetRef.addEventListener('mousemove', this.handleTargetNodeMouseEnter);
-      this.targetRef.addEventListener('mouseleave', this.handleTargetNodeMouseLeave);
-      this.targetRef.addEventListener('click', this.handleEditButtonClick);
+      this.targetRef.addEventListener("mousemove", this.handleTargetNodeMouseEnter);
+      this.targetRef.addEventListener("mouseleave", this.handleTargetNodeMouseLeave);
+      this.targetRef.addEventListener("click", this.handleEditButtonClick);
     }
   };
 
@@ -183,7 +186,9 @@ export class KSLHighlightElement extends KSLPositionedElement {
     }
 
     if (!(this.offsetParent instanceof KSLContainerElement)) {
-      logWarn('KSLHighlightElement: should be located inside KSLContainerElement to be positioned properly.');
+      logWarn(
+        "KSLHighlightElement: should be located inside KSLContainerElement to be positioned properly.",
+      );
     }
 
     const offsetParentRect = this.offsetParent.getBoundingClientRect();
@@ -198,9 +203,9 @@ export class KSLHighlightElement extends KSLPositionedElement {
 
   private unregisterTargetNodeListeners = (): void => {
     if (this.targetRef) {
-      this.targetRef.removeEventListener('mousemove', this.handleTargetNodeMouseEnter);
-      this.targetRef.removeEventListener('mouseleave', this.handleTargetNodeMouseLeave);
-      this.targetRef.removeEventListener('click', this.handleEditButtonClick);
+      this.targetRef.removeEventListener("mousemove", this.handleTargetNodeMouseEnter);
+      this.targetRef.removeEventListener("mouseleave", this.handleTargetNodeMouseLeave);
+      this.targetRef.removeEventListener("click", this.handleEditButtonClick);
     }
   };
 
@@ -213,7 +218,7 @@ export class KSLHighlightElement extends KSLPositionedElement {
   };
 
   private handleEditButtonClick = (event: MouseEvent): void => {
-    assert(this.targetRef, 'Target node is not set for this highlight.');
+    assert(this.targetRef, "Target node is not set for this highlight.");
 
     event.preventDefault();
     event.stopPropagation();
@@ -223,9 +228,9 @@ export class KSLHighlightElement extends KSLPositionedElement {
   };
 
   private dispatchEditEvent = (data: ParseResult): void => {
-    assert(this.targetRef, 'Target node is not set for this highlight element.');
+    assert(this.targetRef, "Target node is not set for this highlight element.");
 
-    const customEvent = new CustomEvent<IKSLHighlightElementEventData>('ksl:highlight:edit', {
+    const customEvent = new CustomEvent<IKSLHighlightElementEventData>("ksl:highlight:edit", {
       detail: {
         data,
         targetNode: this.targetRef,

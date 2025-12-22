@@ -1,18 +1,18 @@
-import { defineConfig, devices } from '@playwright/experimental-ct-react';
+import { defineConfig, devices } from "@playwright/experimental-ct-react";
 
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
-  testDir: './test-components/tests',
-  snapshotDir: './test-components/__snapshots__',
-  snapshotPathTemplate: '{snapshotDir}/{testFilePath}/{arg}-{projectName}{ext}',
+  testDir: "./test-components/tests",
+  snapshotDir: "./test-components/__snapshots__",
+  snapshotPathTemplate: "{snapshotDir}/{testFilePath}/{arg}-{projectName}{ext}",
   timeout: 60 * 1000,
   expect: {
     timeout: 10000,
     toHaveScreenshot: {
-      animations: 'disabled',
-      scale: 'css',
+      animations: "disabled",
+      scale: "css",
       maxDiffPixels: 20,
       threshold: 0.2,
     },
@@ -23,19 +23,19 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: 0,
   workers: process.env.CI ? 1 : undefined,
-  reporter: 'html',
+  reporter: "html",
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    trace: 'on-first-retry',
+    trace: "on-first-retry",
     ctPort: 3100,
   },
 
   /* Configure projects for major browsers */
   projects: [
     {
-      name: 'chromium',
+      name: "chromium",
       use: {
-        ...devices['Desktop Chrome'],
+        ...devices["Desktop Chrome"],
         viewport: { width: 1366, height: 768 },
       },
     },

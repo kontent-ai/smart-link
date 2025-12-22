@@ -1,9 +1,9 @@
-import { groupElementsByRenderingRoot } from '../utils/domElement';
-import { KSLContainerElement } from '../web-components/KSLContainerElement';
-import { KSLHighlightElement } from '../web-components/KSLHighlightElement';
-import { KSLAddButtonElement } from '../web-components/KSLAddButtonElement';
-import { shouldElementHaveHighlight, shouldElementHaveAddButton } from '../utils/customElements';
-import { KSLConfiguration } from '../utils/configuration';
+import type { KSLConfiguration } from "../utils/configuration";
+import { shouldElementHaveAddButton, shouldElementHaveHighlight } from "../utils/customElements";
+import { groupElementsByRenderingRoot } from "../utils/domElement";
+import type { KSLAddButtonElement } from "../web-components/KSLAddButtonElement";
+import { KSLContainerElement } from "../web-components/KSLContainerElement";
+import type { KSLHighlightElement } from "../web-components/KSLHighlightElement";
 
 export class SmartLinkRenderer {
   private readonly defaultContainer: KSLContainerElement;
@@ -27,7 +27,7 @@ export class SmartLinkRenderer {
     const { newAddButtonByElement, newHighlightByElement } = this.processVisibleElements(
       visibleElements,
       this.addButtonByElement,
-      this.highlightByElement
+      this.highlightByElement,
     );
 
     // Remove highlights that are not observed anymore as they might be removed from the DOM.
@@ -79,13 +79,13 @@ export class SmartLinkRenderer {
     this.highlightByElement = new Map<HTMLElement, KSLHighlightElement>();
     this.containerByRenderingRoot = new Map<HTMLElement, KSLContainerElement>();
     this.addButtonByElement = new Map<HTMLElement, KSLAddButtonElement>();
-    this.defaultContainer.innerHTML = '';
+    this.defaultContainer.innerHTML = "";
   };
 
   private processVisibleElements = (
     visibleElements: Set<HTMLElement>,
     addButtonByElement: Map<HTMLElement, KSLAddButtonElement>,
-    highlightByElement: Map<HTMLElement, KSLHighlightElement>
+    highlightByElement: Map<HTMLElement, KSLHighlightElement>,
   ): {
     newAddButtonByElement: Map<HTMLElement, KSLAddButtonElement>;
     newHighlightByElement: Map<HTMLElement, KSLHighlightElement>;
@@ -105,14 +105,18 @@ export class SmartLinkRenderer {
           const isFlat = element.offsetHeight === 0 || element.offsetWidth === 0;
 
           if (!isFlat && shouldElementHaveHighlight(element, this.configuration)) {
-            const highlight = acc.newHighlightByElement.get(element) ?? container.createHighlightForElement(element);
+            const highlight =
+              acc.newHighlightByElement.get(element) ??
+              container.createHighlightForElement(element);
             highlight.adjustPosition();
 
             acc.newHighlightByElement.set(element, highlight);
           }
 
           if (shouldElementHaveAddButton(element, this.configuration)) {
-            const addButton = acc.newAddButtonByElement.get(element) ?? container.createAddButtonForElement(element);
+            const addButton =
+              acc.newAddButtonByElement.get(element) ??
+              container.createAddButtonForElement(element);
             addButton.adjustPosition();
 
             acc.newAddButtonByElement.set(element, addButton);
@@ -124,7 +128,7 @@ export class SmartLinkRenderer {
       {
         newAddButtonByElement: new Map<HTMLElement, KSLAddButtonElement>(addButtonByElement),
         newHighlightByElement: new Map<HTMLElement, KSLHighlightElement>(highlightByElement),
-      }
+      },
     );
   };
 

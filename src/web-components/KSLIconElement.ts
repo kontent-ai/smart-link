@@ -1,14 +1,14 @@
-import { KSLCustomElement } from './abstract/KSLCustomElement';
-import { assert } from '../utils/assert';
-import { createTemplateForCustomElement } from '../utils/domElement';
+import { assert } from "../utils/assert";
+import { createTemplateForCustomElement } from "../utils/domElement";
+import { KSLCustomElement } from "./abstract/KSLCustomElement";
 
 export enum IconName {
-  CollapseScheme = 'icon-collapse-scheme',
-  Edit = 'icon-edit',
-  Plus = 'icon-plus',
-  PlusPuzzle = 'icon-plus-puzzle',
-  Puzzle = 'icon-puzzle',
-  Spinner = 'icon-spinner',
+  CollapseScheme = "icon-collapse-scheme",
+  Edit = "icon-edit",
+  Plus = "icon-plus",
+  PlusPuzzle = "icon-plus-puzzle",
+  Puzzle = "icon-puzzle",
+  Spinner = "icon-spinner",
 }
 
 const iconsHTML = `
@@ -118,29 +118,29 @@ export class KSLIconElement extends KSLCustomElement {
   private static _icons: HTMLTemplateElement | null = null;
 
   public static get is() {
-    return 'ksl-icon' as const;
+    return "ksl-icon" as const;
   }
 
   public static get icons(): HTMLTemplateElement {
-    if (!this._icons) {
-      const template = document.createElement('template');
+    if (!KSLIconElement._icons) {
+      const template = document.createElement("template");
       template.innerHTML = iconsHTML;
-      this._icons = template;
+      KSLIconElement._icons = template;
     }
 
-    return this._icons;
+    return KSLIconElement._icons;
   }
 
   public static get observedAttributes(): string[] {
-    return ['icon-name'];
+    return ["icon-name"];
   }
 
   public get iconName(): string | null {
-    return this.getAttribute('icon-name');
+    return this.getAttribute("icon-name");
   }
 
   public set iconName(value: string | null) {
-    this.updateAttribute('icon-name', value);
+    this.updateAttribute("icon-name", value);
   }
 
   private iconRef: Element | null;
@@ -150,7 +150,7 @@ export class KSLIconElement extends KSLCustomElement {
 
     assert(this.shadowRoot, 'Shadow root must be always accessible in "open" mode.');
 
-    const name = this.getAttribute('icon-name');
+    const name = this.getAttribute("icon-name");
     const template = this.getTemplateByIconName(name);
 
     if (template) {
@@ -166,8 +166,12 @@ export class KSLIconElement extends KSLCustomElement {
     return createTemplateForCustomElement(templateHTML);
   }
 
-  public attributeChangedCallback(attributeName: string, _oldValue: string | null, newValue: string | null): void {
-    if (attributeName === 'icon-name') {
+  public attributeChangedCallback(
+    attributeName: string,
+    _oldValue: string | null,
+    newValue: string | null,
+  ): void {
+    if (attributeName === "icon-name") {
       this.updateIcon(newValue);
     }
   }

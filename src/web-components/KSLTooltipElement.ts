@@ -1,6 +1,6 @@
-import { KSLPopUpElement } from './abstract/KSLPopUpElement';
-import { createTemplateForCustomElement } from '../utils/domElement';
-import { Colors } from './tokens/colors';
+import { createTemplateForCustomElement } from "../utils/domElement";
+import { KSLPopUpElement } from "./abstract/KSLPopUpElement";
+import { Colors } from "./tokens/colors";
 
 const templateHTML = `
   <style>
@@ -16,7 +16,7 @@ const templateHTML = `
 
 export class KSLTooltipElement extends KSLPopUpElement {
   public static get is() {
-    return 'ksl-tooltip' as const;
+    return "ksl-tooltip" as const;
   }
 
   public static initializeTemplate(): HTMLTemplateElement {

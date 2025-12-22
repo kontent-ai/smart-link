@@ -1,29 +1,42 @@
-import { isInsideIFrame } from '../utils/iframe';
-import { addListener, Callback, emitEvents, EventHandler, EventListeners, removeListener } from '../utils/events';
+import { InvalidEnvironmentError } from "../utils/errors";
 import {
-  IAddActionMessageData,
-  IAddButtonInitialMessageData,
-  IAddButtonPermissionsServerModel,
-  IClickedMessageMetadata,
-  IContentComponentClickedMessageData,
-  IContentItemClickedMessageData,
-  IElementClickedMessageData,
+  addListener,
+  type Callback,
+  type EventHandler,
+  type EventListeners,
+  emitEvents,
+  removeListener,
+} from "../utils/events";
+import { isInsideIFrame } from "../utils/iframe";
+import { createRequestId } from "../utils/request";
+import {
+  type IAddActionMessageData,
+  type IAddButtonInitialMessageData,
+  type IAddButtonPermissionsServerModel,
+  type IClickedMessageMetadata,
+  type IContentComponentClickedMessageData,
+  type IContentItemClickedMessageData,
+  type IElementClickedMessageData,
   IFrameMessageType,
-  IPreviewIFrameCurrentUrlMessageData,
-  IRefreshMessageData,
-  IRefreshMessageMetadata,
-  ISDKInitializedMessageData,
-  ISDKStatusMessageData,
-  IUpdateMessageData,
-} from './IFrameCommunicatorTypes';
-import { createRequestId } from '../utils/request';
-import { InvalidEnvironmentError } from '../utils/errors';
+  type IPreviewIFrameCurrentUrlMessageData,
+  type IRefreshMessageData,
+  type IRefreshMessageMetadata,
+  type ISDKInitializedMessageData,
+  type ISDKStatusMessageData,
+  type IUpdateMessageData,
+} from "./IFrameCommunicatorTypes";
 
 export type IFrameMessageMap = Readonly<{
   [IFrameMessageType.Initialized]: EventHandler<ISDKInitializedMessageData, undefined, Callback>;
   [IFrameMessageType.Status]: EventHandler<ISDKStatusMessageData>;
-  [IFrameMessageType.ElementClicked]: EventHandler<IElementClickedMessageData, IClickedMessageMetadata>;
-  [IFrameMessageType.ContentItemClicked]: EventHandler<IContentItemClickedMessageData, IClickedMessageMetadata>;
+  [IFrameMessageType.ElementClicked]: EventHandler<
+    IElementClickedMessageData,
+    IClickedMessageMetadata
+  >;
+  [IFrameMessageType.ContentItemClicked]: EventHandler<
+    IContentItemClickedMessageData,
+    IClickedMessageMetadata
+  >;
   [IFrameMessageType.ContentComponentClicked]: EventHandler<
     IContentComponentClickedMessageData,
     IClickedMessageMetadata
@@ -49,26 +62,30 @@ type IFrameMessage<TMessageType extends keyof IFrameMessageMap> = Readonly<{
 
 export class IFrameCommunicator {
   private events: EventListeners<IFrameMessageMap> = new Map();
+  // biome-ignore lint/suspicious/noExplicitAny: Callbacks for different requestIds have different payload types; the map cannot preserve per-key generics, so the type is intentionally erased here.
   private readonly callbacks: Map<string, Callback<any>> = new Map();
 
   public initialize(): void {
-    if (!window) {
-      throw InvalidEnvironmentError('IFrameCommunicator can only be initialized in a browser environment.');
+    // window === undefined crashes
+    if (typeof window === "undefined") {
+      throw new InvalidEnvironmentError(
+        "IFrameCommunicator can only be initialized in a browser environment.",
+      );
     }
 
-    window.addEventListener('message', this.onMessage, true);
+    window.addEventListener("message", this.onMessage, true);
   }
 
   public destroy(): void {
     this.events = new Map();
-    window.removeEventListener('message', this.onMessage, true);
+    window.removeEventListener("message", this.onMessage, true);
   }
 
   public sendMessageWithResponse = <M extends keyof IFrameMessageMap>(
     type: M,
     data: Parameters<IFrameMessageMap[M]>[0],
     callback: Parameters<IFrameMessageMap[M]>[2],
-    metadata?: Parameters<IFrameMessageMap[M]>[1]
+    metadata?: Parameters<IFrameMessageMap[M]>[1],
   ): void => {
     const requestId = createRequestId();
 
@@ -83,30 +100,42 @@ export class IFrameCommunicator {
     type: M,
     data: Parameters<IFrameMessageMap[M]>[0],
     metadata?: Parameters<IFrameMessageMap[M]>[1],
-    requestId?: string
+    requestId?: string,
   ): void => {
     if (!isInsideIFrame()) {
-      throw InvalidEnvironmentError('IFrameCommunicator: iframe message can only be send while inside iframe.');
+      throw new InvalidEnvironmentError(
+        "IFrameCommunicator: iframe message can only be send while inside iframe.",
+      );
     }
 
     const message: IFrameMessage<M> = { type, data, metadata, requestId };
-    window.parent.postMessage(message, '*');
+    window.parent.postMessage(message, "*");
   };
 
-  public addMessageListener = <M extends keyof IFrameMessageMap>(type: M, listener: IFrameMessageMap[M]): void => {
+  public addMessageListener = <M extends keyof IFrameMessageMap>(
+    type: M,
+    listener: IFrameMessageMap[M],
+  ): void => {
     addListener(this.events, type, listener);
   };
 
-  public removeMessageListener = <M extends keyof IFrameMessageMap>(type: M, listener: IFrameMessageMap[M]): void => {
+  public removeMessageListener = <M extends keyof IFrameMessageMap>(
+    type: M,
+    listener: IFrameMessageMap[M],
+  ): void => {
     removeListener(this.events, type, listener);
   };
 
   private onMessage = (event: MessageEvent): void => {
-    if (!event.data) return;
+    if (event.data === undefined) {
+      return;
+    }
+
+    // biome-ignore lint/suspicious/noExplicitAny: Required to bypass TypeScript's inability to correlate discriminated union properties (type/data/metadata) when spreading as function arguments.x
     const message = event.data as IFrameMessage<any>;
     emitEvents(this.events, message.type, message.data, message.metadata);
 
-    if (message.requestId) {
+    if (message.requestId !== undefined) {
       this.executeCallback(message.requestId, message.data);
     }
   };

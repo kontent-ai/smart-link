@@ -1,12 +1,16 @@
-import { createHtmlFixture } from '../test-helpers/createHtmlFixture';
-import { getRenderingRootForElement, getRenderingRootMetadata, getTotalScrollOffset } from '../../src/utils/domElement';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from "vitest";
+import {
+  getRenderingRootForElement,
+  getRenderingRootMetadata,
+  getTotalScrollOffset,
+} from "../../src/utils/domElement";
+import { createHtmlFixture } from "../test-helpers/createHtmlFixture";
 
-describe('node.ts', () => {
-  describe('getRenderingRootForElement', () => {
+describe("node.ts", () => {
+  describe("getRenderingRootForElement", () => {
     const fixture = createHtmlFixture();
 
-    it('should return `null` when there is no suitable parent', () => {
+    it("should return `null` when there is no suitable parent", () => {
       // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
       fixture.setHtml(`
         <div id="a">
@@ -29,12 +33,12 @@ describe('node.ts', () => {
       `);
       // </editor-fold>
 
-      const target = fixture.querySelector('#target') as HTMLElement;
+      const target = fixture.querySelector("#target") as HTMLElement;
       const root = getRenderingRootForElement(target);
       expect(root).toEqual(null);
     });
 
-    it('should return the positioned parent', () => {
+    it("should return the positioned parent", () => {
       // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
       fixture.setHtml(`
         <div id="a" style="position: relative">
@@ -51,12 +55,12 @@ describe('node.ts', () => {
       `);
       // </editor-fold>
 
-      const target = fixture.querySelector('#target') as HTMLElement;
+      const target = fixture.querySelector("#target") as HTMLElement;
       const root = getRenderingRootForElement(target);
-      expect(root?.id).toEqual('b');
+      expect(root?.id).toEqual("b");
     });
 
-    it('should return the parent with clipped content', () => {
+    it("should return the parent with clipped content", () => {
       // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
       fixture.setHtml(`
         <div id="a" style="position: relative">
@@ -73,12 +77,12 @@ describe('node.ts', () => {
       `);
       // </editor-fold>
 
-      const target = fixture.querySelector('#target') as HTMLElement;
+      const target = fixture.querySelector("#target") as HTMLElement;
       const root = getRenderingRootForElement(target);
-      expect(root?.id).toEqual('c');
+      expect(root?.id).toEqual("c");
     });
 
-    it('should return the closest parent which is positioned or has clipped content', () => {
+    it("should return the closest parent which is positioned or has clipped content", () => {
       // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
       fixture.setHtml(`
         <div id="a" style="position: relative">
@@ -96,17 +100,17 @@ describe('node.ts', () => {
       `);
       // </editor-fold>
 
-      const targetA = fixture.querySelector('#targetA') as HTMLElement;
-      const targetB = fixture.querySelector('#targetB') as HTMLElement;
+      const targetA = fixture.querySelector("#targetA") as HTMLElement;
+      const targetB = fixture.querySelector("#targetB") as HTMLElement;
 
       const resultA = getRenderingRootForElement(targetA);
       const resultB = getRenderingRootForElement(targetB);
 
-      expect(resultA?.id).toEqual('c');
-      expect(resultB?.id).toEqual('a');
+      expect(resultA?.id).toEqual("c");
+      expect(resultB?.id).toEqual("a");
     });
 
-    it('should ignore table elements when they are not positioned', () => {
+    it("should ignore table elements when they are not positioned", () => {
       // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
       fixture.setHtml(`
         <div id="a" style="position: relative">
@@ -123,12 +127,12 @@ describe('node.ts', () => {
       `);
       // </editor-fold>
 
-      const target = fixture.querySelector('#target') as HTMLElement;
+      const target = fixture.querySelector("#target") as HTMLElement;
       const root = getRenderingRootForElement(target);
-      expect(root?.id).toEqual('a');
+      expect(root?.id).toEqual("a");
     });
 
-    it('should acknowledge table elements when they are positioned', () => {
+    it("should acknowledge table elements when they are positioned", () => {
       // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
       fixture.setHtml(`
         <div id="a" style="position: relative">
@@ -145,16 +149,16 @@ describe('node.ts', () => {
       `);
       // </editor-fold>
 
-      const target = fixture.querySelector('#target') as HTMLElement;
+      const target = fixture.querySelector("#target") as HTMLElement;
       const root = getRenderingRootForElement(target);
-      expect(root?.id).toEqual('b');
+      expect(root?.id).toEqual("b");
     });
   });
 
-  describe('getRenderingRootMetadata', () => {
+  describe("getRenderingRootMetadata", () => {
     const fixture = createHtmlFixture();
 
-    it('should be able to detect that root is positioned', () => {
+    it("should be able to detect that root is positioned", () => {
       // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
       fixture.setHtml(`
         <div id="a" style="position: relative">
@@ -171,7 +175,7 @@ describe('node.ts', () => {
       `);
       // </editor-fold>
 
-      const target = fixture.querySelector('#b') as HTMLElement;
+      const target = fixture.querySelector("#b") as HTMLElement;
       const metadata = getRenderingRootMetadata(target);
       expect(metadata).toEqual({
         isPositioned: true,
@@ -179,7 +183,7 @@ describe('node.ts', () => {
       });
     });
 
-    it('should be able to detect that root content is clipped', () => {
+    it("should be able to detect that root content is clipped", () => {
       // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
       fixture.setHtml(`
         <div id="a" style="position: relative">
@@ -196,7 +200,7 @@ describe('node.ts', () => {
       `);
       // </editor-fold>
 
-      const target = fixture.querySelector('#c') as HTMLElement;
+      const target = fixture.querySelector("#c") as HTMLElement;
       const metadata = getRenderingRootMetadata(target);
       expect(metadata).toEqual({
         isPositioned: false,
@@ -205,18 +209,18 @@ describe('node.ts', () => {
     });
   });
 
-  describe('getTotalScrollOffset', () => {
+  describe("getTotalScrollOffset", () => {
     const fixture = createHtmlFixture();
 
-    it('should return [0, 0] when no node provided', () => {
+    it("should return [0, 0] when no node provided", () => {
       expect(getTotalScrollOffset(null)).toEqual([0, 0]);
     });
 
-    it('should return [0, 0] when element has no offsetParent', () => {
+    it("should return [0, 0] when element has no offsetParent", () => {
       expect(getTotalScrollOffset(document.body)).toEqual([0, 0]);
     });
 
-    it('should return total scroll offset', () => {
+    it("should return total scroll offset", () => {
       // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
       fixture.setHtml(`
         <div id="container" style="position: relative">
@@ -233,9 +237,9 @@ describe('node.ts', () => {
       `);
       // </editor-fold>
 
-      const divA = fixture.querySelector('#a') as HTMLElement;
-      const divC = fixture.querySelector('#c') as HTMLElement;
-      const target = fixture.querySelector('#target') as HTMLElement;
+      const divA = fixture.querySelector("#a") as HTMLElement;
+      const divC = fixture.querySelector("#c") as HTMLElement;
+      const target = fixture.querySelector("#target") as HTMLElement;
 
       divA.scrollTop = 10;
       divA.scrollLeft = 20;
@@ -249,7 +253,7 @@ describe('node.ts', () => {
       expect(Math.ceil(scrollLeft)).toEqual(60);
     });
 
-    it('should not include scroll offset of the offsetParent', () => {
+    it("should not include scroll offset of the offsetParent", () => {
       // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
       fixture.setHtml(`
         <div id="container" style="position: relative; max-height: 20px; max-width: 20px; overflow: scroll;">
@@ -268,10 +272,10 @@ describe('node.ts', () => {
       `);
       // </editor-fold>
 
-      const offsetParent = fixture.querySelector('#container') as HTMLElement;
-      const divB = fixture.querySelector('#b') as HTMLElement;
-      const divD = fixture.querySelector('#d') as HTMLElement;
-      const target = fixture.querySelector('#target') as HTMLElement;
+      const offsetParent = fixture.querySelector("#container") as HTMLElement;
+      const divB = fixture.querySelector("#b") as HTMLElement;
+      const divD = fixture.querySelector("#d") as HTMLElement;
+      const target = fixture.querySelector("#target") as HTMLElement;
 
       offsetParent.scrollTop = 10;
       offsetParent.scrollLeft = 20;

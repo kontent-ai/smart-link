@@ -8,14 +8,18 @@ export type AsyncCustomEvent<TEventData, TResolveData, TRejectReason> = CustomEv
   AsyncCustomEventDetail<TEventData, TResolveData, TRejectReason>
 >;
 
-export type Callback<TData = undefined, TMetadata = undefined> = (data?: TData, metadata?: TMetadata) => void;
-
-export type EventHandler<TEventData = undefined, TEventMetadata = undefined, TEventCallback = undefined> = (
-  data: TEventData,
-  metadata: TEventMetadata,
-  callback: TEventCallback
+export type Callback<TData = undefined, TMetadata = undefined> = (
+  data?: TData,
+  metadata?: TMetadata,
 ) => void;
 
+export type EventHandler<
+  TEventData = undefined,
+  TEventMetadata = undefined,
+  TEventCallback = undefined,
+> = (data: TEventData, metadata: TEventMetadata, callback: TEventCallback) => void;
+
+// biome-ignore lint/suspicious/noExplicitAny: any is intentionally used to allow for any type of event.
 type EventMap = Record<string, (...args: any[]) => void>;
 
 export type EventListeners<Events extends EventMap> = Map<keyof Events, Set<Events[keyof Events]>>;
@@ -26,7 +30,7 @@ export type EventListeners<Events extends EventMap> = Map<keyof Events, Set<Even
 export const addListener = <Events extends EventMap, E extends keyof Events>(
   eventListeners: EventListeners<Events>,
   event: E,
-  listener: Events[E]
+  listener: Events[E],
 ): void => {
   const newListeners = eventListeners.get(event)?.add(listener) ?? new Set([listener]);
   eventListeners.set(event, newListeners);
@@ -38,7 +42,7 @@ export const addListener = <Events extends EventMap, E extends keyof Events>(
 export const removeListener = <Events extends EventMap, E extends keyof Events>(
   eventListeners: EventListeners<Events>,
   event: E,
-  listener: Events[E]
+  listener: Events[E],
 ): void => {
   eventListeners.get(event)?.delete(listener);
 };

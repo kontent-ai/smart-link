@@ -1,11 +1,11 @@
-import { KSLCustomElement } from './abstract/KSLCustomElement';
-import { KSLAddButtonElement } from './KSLAddButtonElement';
-import { KSLContainerElement } from './KSLContainerElement';
-import { KSLButtonElement } from './KSLButtonElement';
-import { KSLIconElement } from './KSLIconElement';
-import { KSLTooltipElement } from './KSLTooltipElement';
-import { KSLHighlightElement } from './KSLHighlightElement';
-import { KSLPopoverElement } from './KSLPopoverElement';
+import type { KSLCustomElement } from "./abstract/KSLCustomElement";
+import { KSLAddButtonElement } from "./KSLAddButtonElement";
+import { KSLButtonElement } from "./KSLButtonElement";
+import { KSLContainerElement } from "./KSLContainerElement";
+import { KSLHighlightElement } from "./KSLHighlightElement";
+import { KSLIconElement } from "./KSLIconElement";
+import { KSLPopoverElement } from "./KSLPopoverElement";
+import { KSLTooltipElement } from "./KSLTooltipElement";
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -35,7 +35,7 @@ const webComponentTags: ReadonlyArray<string> = webComponents.map((component) =>
  * Define all web components if it is possible.
  */
 export function defineAllRequiredWebComponents(): Promise<CustomElementConstructor[]> {
-  const allDefined = webComponents.map((webComponent) => webComponent.define());
+  const allDefined = webComponents.map(async (webComponent) => await webComponent.define());
   return Promise.all(allDefined);
 }
 

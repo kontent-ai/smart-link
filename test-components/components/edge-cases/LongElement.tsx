@@ -1,7 +1,7 @@
-import React from 'react';
-
 export const LongElement: React.FC = () => {
-  const longText = Array(20).fill('This is a very long element that has a smart link rendered around it. ').join('');
+  const longText = Array(20)
+    .fill("This is a very long element that has a smart link rendered around it. ")
+    .join("");
 
   return (
     <div
@@ -17,4 +17,4 @@ export const LongElement: React.FC = () => {
   );
 };
 
-LongElement.displayName = 'LongElement';
+LongElement.displayName = "LongElement";

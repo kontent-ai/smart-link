@@ -1,13 +1,13 @@
-import { IconName } from './KSLIconElement';
-import { assert } from '../utils/assert';
-import { KSLCustomElementWithTooltip } from './abstract/KSLCustomElementWithTooltip';
-import { createTemplateForCustomElement } from '../utils/domElement';
-import { Colors } from './tokens/colors';
-import { Shadows } from './tokens/shadows';
+import { assert } from "../utils/assert";
+import { createTemplateForCustomElement } from "../utils/domElement";
+import { KSLCustomElementWithTooltip } from "./abstract/KSLCustomElementWithTooltip";
+import { IconName } from "./KSLIconElement";
+import { Colors } from "./tokens/colors";
+import { Shadows } from "./tokens/shadows";
 
 export enum ButtonType {
-  Primary = 'primary',
-  Quinary = 'quinary',
+  Primary = "primary",
+  Quinary = "quinary",
 }
 
 const templateHTML = `
@@ -128,37 +128,34 @@ const templateHTML = `
 
 export class KSLButtonElement extends KSLCustomElementWithTooltip {
   public static get is() {
-    return 'ksl-button' as const;
+    return "ksl-button" as const;
   }
 
   public static get observedAttributes(): string[] {
     const base = KSLCustomElementWithTooltip.observedAttributes;
-    return [...base, 'loading'];
+    return [...base, "loading"];
   }
 
   public get loading(): boolean {
-    return this.hasAttribute('loading');
+    return this.hasAttribute("loading");
   }
 
   public set loading(value: boolean) {
-    this.updateAttribute('loading', value);
+    this.updateAttribute("loading", value);
   }
 
   public get disabled(): boolean {
-    return this.hasAttribute('disabled');
+    return this.hasAttribute("disabled");
   }
 
   public set disabled(value: boolean) {
-    this.updateAttribute('disabled', value);
+    this.updateAttribute("disabled", value);
   }
-
-  private readonly buttonRef: HTMLButtonElement;
 
   constructor() {
     super();
 
     assert(this.shadowRoot, 'Shadow root must be always accessible in "open" mode.');
-    this.buttonRef = this.shadowRoot.querySelector('button') as HTMLButtonElement;
   }
 
   public static initializeTemplate(): HTMLTemplateElement {
@@ -167,18 +164,22 @@ export class KSLButtonElement extends KSLCustomElementWithTooltip {
 
   public connectedCallback(): void {
     super.connectedCallback();
-    this.addEventListener('click', this.handleClick, { capture: true });
+    this.addEventListener("click", this.handleClick, { capture: true });
   }
 
   public disconnectedCallback(): void {
     super.disconnectedCallback();
-    this.removeEventListener('click', this.handleClick, { capture: true });
+    this.removeEventListener("click", this.handleClick, { capture: true });
   }
 
-  public attributeChangedCallback(attributeName: string, _oldValue: string | null, newValue: string | null): void {
+  public attributeChangedCallback(
+    attributeName: string,
+    _oldValue: string | null,
+    newValue: string | null,
+  ): void {
     super.attributeChangedCallback(attributeName, _oldValue, newValue);
 
-    if (attributeName === 'loading') {
+    if (attributeName === "loading") {
       const value = Boolean(newValue);
       this.disabled = value;
       this.tooltipDisabled = value;

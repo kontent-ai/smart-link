@@ -1,19 +1,19 @@
-import { KSLCustomElement } from './KSLCustomElement';
+import { KSLCustomElement } from "./KSLCustomElement";
 
 export enum ElementPositionOffset {
-  Bottom = 'bottom',
-  BottomEnd = 'bottom-end',
-  BottomStart = 'bottom-start',
-  Left = 'left',
-  LeftEnd = 'left-end',
-  LeftStart = 'left-start',
-  None = '',
-  Right = 'right',
-  RightEnd = 'right-end',
-  RightStart = 'right-start',
-  Top = 'top',
-  TopEnd = 'top-end',
-  TopStart = 'top-start',
+  Bottom = "bottom",
+  BottomEnd = "bottom-end",
+  BottomStart = "bottom-start",
+  Left = "left",
+  LeftEnd = "left-end",
+  LeftStart = "left-start",
+  None = "",
+  Right = "right",
+  RightEnd = "right-end",
+  RightStart = "right-start",
+  Top = "top",
+  TopEnd = "top-end",
+  TopStart = "top-start",
 }
 
 export interface IPositionable {
@@ -28,8 +28,8 @@ export abstract class KSLPositionedElement extends KSLCustomElement implements I
   protected targetRef: HTMLElement | null = null;
 
   public connectedCallback(): void {
-    if (!this.hasAttribute('tabindex')) {
-      this.setAttribute('tabindex', '-1');
+    if (!this.hasAttribute("tabindex")) {
+      this.setAttribute("tabindex", "-1");
     }
   }
 
@@ -42,7 +42,7 @@ export abstract class KSLPositionedElement extends KSLCustomElement implements I
   }
 
   protected calculateTopOffset(thisRect: DOMRect, targetRect: DOMRect): number {
-    switch (this.position) {
+    switch (this.position as ElementPositionOffset) {
       case ElementPositionOffset.TopStart:
       case ElementPositionOffset.Top:
       case ElementPositionOffset.TopEnd:
@@ -60,13 +60,12 @@ export abstract class KSLPositionedElement extends KSLCustomElement implements I
       case ElementPositionOffset.LeftStart:
       case ElementPositionOffset.RightStart:
       case ElementPositionOffset.None:
-      default:
         return 0;
     }
   }
 
   protected calculateLeftOffset(thisRect: DOMRect, targetRect: DOMRect): number {
-    switch (this.position) {
+    switch (this.position as ElementPositionOffset) {
       case ElementPositionOffset.Top:
       case ElementPositionOffset.Bottom:
         return (targetRect.width - thisRect.width) / 2;
@@ -84,7 +83,6 @@ export abstract class KSLPositionedElement extends KSLCustomElement implements I
       case ElementPositionOffset.TopStart:
       case ElementPositionOffset.BottomStart:
       case ElementPositionOffset.None:
-      default:
         return 0;
     }
   }

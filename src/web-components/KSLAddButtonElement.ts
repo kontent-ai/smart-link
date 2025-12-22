@@ -1,32 +1,34 @@
-import { ButtonType, KSLButtonElement } from './KSLButtonElement';
-import { IconName } from './KSLIconElement';
-import { assert } from '../utils/assert';
-import { KSLPopoverElement } from './KSLPopoverElement';
-import { ElementPositionOffset, KSLPositionedElement } from './abstract/KSLPositionedElement';
-import { KSLContainerElement } from './KSLContainerElement';
-import { createTemplateForCustomElement } from '../utils/domElement';
 import {
   AddButtonAction,
   AddButtonElementType,
   AddButtonPermission,
   AddButtonPermissionCheckResult,
-  IAddButtonPermissionsServerModel,
-} from '../lib/IFrameCommunicatorTypes';
-import { AsyncCustomEvent } from '../utils/events';
-import { logError } from '../lib/Logger';
-import { BaseZIndex } from './tokens/zIndex';
-import { MetadataAttribute } from '../utils/dataAttributes/attributes';
-import { parseAddButtonDataAttributes, ParseResult } from '../utils/dataAttributes/parser';
+  type IAddButtonPermissionsServerModel,
+} from "../lib/IFrameCommunicatorTypes";
+import { logError } from "../lib/Logger";
+import { assert } from "../utils/assert";
+import { MetadataAttribute } from "../utils/dataAttributes/attributes";
+import { type ParseResult, parseAddButtonDataAttributes } from "../utils/dataAttributes/parser";
+import { createTemplateForCustomElement } from "../utils/domElement";
+import type { AsyncCustomEvent } from "../utils/events";
+import { ElementPositionOffset, KSLPositionedElement } from "./abstract/KSLPositionedElement";
+import { ButtonType, KSLButtonElement } from "./KSLButtonElement";
+import { KSLContainerElement } from "./KSLContainerElement";
+import { IconName } from "./KSLIconElement";
+import { KSLPopoverElement } from "./KSLPopoverElement";
+import { BaseZIndex } from "./tokens/zIndex";
 
-const ContentIsPublishedTooltip = 'Content is published';
-const DefaultTooltipMessage = 'Insert...';
+const ContentIsPublishedTooltip = "Content is published";
+const DefaultTooltipMessage = "Insert...";
 const getCreateLinkedItemTooltip = (canUserCreateLinkedItem: boolean) =>
-  canUserCreateLinkedItem ? 'Create new item' : 'Your role cannot create items from the allowed types';
+  canUserCreateLinkedItem
+    ? "Create new item"
+    : "Your role cannot create items from the allowed types";
 
 enum PopoverButtonId {
-  CreateComponent = 'create-component',
-  CreateLinkedItem = 'create-linked-item',
-  InsertLinkedItem = 'insert-linked-item',
+  CreateComponent = "create-component",
+  CreateLinkedItem = "create-linked-item",
+  InsertLinkedItem = "insert-linked-item",
 }
 
 interface IKSLAddButtonElementEventData<TMessageData = object> {
@@ -39,7 +41,9 @@ interface IKSLAddButtonElementInitialEventReason {
 }
 
 type KSLAddButtonElementInitialEventData = IKSLAddButtonElementEventData;
-type KSLAddButtonElementActionEventData = IKSLAddButtonElementEventData<{ action: AddButtonAction }>;
+type KSLAddButtonElementActionEventData = IKSLAddButtonElementEventData<{
+  action: AddButtonAction;
+}>;
 
 export type KSLAddButtonElementActionEvent = CustomEvent<KSLAddButtonElementActionEventData>;
 export type KSLAddButtonElementInitialAsyncEvent = AsyncCustomEvent<
@@ -50,18 +54,23 @@ export type KSLAddButtonElementInitialAsyncEvent = AsyncCustomEvent<
 
 declare global {
   interface WindowEventMap {
-    'ksl:add-button:action': KSLAddButtonElementActionEvent;
-    'ksl:add-button:initial': KSLAddButtonElementInitialAsyncEvent;
+    "ksl:add-button:action": KSLAddButtonElementActionEvent;
+    "ksl:add-button:initial": KSLAddButtonElementInitialAsyncEvent;
   }
 
   interface HTMLElementEventMap {
-    'ksl:add-button:action': KSLAddButtonElementActionEvent;
-    'ksl:add-button:initial': KSLAddButtonElementInitialAsyncEvent;
+    "ksl:add-button:action": KSLAddButtonElementActionEvent;
+    "ksl:add-button:initial": KSLAddButtonElementInitialAsyncEvent;
   }
 }
 
-const getPopoverHtml = ({ elementType, isParentPublished, permissions }: IAddButtonPermissionsServerModel) => {
-  const canUserCreateLinkedItem = permissions.get(AddButtonPermission.CreateNew) === AddButtonPermissionCheckResult.Ok;
+const getPopoverHtml = ({
+  elementType,
+  isParentPublished,
+  permissions,
+}: IAddButtonPermissionsServerModel) => {
+  const canUserCreateLinkedItem =
+    permissions.get(AddButtonPermission.CreateNew) === AddButtonPermissionCheckResult.Ok;
 
   return `
     <style>
@@ -74,8 +83,8 @@ const getPopoverHtml = ({ elementType, isParentPublished, permissions }: IAddBut
     class="ksl-add-button__popover-button"
     type="${ButtonType.Quinary}"
     tooltip-position="${ElementPositionOffset.Top}"
-    tooltip-message="${isParentPublished ? ContentIsPublishedTooltip : 'Insert existing item'}"
-    ${isParentPublished && 'disabled'}
+    tooltip-message="${isParentPublished ? ContentIsPublishedTooltip : "Insert existing item"}"
+    ${isParentPublished && "disabled"}
   >
     <ksl-icon icon-name="${IconName.Puzzle}"/>
   </ksl-button>
@@ -85,10 +94,12 @@ const getPopoverHtml = ({ elementType, isParentPublished, permissions }: IAddBut
     type="${ButtonType.Quinary}"
     tooltip-position="${ElementPositionOffset.Top}"
     tooltip-message="${
-      isParentPublished ? ContentIsPublishedTooltip : getCreateLinkedItemTooltip(canUserCreateLinkedItem)
+      isParentPublished
+        ? ContentIsPublishedTooltip
+        : getCreateLinkedItemTooltip(canUserCreateLinkedItem)
     }"
-    ${(isParentPublished || !canUserCreateLinkedItem) && 'disabled'}
-    ${elementType !== AddButtonElementType.LinkedItems && 'hidden'}
+    ${(isParentPublished || !canUserCreateLinkedItem) && "disabled"}
+    ${elementType !== AddButtonElementType.LinkedItems && "hidden"}
   >
     <ksl-icon icon-name="${IconName.PlusPuzzle}"/>
   </ksl-button>
@@ -97,9 +108,9 @@ const getPopoverHtml = ({ elementType, isParentPublished, permissions }: IAddBut
     class="ksl-add-button__popover-button"
     type="${ButtonType.Quinary}"
     tooltip-position="${ElementPositionOffset.Top}"
-    tooltip-message="${isParentPublished ? ContentIsPublishedTooltip : 'Insert new component'}"
-    ${isParentPublished && 'disabled'}
-    ${elementType !== AddButtonElementType.RichText && 'hidden'}
+    tooltip-message="${isParentPublished ? ContentIsPublishedTooltip : "Insert new component"}"
+    ${isParentPublished && "disabled"}
+    ${elementType !== AddButtonElementType.RichText && "hidden"}
   >
     <ksl-icon icon-name="${IconName.CollapseScheme}"/>
   </ksl-button>
@@ -130,11 +141,14 @@ const templateHTML = `
 
 export class KSLAddButtonElement extends KSLPositionedElement {
   public static get is() {
-    return 'ksl-add-button' as const;
+    return "ksl-add-button" as const;
   }
 
   public get position(): string {
-    return this.targetRef?.getAttribute(MetadataAttribute.AddButtonRenderPosition) ?? ElementPositionOffset.Bottom;
+    return (
+      this.targetRef?.getAttribute(MetadataAttribute.AddButtonRenderPosition) ??
+      ElementPositionOffset.Bottom
+    );
   }
 
   private readonly buttonRef: KSLButtonElement;
@@ -151,19 +165,23 @@ export class KSLAddButtonElement extends KSLPositionedElement {
     return createTemplateForCustomElement(templateHTML);
   }
 
-  public connectedCallback(): void {
+  public connectedCallback() {
     super.connectedCallback();
 
-    window.addEventListener('click', this.handleClickOutside, { capture: true });
-    this.buttonRef.addEventListener('click', this.handleClick);
+    window.addEventListener("click", this.handleClickOutside, { capture: true });
+    this.buttonRef.addEventListener("click", (event: MouseEvent) => {
+      void this.handleClick(event);
+    });
     this.buttonRef.tooltipMessage = DefaultTooltipMessage;
   }
 
-  public disconnectedCallback(): void {
+  public disconnectedCallback() {
     super.disconnectedCallback();
 
-    window.removeEventListener('click', this.handleClickOutside, { capture: true });
-    this.buttonRef.removeEventListener('click', this.handleClick);
+    window.removeEventListener("click", this.handleClickOutside, { capture: true });
+    this.buttonRef.removeEventListener("click", (event: MouseEvent) => {
+      void this.handleClick(event);
+    });
     this.dismissPopover();
   }
 
@@ -173,7 +191,9 @@ export class KSLAddButtonElement extends KSLPositionedElement {
     }
 
     if (!(this.offsetParent instanceof KSLContainerElement)) {
-      console.warn('KSLAddButtonElement: should be located inside KSLContainerElement to be positioned properly.');
+      console.warn(
+        "KSLAddButtonElement: should be located inside KSLContainerElement to be positioned properly.",
+      );
     }
 
     const offsetParentRect = this.offsetParent.getBoundingClientRect();
@@ -190,7 +210,7 @@ export class KSLAddButtonElement extends KSLPositionedElement {
   protected calculateTopOffset(thisRect: DOMRect, targetRect: DOMRect): number {
     const offset = super.calculateTopOffset(thisRect, targetRect);
 
-    switch (this.position) {
+    switch (this.position as ElementPositionOffset) {
       case ElementPositionOffset.TopStart:
       case ElementPositionOffset.Top:
       case ElementPositionOffset.TopEnd:
@@ -199,7 +219,13 @@ export class KSLAddButtonElement extends KSLPositionedElement {
       case ElementPositionOffset.Bottom:
       case ElementPositionOffset.BottomEnd:
         return offset - thisRect.height / 2;
-      default:
+      case ElementPositionOffset.Left:
+      case ElementPositionOffset.LeftEnd:
+      case ElementPositionOffset.LeftStart:
+      case ElementPositionOffset.None:
+      case ElementPositionOffset.Right:
+      case ElementPositionOffset.RightEnd:
+      case ElementPositionOffset.RightStart:
         return offset;
     }
   }
@@ -207,7 +233,7 @@ export class KSLAddButtonElement extends KSLPositionedElement {
   protected calculateLeftOffset(thisRect: DOMRect, targetRect: DOMRect): number {
     const offset = super.calculateLeftOffset(thisRect, targetRect);
 
-    switch (this.position) {
+    switch (this.position as ElementPositionOffset) {
       case ElementPositionOffset.LeftStart:
       case ElementPositionOffset.Left:
       case ElementPositionOffset.LeftEnd:
@@ -216,7 +242,13 @@ export class KSLAddButtonElement extends KSLPositionedElement {
       case ElementPositionOffset.Right:
       case ElementPositionOffset.RightEnd:
         return targetRect.width - thisRect.width / 2;
-      default:
+      case ElementPositionOffset.Bottom:
+      case ElementPositionOffset.BottomEnd:
+      case ElementPositionOffset.BottomStart:
+      case ElementPositionOffset.None:
+      case ElementPositionOffset.Top:
+      case ElementPositionOffset.TopEnd:
+      case ElementPositionOffset.TopStart:
         return offset;
     }
   }
@@ -226,7 +258,7 @@ export class KSLAddButtonElement extends KSLPositionedElement {
       return;
     }
 
-    assert(this.targetRef, 'Target node is not set for this add button.');
+    assert(this.targetRef, "Target node is not set for this add button.");
 
     event.preventDefault();
     event.stopPropagation();
@@ -239,23 +271,23 @@ export class KSLAddButtonElement extends KSLPositionedElement {
       const eventData = { data, targetNode: this.targetRef };
 
       const response: IAddButtonPermissionsServerModel = await this.dispatchAsyncEvent(
-        'ksl:add-button:initial',
-        eventData
+        "ksl:add-button:initial",
+        eventData,
       );
 
       const { permissions } = response;
       const isUserMissingPermissions =
-        !permissions ||
         permissions.get(AddButtonPermission.ViewParent) !== AddButtonPermissionCheckResult.Ok ||
         permissions.get(AddButtonPermission.Edit) !== AddButtonPermissionCheckResult.Ok;
       const areComponentsForbidden =
-        permissions.get(AddButtonPermission.CreateNew) === AddButtonPermissionCheckResult.RteWithForbiddenComponents;
+        permissions.get(AddButtonPermission.CreateNew) ===
+        AddButtonPermissionCheckResult.RteWithForbiddenComponents;
 
       if (isUserMissingPermissions || areComponentsForbidden) {
         this.buttonRef.loading = false;
         this.buttonRef.disabled = true;
         this.buttonRef.tooltipMessage = isUserMissingPermissions
-          ? 'You are not allowed to add content here'
+          ? "You are not allowed to add content here"
           : "Components and items can't be added here";
       } else {
         this.buttonRef.loading = false;
@@ -270,10 +302,15 @@ export class KSLAddButtonElement extends KSLPositionedElement {
       this.buttonRef.loading = false;
       this.buttonRef.disabled = true;
 
-      if (reason && typeof reason.message === 'string') {
+      if (
+        typeof reason === "object" &&
+        reason !== null &&
+        "message" in reason &&
+        typeof reason.message === "string"
+      ) {
         this.buttonRef.tooltipMessage = reason.message;
       } else {
-        this.buttonRef.tooltipMessage = 'Something went wrong';
+        this.buttonRef.tooltipMessage = "Something went wrong";
       }
     }
   };
@@ -331,25 +368,31 @@ export class KSLAddButtonElement extends KSLPositionedElement {
     }
 
     const createComponentButtonRef = this.popoverRef.querySelector(
-      `#${PopoverButtonId.CreateComponent}`
-    ) as KSLButtonElement;
+      `#${PopoverButtonId.CreateComponent}`,
+    );
     const createLinkedItemButtonRef = this.popoverRef.querySelector(
-      `#${PopoverButtonId.CreateLinkedItem}`
-    ) as KSLButtonElement;
+      `#${PopoverButtonId.CreateLinkedItem}`,
+    );
     const insertLinkedItemButtonRef = this.popoverRef.querySelector(
-      `#${PopoverButtonId.InsertLinkedItem}`
-    ) as KSLButtonElement;
+      `#${PopoverButtonId.InsertLinkedItem}`,
+    );
 
     if (createComponentButtonRef && elementType === AddButtonElementType.RichText) {
-      createComponentButtonRef.addEventListener('click', this.handleCreateComponentClick);
+      createComponentButtonRef.addEventListener("click", (event) => {
+        this.handleCreateComponentClick(event);
+      });
     }
 
     if (createLinkedItemButtonRef && elementType === AddButtonElementType.LinkedItems) {
-      createLinkedItemButtonRef.addEventListener('click', this.handleCreateLinkedItemClick);
+      createLinkedItemButtonRef.addEventListener("click", (event) => {
+        this.handleCreateLinkedItemClick(event);
+      });
     }
 
     if (insertLinkedItemButtonRef) {
-      insertLinkedItemButtonRef.addEventListener('click', this.handleInsertLinkedItemClick);
+      insertLinkedItemButtonRef.addEventListener("click", (event) => {
+        this.handleInsertLinkedItemClick(event);
+      });
     }
   };
 
@@ -359,53 +402,56 @@ export class KSLAddButtonElement extends KSLPositionedElement {
     }
 
     const createComponentButtonRef = this.popoverRef.querySelector(
-      `#${PopoverButtonId.CreateComponent}`
-    ) as KSLButtonElement;
+      `#${PopoverButtonId.CreateComponent}`,
+    );
     const createLinkedItemButtonRef = this.popoverRef.querySelector(
-      `#${PopoverButtonId.CreateLinkedItem}`
-    ) as KSLButtonElement;
+      `#${PopoverButtonId.CreateLinkedItem}`,
+    );
     const insertLinkedItemButtonRef = this.popoverRef.querySelector(
-      `#${PopoverButtonId.InsertLinkedItem}`
-    ) as KSLButtonElement;
+      `#${PopoverButtonId.InsertLinkedItem}`,
+    );
 
     if (createComponentButtonRef) {
-      createComponentButtonRef.removeEventListener('click', this.handleCreateComponentClick);
+      createComponentButtonRef.removeEventListener("click", this.handleCreateComponentClick);
     }
 
     if (createLinkedItemButtonRef) {
-      createLinkedItemButtonRef.removeEventListener('click', this.handleCreateLinkedItemClick);
+      createLinkedItemButtonRef.removeEventListener("click", this.handleCreateLinkedItemClick);
     }
 
     if (insertLinkedItemButtonRef) {
-      insertLinkedItemButtonRef.removeEventListener('click', this.handleInsertLinkedItemClick);
+      insertLinkedItemButtonRef.removeEventListener("click", this.handleInsertLinkedItemClick);
     }
   };
 
-  private handleCreateComponentClick = (event: MouseEvent): void => {
+  private handleCreateComponentClick = (event: Event): void => {
     this.handleAddActionClick(event, AddButtonAction.CreateComponent);
   };
 
-  private handleCreateLinkedItemClick = (event: MouseEvent): void => {
+  private handleCreateLinkedItemClick = (event: Event): void => {
     this.handleAddActionClick(event, AddButtonAction.CreateLinkedItem);
   };
 
-  private handleInsertLinkedItemClick = (event: MouseEvent): void => {
+  private handleInsertLinkedItemClick = (event: Event): void => {
     this.handleAddActionClick(event, AddButtonAction.InsertLinkedItem);
   };
 
-  private handleAddActionClick = (event: MouseEvent, action: AddButtonAction): void => {
-    assert(this.targetRef, 'Target node is not set for this add button.');
+  private handleAddActionClick = (event: Event, action: AddButtonAction): void => {
+    assert(this.targetRef, "Target node is not set for this add button.");
 
     event.preventDefault();
     event.stopPropagation();
 
     const data = parseAddButtonDataAttributes(this.targetRef);
-    const customEvent = new CustomEvent<KSLAddButtonElementActionEventData>('ksl:add-button:action', {
-      detail: {
-        data: { ...data, action },
-        targetNode: this.targetRef,
+    const customEvent = new CustomEvent<KSLAddButtonElementActionEventData>(
+      "ksl:add-button:action",
+      {
+        detail: {
+          data: { ...data, action },
+          targetNode: this.targetRef,
+        },
       },
-    });
+    );
 
     this.dismissPopover();
     this.dispatchEvent(customEvent);

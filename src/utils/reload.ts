@@ -1,4 +1,4 @@
-import { logError } from '../lib/Logger';
+import { logError } from "../lib/Logger";
 
 export function reload(): void {
   try {

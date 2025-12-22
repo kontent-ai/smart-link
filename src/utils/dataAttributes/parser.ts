@@ -1,12 +1,13 @@
-import { logDebug } from '../../lib/Logger';
 import {
-  IContentComponentClickedMessageData,
-  IContentItemClickedMessageData,
-  IElementClickedMessageData,
+  type IContentComponentClickedMessageData,
+  type IContentItemClickedMessageData,
+  type IElementClickedMessageData,
   InsertPositionPlacement,
-} from '../../lib/IFrameCommunicatorTypes';
-import { DataAttribute } from './attributes';
-import { getHighlightTypeForElement, HighlightType } from './elementHighlight';
+} from "../../lib/IFrameCommunicatorTypes";
+import { logDebug } from "../../lib/Logger";
+import { throwError } from "../errors";
+import { DataAttribute } from "./attributes";
+import { getHighlightTypeForElement, HighlightType } from "./elementHighlight";
 
 export type EditButtonClickedData =
   | IContentItemClickedMessageData
@@ -14,13 +15,13 @@ export type EditButtonClickedData =
   | IElementClickedMessageData;
 
 export type ParserTokenKey =
-  | 'environmentId'
-  | 'languageCodename'
-  | 'itemId'
-  | 'contentComponentId'
-  | 'elementCodename'
-  | 'placement'
-  | 'targetId';
+  | "environmentId"
+  | "languageCodename"
+  | "itemId"
+  | "contentComponentId"
+  | "elementCodename"
+  | "placement"
+  | "targetId";
 
 type IDataAttributesParserToken = Readonly<{
   key: ParserTokenKey;
@@ -46,8 +47,8 @@ export function parseEditButtonDataAttributes(target: HTMLElement): ParseResult 
   const type = getHighlightTypeForElement(target);
   const pattern = getEditButtonDataAttributesPattern(type);
 
-  logDebug('Parsing edit button data attributes for element: ', target);
-  logDebug('Parsing values from data attributes using this pattern: ', pattern);
+  logDebug("Parsing edit button data attributes for element: ", target);
+  logDebug("Parsing values from data attributes using this pattern: ", pattern);
 
   return parseDataAttributes(pattern, target);
 }
@@ -61,8 +62,8 @@ export function parseAddButtonDataAttributes(target: HTMLElement): ParseResult {
   const position = target.getAttribute(DataAttribute.AddButtonInsertPosition);
   const pattern = getAddButtonDataAttributesPattern(position);
 
-  logDebug('Parsing add button data attributes for element: ', target);
-  logDebug('Parsing values from data attributes following this pattern: ', pattern);
+  logDebug("Parsing add button data attributes for element: ", target);
+  logDebug("Parsing values from data attributes following this pattern: ", pattern);
 
   return parseDataAttributes(pattern, target);
 }
@@ -75,7 +76,7 @@ function getEditButtonDataAttributesPattern(type: HighlightType): DataAttributes
       return componentEditButtonParserPattern;
     case HighlightType.ContentItem:
       return itemEditButtonParserPattern;
-    default:
+    case HighlightType.None:
       return baseParserPattern;
   }
 }
@@ -85,8 +86,6 @@ function getAddButtonDataAttributesPattern(position: string | null): DataAttribu
     case InsertPositionPlacement.After:
     case InsertPositionPlacement.Before:
       return relativeAddButtonParserPattern;
-    case InsertPositionPlacement.End:
-    case InsertPositionPlacement.Start:
     default:
       return fixedAddButtonParserPattern;
   }
@@ -103,7 +102,11 @@ export type ParseResult = {
   parsed: ParseTokenResult;
   debugData: ReadonlyArray<{
     element: HTMLElement;
-    parsedAttributes: ReadonlyArray<{ token: ParserTokenKey; dataAttribute: DataAttribute; value: string }>;
+    parsedAttributes: ReadonlyArray<{
+      token: ParserTokenKey;
+      dataAttribute: DataAttribute;
+      value: string;
+    }>;
     skippedAttributes: ReadonlyArray<{ dataAttribute: DataAttribute; value: string | null }>;
   }>;
 };
@@ -117,14 +120,15 @@ export type ParseResult = {
  */
 function applyPatternToParsedValues(
   pattern: DataAttributesParserPattern,
-  parsedValues: ReadonlyArray<ParseTokenResultInternal>
+  parsedValues: ReadonlyArray<ParseTokenResultInternal>,
 ): ReadonlyArray<{ token: ParserTokenKey; value: string; dataAttribute: DataAttribute }> {
   const takenDataAttributes = new Set<DataAttribute>();
   const result: Array<{ token: ParserTokenKey; value: string; dataAttribute: DataAttribute }> = [];
 
   for (const p of pattern) {
     const data = parsedValues.find(
-      (a) => p.dataAttributes.includes(a.dataAttribute) && !takenDataAttributes.has(a.dataAttribute)
+      (a) =>
+        p.dataAttributes.includes(a.dataAttribute) && !takenDataAttributes.has(a.dataAttribute),
     );
 
     if (!data && p.optional) {
@@ -142,7 +146,10 @@ function applyPatternToParsedValues(
   return result;
 }
 
-export const parseDataAttributes = (pattern: DataAttributesParserPattern, element: HTMLElement | null): ParseResult => {
+export const parseDataAttributes = (
+  pattern: DataAttributesParserPattern,
+  element: HTMLElement | null,
+): ParseResult => {
   if (!element || pattern.length === 0) {
     return { parsed: {}, debugData: [] };
   }
@@ -162,7 +169,10 @@ export const parseDataAttributes = (pattern: DataAttributesParserPattern, elemen
   const parentResult = parseDataAttributes(newPattern, element.parentElement);
 
   return {
-    parsed: { ...Object.fromEntries(result.map((r) => [r.token, r.value])), ...parentResult.parsed },
+    parsed: {
+      ...Object.fromEntries(result.map((r) => [r.token, r.value])),
+      ...parentResult.parsed,
+    },
     debugData: [
       ...parentResult.debugData,
       ...(parsedValues.length > 0
@@ -170,14 +180,20 @@ export const parseDataAttributes = (pattern: DataAttributesParserPattern, elemen
             {
               element,
               parsedAttributes: parsedValues
-                .filter((a) => result.find((r) => r.dataAttribute === a.dataAttribute) !== undefined)
+                .filter(
+                  (a) => result.find((r) => r.dataAttribute === a.dataAttribute) !== undefined,
+                )
                 .map((a) => ({
-                  token: result.find((r) => r.dataAttribute === a.dataAttribute)!.token,
+                  token:
+                    result.find((r) => r.dataAttribute === a.dataAttribute)?.token ??
+                    throwError("[Parser]: Token not found"),
                   dataAttribute: a.dataAttribute,
                   value: a.value,
                 })),
               skippedAttributes: parsedValues
-                .filter((a) => result.find((r) => r.dataAttribute === a.dataAttribute) === undefined)
+                .filter(
+                  (a) => result.find((r) => r.dataAttribute === a.dataAttribute) === undefined,
+                )
                 .map((a) => ({
                   dataAttribute: a.dataAttribute,
                   value: a.value,
@@ -190,42 +206,42 @@ export const parseDataAttributes = (pattern: DataAttributesParserPattern, elemen
 };
 
 const baseParserPattern: DataAttributesParserPattern = [
-  { key: 'languageCodename', dataAttributes: [DataAttribute.LanguageCodename] },
-  { key: 'environmentId', dataAttributes: [DataAttribute.EnvironmentId] },
+  { key: "languageCodename", dataAttributes: [DataAttribute.LanguageCodename] },
+  { key: "environmentId", dataAttributes: [DataAttribute.EnvironmentId] },
 ] as const;
 
 // EDIT BUTTON PARSING PATTERNS
 const itemEditButtonParserPattern: DataAttributesParserPattern = [
-  { key: 'itemId', dataAttributes: [DataAttribute.ItemId] },
+  { key: "itemId", dataAttributes: [DataAttribute.ItemId] },
   ...baseParserPattern,
 ] as const;
 
 const componentEditButtonParserPattern: DataAttributesParserPattern = [
-  { key: 'contentComponentId', dataAttributes: [DataAttribute.ComponentId] },
+  { key: "contentComponentId", dataAttributes: [DataAttribute.ComponentId] },
   ...itemEditButtonParserPattern,
 ] as const;
 
 const elementEditButtonParserPattern: DataAttributesParserPattern = [
-  { key: 'elementCodename', dataAttributes: [DataAttribute.ElementCodename] },
-  { key: 'contentComponentId', dataAttributes: [DataAttribute.ComponentId], optional: true },
+  { key: "elementCodename", dataAttributes: [DataAttribute.ElementCodename] },
+  { key: "contentComponentId", dataAttributes: [DataAttribute.ComponentId], optional: true },
   ...itemEditButtonParserPattern,
 ] as const;
 
 // ADD BUTTON PARSING PATTERNS
 const baseAddButtonParserPattern: DataAttributesParserPattern = [
-  { key: 'elementCodename', dataAttributes: [DataAttribute.ElementCodename] },
-  { key: 'contentComponentId', dataAttributes: [DataAttribute.ComponentId], optional: true },
-  { key: 'itemId', dataAttributes: [DataAttribute.ItemId] },
+  { key: "elementCodename", dataAttributes: [DataAttribute.ElementCodename] },
+  { key: "contentComponentId", dataAttributes: [DataAttribute.ComponentId], optional: true },
+  { key: "itemId", dataAttributes: [DataAttribute.ItemId] },
   ...baseParserPattern,
 ] as const;
 
 const relativeAddButtonParserPattern: DataAttributesParserPattern = [
-  { key: 'placement', dataAttributes: [DataAttribute.AddButtonInsertPosition] },
-  { key: 'targetId', dataAttributes: [DataAttribute.ComponentId, DataAttribute.ItemId] },
+  { key: "placement", dataAttributes: [DataAttribute.AddButtonInsertPosition] },
+  { key: "targetId", dataAttributes: [DataAttribute.ComponentId, DataAttribute.ItemId] },
   ...baseAddButtonParserPattern,
 ] as const;
 
 const fixedAddButtonParserPattern: DataAttributesParserPattern = [
-  { key: 'placement', dataAttributes: [DataAttribute.AddButtonInsertPosition], optional: true },
+  { key: "placement", dataAttributes: [DataAttribute.AddButtonInsertPosition], optional: true },
   ...baseAddButtonParserPattern,
 ] as const;

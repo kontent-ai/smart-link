@@ -1,10 +1,10 @@
-import { DataAttribute, DisableableFeature, MetadataAttribute } from './attributes';
+import { DataAttribute, DisableableFeature, MetadataAttribute } from "./attributes";
 
 export enum HighlightType {
-  None = '',
-  Element = 'element',
-  ContentComponent = 'content-component',
-  ContentItem = 'content-item',
+  None = "",
+  Element = "element",
+  ContentComponent = "content-component",
+  ContentItem = "content-item",
 }
 
 /**
