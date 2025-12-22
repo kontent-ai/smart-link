@@ -1,9 +1,13 @@
-import { KSLCustomElement } from './abstract/KSLCustomElement';
-import { KSLAddButtonElement } from './KSLAddButtonElement';
-import { KSLHighlightElement } from './KSLHighlightElement';
-import { createTemplateForCustomElement, getRenderingRootMetadata, getTotalScrollOffset } from '../utils/domElement';
-import { IPositionable } from './abstract/KSLPositionedElement';
-import { BaseZIndex } from './tokens/zIndex';
+import {
+  createTemplateForCustomElement,
+  getRenderingRootMetadata,
+  getTotalScrollOffset,
+} from "../utils/domElement";
+import { KSLCustomElement } from "./abstract/KSLCustomElement";
+import type { IPositionable } from "./abstract/KSLPositionedElement";
+import { KSLAddButtonElement } from "./KSLAddButtonElement";
+import { KSLHighlightElement } from "./KSLHighlightElement";
+import { BaseZIndex } from "./tokens/zIndex";
 
 const templateHTML = `
   <style>
@@ -29,7 +33,7 @@ const templateHTML = `
 
 export class KSLContainerElement extends KSLCustomElement implements IPositionable {
   public static get is() {
-    return 'ksl-container' as const;
+    return "ksl-container" as const;
   }
 
   private _boundingClientRect: DOMRect | null = null;
@@ -82,7 +86,7 @@ export class KSLContainerElement extends KSLCustomElement implements IPositionab
       // When parent element is not positioned and its content is clipped
       // we need to hide overflow of the container as well to prevent
       // highlights from appearing for overflown content.
-      this.updateAttribute('clipped', Boolean(metadata.isContentClipped));
+      this.updateAttribute("clipped", Boolean(metadata.isContentClipped));
     }
 
     this.getBoundingClientRect(true);

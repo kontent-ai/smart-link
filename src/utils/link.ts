@@ -19,7 +19,9 @@ export type BuildComponentElementLinkParams = {
   componentElementCodename: string;
 };
 
-export type BuildKontentElementLinkParams = BuildElementLinkParams | BuildComponentElementLinkParams;
+export type BuildKontentElementLinkParams =
+  | BuildElementLinkParams
+  | BuildComponentElementLinkParams;
 
 /**
  * Builds a URL that opens the specified content item in the Kontent.ai web application editor.
@@ -46,7 +48,7 @@ function buildComponentElementLink(params: BuildComponentElementLinkParams): str
  * If an element is within a component, 'contentComponentId' must be provided.
  */
 export function buildKontentElementLink(data: BuildKontentElementLinkParams): string {
-  return 'contentComponentId' in data
+  return "contentComponentId" in data
     ? buildComponentElementLink({
         environmentId: data.environmentId,
         languageCodename: data.languageCodename,

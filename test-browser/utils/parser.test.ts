@@ -1,13 +1,16 @@
-import { createHtmlFixture } from '../test-helpers/createHtmlFixture';
-import { describe, it, expect } from 'vitest';
-import { parseEditButtonDataAttributes, parseAddButtonDataAttributes } from '../../src/utils/dataAttributes/parser';
-import { MetadataAttribute } from '../../src/utils/dataAttributes/attributes';
+import { describe, expect, it } from "vitest";
+import { MetadataAttribute } from "../../src/utils/dataAttributes/attributes";
+import {
+  parseAddButtonDataAttributes,
+  parseEditButtonDataAttributes,
+} from "../../src/utils/dataAttributes/parser";
+import { createHtmlFixture } from "../test-helpers/createHtmlFixture";
 
-describe('dataAttributes.ts', () => {
+describe("dataAttributes.ts", () => {
   const fixture = createHtmlFixture();
 
-  describe('parseEditButtonDataAttributes', () => {
-    it('should parse data attributes for edit element button', () => {
+  describe("parseEditButtonDataAttributes", () => {
+    it("should parse data attributes for edit element button", () => {
       // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
       fixture.setHtml(`
         <div 
@@ -25,19 +28,19 @@ describe('dataAttributes.ts', () => {
 
       expect(MetadataAttribute.DisableFeatures).toBeDefined();
 
-      const target = fixture.querySelector('[data-kontent-element-codename]') as HTMLElement;
+      const target = fixture.querySelector("[data-kontent-element-codename]") as HTMLElement;
       const expected = {
-        environmentId: '8ec75bbd-c1b9-4d10-8ac8-a7f985109301',
-        languageCodename: 'en-us',
-        itemId: 'c37b9222-e3a0-46ff-9cda-45948c6ca876',
-        contentComponentId: '46d79723-adc9-4957-9bfb-9d015c11d8f1',
-        elementCodename: 'sections',
+        environmentId: "8ec75bbd-c1b9-4d10-8ac8-a7f985109301",
+        languageCodename: "en-us",
+        itemId: "c37b9222-e3a0-46ff-9cda-45948c6ca876",
+        contentComponentId: "46d79723-adc9-4957-9bfb-9d015c11d8f1",
+        elementCodename: "sections",
       };
 
       expect(parseEditButtonDataAttributes(target).parsed).toEqual(expected);
     });
 
-    it('should parse data attributes for edit component button', () => {
+    it("should parse data attributes for edit component button", () => {
       // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
       fixture.setHtml(`
         <div 
@@ -51,18 +54,18 @@ describe('dataAttributes.ts', () => {
     `);
       // </editor-fold>
 
-      const target = fixture.querySelector('[data-kontent-component-id]') as HTMLElement;
+      const target = fixture.querySelector("[data-kontent-component-id]") as HTMLElement;
       const expected = {
-        environmentId: 'a5a45323-4a00-4258-be3d-5d16b529969a',
-        languageCodename: 'cs',
-        itemId: 'ad81ad4f-f574-4460-ba67-1a14164ad987',
-        contentComponentId: 'bfae94f4-638c-4ab2-957a-6f4636475ab9',
+        environmentId: "a5a45323-4a00-4258-be3d-5d16b529969a",
+        languageCodename: "cs",
+        itemId: "ad81ad4f-f574-4460-ba67-1a14164ad987",
+        contentComponentId: "bfae94f4-638c-4ab2-957a-6f4636475ab9",
       };
 
       expect(parseEditButtonDataAttributes(target).parsed).toEqual(expected);
     });
 
-    it('should parse data attributes for edit item button', () => {
+    it("should parse data attributes for edit item button", () => {
       // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
       fixture.setHtml(`
         <div data-kontent-environment-id="285dd2ad-3a16-428f-820a-84e3eb4de3b3">
@@ -73,17 +76,17 @@ describe('dataAttributes.ts', () => {
     `);
       // </editor-fold>
 
-      const target = fixture.querySelector('[data-kontent-item-id]') as HTMLElement;
+      const target = fixture.querySelector("[data-kontent-item-id]") as HTMLElement;
       const expected = {
-        environmentId: '285dd2ad-3a16-428f-820a-84e3eb4de3b3',
-        languageCodename: 'nl',
-        itemId: '4a5e4e01-d8b4-4d06-a0ff-42ac7e1b4f11',
+        environmentId: "285dd2ad-3a16-428f-820a-84e3eb4de3b3",
+        languageCodename: "nl",
+        itemId: "4a5e4e01-d8b4-4d06-a0ff-42ac7e1b4f11",
       };
 
       expect(parseEditButtonDataAttributes(target).parsed).toEqual(expected);
     });
 
-    it('should ignore optional attributes out of their scope', () => {
+    it("should ignore optional attributes out of their scope", () => {
       // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
       fixture.setHtml(`
         <div data-kontent-environment-id="4e870857-9059-4f2a-9079-618200fedff2">
@@ -102,18 +105,20 @@ describe('dataAttributes.ts', () => {
     `);
       // </editor-fold>
 
-      const target = fixture.querySelector('[data-kontent-element-codename="comments"]') as HTMLElement;
+      const target = fixture.querySelector(
+        '[data-kontent-element-codename="comments"]',
+      ) as HTMLElement;
       const expected = {
-        environmentId: '4e870857-9059-4f2a-9079-618200fedff2',
-        languageCodename: 'hr',
-        itemId: '345fb42f-e243-4de0-83cd-a109799d0973',
-        elementCodename: 'comments',
+        environmentId: "4e870857-9059-4f2a-9079-618200fedff2",
+        languageCodename: "hr",
+        itemId: "345fb42f-e243-4de0-83cd-a109799d0973",
+        elementCodename: "comments",
       };
 
       expect(parseEditButtonDataAttributes(target).parsed).toEqual(expected);
     });
 
-    it('should work when all attributes are set on the same node', () => {
+    it("should work when all attributes are set on the same node", () => {
       // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
       fixture.setHtml(`
         <div data-kontent-environment-id="4e870857-9059-4f2a-9079-618200fedff2">
@@ -140,19 +145,21 @@ describe('dataAttributes.ts', () => {
     `);
       // </editor-fold>
 
-      const target = fixture.querySelector('[data-kontent-element-codename="content"]') as HTMLElement;
+      const target = fixture.querySelector(
+        '[data-kontent-element-codename="content"]',
+      ) as HTMLElement;
       const expected = {
-        environmentId: 'c1321744-70e6-45d7-99e3-212bda160b23',
-        languageCodename: 'en-us',
-        itemId: '765a23d8-ac25-4f1d-9f39-7267d3d59690',
-        contentComponentId: '10a56a56-d045-4e15-be72-333d4effa21a',
-        elementCodename: 'content',
+        environmentId: "c1321744-70e6-45d7-99e3-212bda160b23",
+        languageCodename: "en-us",
+        itemId: "765a23d8-ac25-4f1d-9f39-7267d3d59690",
+        contentComponentId: "10a56a56-d045-4e15-be72-333d4effa21a",
+        elementCodename: "content",
       };
 
       expect(parseEditButtonDataAttributes(target).parsed).toEqual(expected);
     });
 
-    it('should work when `projectId` and `languageCodename` are omitted', () => {
+    it("should work when `projectId` and `languageCodename` are omitted", () => {
       // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
       fixture.setHtml(`
       <div data-kontent-item-id="e35acd87-9911-4b0b-be74-521ae9a85421">
@@ -163,21 +170,21 @@ describe('dataAttributes.ts', () => {
     `);
       // </editor-fold>
 
-      const target = fixture.querySelector('[data-kontent-element-codename]') as HTMLElement;
+      const target = fixture.querySelector("[data-kontent-element-codename]") as HTMLElement;
       const expected = {
         environmentId: undefined,
         languageCodename: undefined,
-        itemId: 'e35acd87-9911-4b0b-be74-521ae9a85421',
-        contentComponentId: '3024f2d5-effc-49b1-b4d1-0d732e49d7fc',
-        elementCodename: 'sections',
+        itemId: "e35acd87-9911-4b0b-be74-521ae9a85421",
+        contentComponentId: "3024f2d5-effc-49b1-b4d1-0d732e49d7fc",
+        elementCodename: "sections",
       };
 
       expect(parseEditButtonDataAttributes(target).parsed).toEqual(expected);
     });
   });
 
-  describe('parseAddButtonDataAttributes', () => {
-    it('should parse data attributes for fixed add button', () => {
+  describe("parseAddButtonDataAttributes", () => {
+    it("should parse data attributes for fixed add button", () => {
       // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
       fixture.setHtml(`
         <div 
@@ -201,19 +208,19 @@ describe('dataAttributes.ts', () => {
       `);
       // </editor-fold>
 
-      const target = fixture.querySelector('[data-kontent-add-button]') as HTMLElement;
+      const target = fixture.querySelector("[data-kontent-add-button]") as HTMLElement;
       const expected = {
-        environmentId: '8ec75bbd-c1b9-4d10-8ac8-a7f985109301',
-        languageCodename: 'en-us',
-        itemId: '99c3bcd8-f5ac-4c64-b57e-b0beb414863a',
-        elementCodename: 'rte',
-        placement: 'end',
+        environmentId: "8ec75bbd-c1b9-4d10-8ac8-a7f985109301",
+        languageCodename: "en-us",
+        itemId: "99c3bcd8-f5ac-4c64-b57e-b0beb414863a",
+        elementCodename: "rte",
+        placement: "end",
       };
 
       expect(parseAddButtonDataAttributes(target).parsed).toEqual(expected);
     });
 
-    it('should parse data attributes for relative add button', () => {
+    it("should parse data attributes for relative add button", () => {
       // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
       fixture.setHtml(`
         <div 
@@ -239,20 +246,20 @@ describe('dataAttributes.ts', () => {
       `);
       // </editor-fold>
 
-      const target = fixture.querySelector('[data-kontent-add-button]') as HTMLElement;
+      const target = fixture.querySelector("[data-kontent-add-button]") as HTMLElement;
       const expected = {
-        environmentId: '8ec75bbd-c1b9-4d10-8ac8-a7f985109301',
-        languageCodename: 'en-us',
-        itemId: '99c3bcd8-f5ac-4c64-b57e-b0beb414863a',
-        elementCodename: 'rte',
-        placement: 'after',
-        targetId: 'b2d36acb-90af-4ce7-813a-bbcae4c2e496',
+        environmentId: "8ec75bbd-c1b9-4d10-8ac8-a7f985109301",
+        languageCodename: "en-us",
+        itemId: "99c3bcd8-f5ac-4c64-b57e-b0beb414863a",
+        elementCodename: "rte",
+        placement: "after",
+        targetId: "b2d36acb-90af-4ce7-813a-bbcae4c2e496",
       };
 
       expect(parseAddButtonDataAttributes(target).parsed).toEqual(expected);
     });
 
-    it('should parse data attributes when all attributes are on the same node (only fixed)', () => {
+    it("should parse data attributes when all attributes are on the same node (only fixed)", () => {
       // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
       fixture.setHtml(`
       <div>
@@ -276,20 +283,20 @@ describe('dataAttributes.ts', () => {
     `);
       // </editor-fold>
 
-      const target = fixture.querySelector('[data-kontent-add-button]') as HTMLElement;
+      const target = fixture.querySelector("[data-kontent-add-button]") as HTMLElement;
       const expected = {
-        environmentId: '6db25ade-c2d6-43d2-ad9f-91e6cf614065',
-        languageCodename: 'cs',
-        itemId: 'af1cea9a-aeed-429f-ac86-a0c78a939197',
-        contentComponentId: 'dcc91efe-7205-4ebf-b470-e934dbc31c38',
-        elementCodename: 'sections',
-        placement: 'end',
+        environmentId: "6db25ade-c2d6-43d2-ad9f-91e6cf614065",
+        languageCodename: "cs",
+        itemId: "af1cea9a-aeed-429f-ac86-a0c78a939197",
+        contentComponentId: "dcc91efe-7205-4ebf-b470-e934dbc31c38",
+        elementCodename: "sections",
+        placement: "end",
       };
 
       expect(parseAddButtonDataAttributes(target).parsed).toEqual(expected);
     });
 
-    it('should parse nested data attributes', () => {
+    it("should parse nested data attributes", () => {
       // <editor-fold desc="fixture.setHtml([HTML]);" defaultstate="collapsed">
       fixture.setHtml(`
         <div 
@@ -319,15 +326,17 @@ describe('dataAttributes.ts', () => {
       `);
       // </editor-fold>
 
-      const target = fixture.querySelector('[data-kontent-add-button-insert-position="before"]') as HTMLElement;
+      const target = fixture.querySelector(
+        '[data-kontent-add-button-insert-position="before"]',
+      ) as HTMLElement;
       const expected = {
-        environmentId: '8ec75bbd-c1b9-4d10-8ac8-a7f985109301',
-        languageCodename: 'en-us',
-        itemId: 'eb137c14-820a-48b6-9b91-19425aa76490',
-        contentComponentId: '0a197ac8-0c09-41be-bcaa-87ce9cbaf6d6',
-        elementCodename: 'comments',
-        placement: 'before',
-        targetId: 'ab758fd9-4f84-4f94-962f-26752b459fe8',
+        environmentId: "8ec75bbd-c1b9-4d10-8ac8-a7f985109301",
+        languageCodename: "en-us",
+        itemId: "eb137c14-820a-48b6-9b91-19425aa76490",
+        contentComponentId: "0a197ac8-0c09-41be-bcaa-87ce9cbaf6d6",
+        elementCodename: "comments",
+        placement: "before",
+        targetId: "ab758fd9-4f84-4f94-962f-26752b459fe8",
       };
 
       expect(parseAddButtonDataAttributes(target).parsed).toEqual(expected);

@@ -1,7 +1,7 @@
-import { KSLPopUpElement } from './abstract/KSLPopUpElement';
-import { createTemplateForCustomElement } from '../utils/domElement';
-import { Colors } from './tokens/colors';
-import { Shadows } from './tokens/shadows';
+import { createTemplateForCustomElement } from "../utils/domElement";
+import { KSLPopUpElement } from "./abstract/KSLPopUpElement";
+import { Colors } from "./tokens/colors";
+import { Shadows } from "./tokens/shadows";
 
 const templateHTML = `
   <style>
@@ -18,7 +18,7 @@ const templateHTML = `
 
 export class KSLPopoverElement extends KSLPopUpElement {
   public static get is() {
-    return 'ksl-popover' as const;
+    return "ksl-popover" as const;
   }
 
   public static initializeTemplate(): HTMLTemplateElement {

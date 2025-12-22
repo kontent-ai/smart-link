@@ -1,10 +1,16 @@
-type EventListenerData = [string, EventListenerOrEventListenerObject, AddEventListenerOptions | boolean | undefined];
+import { afterEach } from "vitest";
+
+type EventListenerData = [
+  string,
+  EventListenerOrEventListenerObject,
+  AddEventListenerOptions | boolean | undefined,
+];
 
 interface ITestEventManager {
   readonly addEventListenerForCurrentTest: (
     type: string,
     listener: EventListenerOrEventListenerObject,
-    options?: AddEventListenerOptions | boolean
+    options?: AddEventListenerOptions | boolean,
   ) => void;
 }
 
@@ -23,7 +29,7 @@ export function createTestEventManager(target: EventTarget): ITestEventManager {
     addEventListenerForCurrentTest: (
       type: string,
       listener: EventListenerOrEventListenerObject,
-      options?: AddEventListenerOptions | boolean
+      options?: AddEventListenerOptions | boolean,
     ): void => {
       target.addEventListener(type, listener, options);
       eventListenersData.add([type, listener, options]);

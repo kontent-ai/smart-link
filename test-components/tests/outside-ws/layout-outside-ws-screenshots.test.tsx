@@ -1,23 +1,36 @@
-import { expect } from '@playwright/experimental-ct-react';
-import React from 'react';
-import { test } from '../../helpers/withQueryTest';
-import { SmartLinkInitializer } from '../../components/SmartLinkInitializer';
-import { DefaultSdkConfigurationWithoutWs } from '../../components/config';
-import { SingleSmartLink } from '../../components/layout/SingleSmartLink';
-import { MultipleSmartLinks } from '../../components/layout/MultipleSmartLinks';
-import { ComplexLayout } from '../../components/layout/ComplexLayout';
+import { expect } from "@playwright/experimental-ct-react";
+import { DefaultSdkConfigurationWithoutWs } from "../../components/config";
+import { ComplexLayout } from "../../components/layout/ComplexLayout";
+import { MultipleSmartLinks } from "../../components/layout/MultipleSmartLinks";
+import { SingleSmartLink } from "../../components/layout/SingleSmartLink";
+import { SmartLinkInitializer } from "../../components/SmartLinkInitializer";
+import { test } from "../../helpers/withQueryTest";
 
 const testCases = [
-  ['Single smart link', <SingleSmartLink />, 'layout-single-smart-link.png'],
-  ['Multiple smart links', <MultipleSmartLinks />, 'layout-multiple-smart-links.png'],
-  ['Complex layout', <ComplexLayout scrollOffset={{}} />, 'layout-complex.png', { width: 1366, height: 1200 }],
   [
-    'Complex layout with scrollbar',
+    "Single smart link",
+    <SingleSmartLink key="single-smart-link-no-ws" />,
+    "layout-single-smart-link.png",
+  ],
+  [
+    "Multiple smart links",
+    <MultipleSmartLinks key="multiple-smart-links-no-ws" />,
+    "layout-multiple-smart-links.png",
+  ],
+  [
+    "Complex layout",
+    <ComplexLayout key="complex-layout-no-ws" scrollOffset={{}} />,
+    "layout-complex.png",
+    { width: 1366, height: 1200 },
+  ],
+  [
+    "Complex layout with scrollbar",
     <ComplexLayout
+      key="complex-layout-with-scrollbar-no-ws"
       scrollOffset={{ container: [200, 0] }}
-      containerStyle={{ maxHeight: '100vh', overflow: 'scroll', border: '1px solid black' }}
+      containerStyle={{ maxHeight: "100vh", overflow: "scroll", border: "1px solid black" }}
     />,
-    'layout-complex-with-scrollbar.png',
+    "layout-complex-with-scrollbar.png",
   ],
 ] as const;
 
@@ -28,8 +41,10 @@ testCases.forEach(([name, component, screenshotName, viewport]) => {
     }
 
     await mount(
-      <SmartLinkInitializer configuration={DefaultSdkConfigurationWithoutWs}>{component}</SmartLinkInitializer>
+      <SmartLinkInitializer configuration={DefaultSdkConfigurationWithoutWs}>
+        {component}
+      </SmartLinkInitializer>,
     );
-    await expect(page.getByTestId('root')).toHaveScreenshot(screenshotName);
+    await expect(page.getByTestId("root")).toHaveScreenshot(screenshotName);
   });
 });

@@ -1,4 +1,4 @@
-import { beforeAll, afterAll, afterEach } from 'vitest';
+import { afterAll, afterEach, beforeAll } from "vitest";
 
 interface IHtmlFixture {
   readonly querySelector: (selectors: string) => Element | null;
@@ -9,13 +9,13 @@ export function createHtmlFixture(): IHtmlFixture {
   let sandbox: HTMLElement;
 
   beforeAll(() => {
-    sandbox = document.createElement('div');
-    sandbox.id = 'html-fixture-sandbox';
+    sandbox = document.createElement("div");
+    sandbox.id = "html-fixture-sandbox";
     document.body.appendChild(sandbox);
   });
 
   afterEach(() => {
-    sandbox.innerHTML = '';
+    sandbox.innerHTML = "";
   });
 
   afterAll(() => {

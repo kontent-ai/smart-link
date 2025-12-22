@@ -1,8 +1,8 @@
 export enum LogLevel {
   Debug = 1,
-  Info,
-  Warn,
-  Error,
+  Info = 2,
+  Warn = 3,
+  Error = 4,
 }
 
 let logLevel: LogLevel = LogLevel.Info;
@@ -21,7 +21,7 @@ export function setLogLevel(level: LogLevel): void {
  */
 export function logError(...args: unknown[]): void {
   if (logLevel <= LogLevel.Error) {
-    console.error('[KSL][Error]: ', ...args);
+    console.error("[KSL][Error]: ", ...args);
   }
 }
 
@@ -31,7 +31,7 @@ export function logError(...args: unknown[]): void {
  */
 export function logWarn(...args: unknown[]): void {
   if (logLevel <= LogLevel.Warn) {
-    console.warn('[KSL][Warning]: ', ...args);
+    console.warn("[KSL][Warning]: ", ...args);
   }
 }
 
@@ -41,7 +41,7 @@ export function logWarn(...args: unknown[]): void {
  */
 export function logInfo(...args: unknown[]): void {
   if (logLevel <= LogLevel.Info) {
-    console.info('[KSL][Info]: ', ...args);
+    console.info("[KSL][Info]: ", ...args);
   }
 }
 

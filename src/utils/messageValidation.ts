@@ -1,15 +1,15 @@
-import { logGroupCollapsed, logGroupEnd, logInfo } from '../lib/Logger';
 import {
-  IAddButtonInitialMessageData,
-  IContentComponentClickedMessageData,
-  IContentItemClickedMessageData,
-  IElementClickedMessageData,
-  InsertPosition,
+  type IAddButtonInitialMessageData,
+  type IContentComponentClickedMessageData,
+  type IContentItemClickedMessageData,
+  type IElementClickedMessageData,
+  type InsertPosition,
   InsertPositionPlacement,
-} from '../lib/IFrameCommunicatorTypes';
-import { KSLConfiguration } from './configuration';
-import { ParseResult, ParserTokenKey } from './dataAttributes/parser';
-import { NonEmptyArray } from './typeUtils';
+} from "../lib/IFrameCommunicatorTypes";
+import { logGroupCollapsed, logGroupEnd, logInfo } from "../lib/Logger";
+import type { KSLConfiguration } from "./configuration";
+import type { ParseResult, ParserTokenKey } from "./dataAttributes/parser";
+import type { NonEmptyArray } from "./typeUtils";
 
 type ValidationResult<T> =
   | { success: true; data: T }
@@ -17,15 +17,16 @@ type ValidationResult<T> =
 
 const validateConfigurationDataAttributes = (
   data: ParseResult,
-  configurationDataAttributes: KSLConfiguration['defaultDataAttributes']
+  configurationDataAttributes: KSLConfiguration["defaultDataAttributes"],
 ): ValidationResult<{ languageCodename: string; projectId: string }> => {
-  const languageCodename = data.parsed.languageCodename ?? configurationDataAttributes.languageCodename;
+  const languageCodename =
+    data.parsed.languageCodename ?? configurationDataAttributes.languageCodename;
   const projectId = data.parsed.environmentId ?? configurationDataAttributes.environmentId;
 
   if (!languageCodename || !projectId) {
     const missing: ParserTokenKey[] = [
-      ...(!languageCodename ? (['languageCodename'] as const) : []),
-      ...(!projectId ? (['environmentId'] as const) : []),
+      ...(!languageCodename ? (["languageCodename"] as const) : []),
+      ...(!projectId ? (["environmentId"] as const) : []),
     ];
 
     return { success: false, missing: missing as NonEmptyArray<ParserTokenKey> };
@@ -36,14 +37,14 @@ const validateConfigurationDataAttributes = (
 
 function validateContentItemClickEditMessageData(
   data: ParseResult,
-  configurationDataAttributes: KSLConfiguration['defaultDataAttributes']
+  configurationDataAttributes: KSLConfiguration["defaultDataAttributes"],
 ): ValidationResult<IContentItemClickedMessageData> {
   const configData = validateConfigurationDataAttributes(data, configurationDataAttributes);
   if (!data.parsed.itemId || !configData.success) {
     return {
       success: false,
       missing: [
-        ...(!data.parsed.itemId ? (['itemId'] as const) : []),
+        ...(!data.parsed.itemId ? (["itemId"] as const) : []),
         ...(configData.success ? [] : configData.missing),
       ] as NonEmptyArray<ParserTokenKey>,
     };
@@ -61,11 +62,14 @@ function validateContentItemClickEditMessageData(
 
 function validateElementClickMessageData(
   data: ParseResult,
-  configurationDataAttributes: KSLConfiguration['defaultDataAttributes']
+  configurationDataAttributes: KSLConfiguration["defaultDataAttributes"],
 ): ValidationResult<IElementClickedMessageData> {
   const parseItem = validateContentItemClickEditMessageData(data, configurationDataAttributes);
   if (!data.parsed.elementCodename || !parseItem.success) {
-    return { success: false, missing: ['elementCodename', ...(parseItem.success ? [] : parseItem.missing)] };
+    return {
+      success: false,
+      missing: ["elementCodename", ...(parseItem.success ? [] : parseItem.missing)],
+    };
   }
 
   return {
@@ -80,11 +84,14 @@ function validateElementClickMessageData(
 
 function validateContentComponentClickMessageData(
   data: ParseResult,
-  configurationDataAttributes: KSLConfiguration['defaultDataAttributes']
+  configurationDataAttributes: KSLConfiguration["defaultDataAttributes"],
 ): ValidationResult<IContentComponentClickedMessageData> {
   const parseItem = validateContentItemClickEditMessageData(data, configurationDataAttributes);
   if (!data.parsed.contentComponentId || !parseItem.success) {
-    return { success: false, missing: ['contentComponentId', ...(parseItem.success ? [] : parseItem.missing)] };
+    return {
+      success: false,
+      missing: ["contentComponentId", ...(parseItem.success ? [] : parseItem.missing)],
+    };
   }
 
   return {
@@ -98,78 +105,87 @@ function validateContentComponentClickMessageData(
 
 export type EditButtonMessageDataResult =
   | {
-      type: 'element';
+      type: "element";
       data: IElementClickedMessageData;
     }
   | {
-      type: 'contentComponent';
+      type: "contentComponent";
       data: IContentComponentClickedMessageData;
     }
   | {
-      type: 'contentItem';
+      type: "contentItem";
       data: IContentItemClickedMessageData;
     }
   | {
-      type: 'error';
+      type: "error";
       missing: ReadonlyArray<ParserTokenKey>;
-      debug?: ParseResult['debugData'];
+      debug?: ParseResult["debugData"];
     };
 
 export const validateEditButtonMessageData = (
   data: ParseResult,
-  configuration: KSLConfiguration
+  configuration: KSLConfiguration,
 ): EditButtonMessageDataResult => {
   const getValidationResult = () => {
-    if ('elementCodename' in data.parsed) {
+    if ("elementCodename" in data.parsed) {
       return {
-        type: 'element',
-        validationResult: validateElementClickMessageData(data, configuration.defaultDataAttributes),
+        type: "element",
+        validationResult: validateElementClickMessageData(
+          data,
+          configuration.defaultDataAttributes,
+        ),
       } as const;
     }
 
-    if ('contentComponentId' in data.parsed) {
+    if ("contentComponentId" in data.parsed) {
       return {
-        type: 'contentComponent',
-        validationResult: validateContentComponentClickMessageData(data, configuration.defaultDataAttributes),
+        type: "contentComponent",
+        validationResult: validateContentComponentClickMessageData(
+          data,
+          configuration.defaultDataAttributes,
+        ),
       } as const;
     }
 
     return {
-      type: 'contentItem',
-      validationResult: validateContentItemClickEditMessageData(data, configuration.defaultDataAttributes),
+      type: "contentItem",
+      validationResult: validateContentItemClickEditMessageData(
+        data,
+        configuration.defaultDataAttributes,
+      ),
     } as const;
   };
 
   const { type, validationResult } = getValidationResult();
 
   if (!validationResult.success) {
-    printDebugData(data.debugData, '[KSL]: Parsing edit button data attributes failed');
+    printDebugData(data.debugData, "[KSL]: Parsing edit button data attributes failed");
     return {
-      type: 'error',
+      type: "error",
       missing: validationResult.missing,
     };
   }
 
   if (configuration.debug) {
-    printDebugData(data.debugData, '[KSL]: Parsed edit button data attributes');
+    printDebugData(data.debugData, "[KSL]: Parsed edit button data attributes");
   }
 
-  if (type === 'element') {
+  if (type === "element") {
     return {
-      type: 'element',
+      type: "element",
       data: validationResult.data,
     };
   }
 
-  if (type === 'contentComponent') {
+  if (type === "contentComponent") {
     return {
-      type: 'contentComponent',
+      type: "contentComponent",
       data: validationResult.data,
     };
   }
 
   return {
-    type: 'contentItem',
+    type: "contentItem",
     data: validationResult.data,
   };
 };
@@ -178,24 +194,27 @@ const validatePlacement = (data: ParseResult): ValidationResult<Partial<InsertPo
   const insertPosition = getPlacement(data.parsed.placement);
 
   if (
-    (insertPosition === InsertPositionPlacement.After || insertPosition === InsertPositionPlacement.Before) &&
+    (insertPosition === InsertPositionPlacement.After ||
+      insertPosition === InsertPositionPlacement.Before) &&
     !data.parsed.targetId
   ) {
-    return { success: false, missing: ['targetId'] };
+    return { success: false, missing: ["targetId"] };
   }
 
-  return { success: true, data: { placement: insertPosition, targetId: data.parsed.targetId ?? undefined } };
+  return {
+    success: true,
+    data: { placement: insertPosition, targetId: data.parsed.targetId ?? undefined },
+  };
 };
 
 const getPlacement = (placement: string | null | undefined) => {
   switch (placement) {
-    case 'after':
+    case "after":
       return InsertPositionPlacement.After;
-    case 'before':
+    case "before":
       return InsertPositionPlacement.Before;
-    case 'start':
+    case "start":
       return InsertPositionPlacement.Start;
-    case 'end':
     default:
       return InsertPositionPlacement.End;
   }
@@ -203,18 +222,23 @@ const getPlacement = (placement: string | null | undefined) => {
 
 export function validateAddInitialMessageData(
   data: ParseResult,
-  configuration: KSLConfiguration
+  configuration: KSLConfiguration,
 ): ValidationResult<IAddButtonInitialMessageData> {
   const configData = validateConfigurationDataAttributes(data, configuration.defaultDataAttributes);
   const placement = validatePlacement(data);
 
-  if (!data.parsed.itemId || !data.parsed.elementCodename || !placement.success || !configData.success) {
-    printDebugData(data.debugData, '[KSL]: Parsing add button data attributes failed');
+  if (
+    !data.parsed.itemId ||
+    !data.parsed.elementCodename ||
+    !placement.success ||
+    !configData.success
+  ) {
+    printDebugData(data.debugData, "[KSL]: Parsing add button data attributes failed");
     return {
       success: false,
       missing: [
-        ...(!data.parsed.itemId ? (['itemId'] as const) : []),
-        ...(!data.parsed.elementCodename ? (['elementCodename'] as const) : []),
+        ...(!data.parsed.itemId ? (["itemId"] as const) : []),
+        ...(!data.parsed.elementCodename ? (["elementCodename"] as const) : []),
         ...(placement.success ? [] : placement.missing),
         ...(configData.success ? [] : configData.missing),
       ] as NonEmptyArray<ParserTokenKey>,
@@ -222,7 +246,7 @@ export function validateAddInitialMessageData(
   }
 
   if (configuration.debug) {
-    printDebugData(data.debugData, '[KSL]: Parsed add button data attributes');
+    printDebugData(data.debugData, "[KSL]: Parsed add button data attributes");
   }
 
   return {
@@ -238,18 +262,18 @@ export function validateAddInitialMessageData(
   };
 }
 
-const printDebugData = (debugData: ParseResult['debugData'], message: string) => {
+const printDebugData = (debugData: ParseResult["debugData"], message: string) => {
   logGroupCollapsed(message);
   debugData.forEach((item) => {
     logGroupCollapsed(item.element);
     if (item.parsedAttributes.length > 0) {
-      logInfo('Resolved attributes:');
+      logInfo("Resolved attributes:");
       item.parsedAttributes.forEach((attr) => {
         logInfo(`${attr.token}: ${attr.dataAttribute}: ${attr.value}`);
       });
     }
     if (item.skippedAttributes.length > 0) {
-      logInfo('Parsed Kontent.ai attributes:');
+      logInfo("Parsed Kontent.ai attributes:");
       item.skippedAttributes.forEach((attr) => {
         logInfo(`${attr.dataAttribute}: ${attr.value}`);
       });

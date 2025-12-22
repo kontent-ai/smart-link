@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 export const SeparateNodeAddition: React.FC = () => {
   const [isButtonMounted, setIsButtonMounted] = useState(false);
@@ -9,8 +9,9 @@ export const SeparateNodeAddition: React.FC = () => {
 
   return (
     <div id="test-html-container">
-      {isButtonMounted && (
+      {isButtonMounted ? (
         <button
+          type="button"
           className="btn btn-info"
           data-kontent-environment-id="p"
           data-kontent-language-codename="l"
@@ -19,9 +20,9 @@ export const SeparateNodeAddition: React.FC = () => {
         >
           Button with smart link
         </button>
-      )}
+      ) : null}
     </div>
   );
 };
 
-SeparateNodeAddition.displayName = 'SeparateNodeAddition';
+SeparateNodeAddition.displayName = "SeparateNodeAddition";

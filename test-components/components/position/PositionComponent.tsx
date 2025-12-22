@@ -1,5 +1,4 @@
-import React from 'react';
-import { ElementPositionOffset, PositionProperty } from '../../helpers/types';
+import type { ElementPositionOffset, PositionProperty } from "../../helpers/types";
 
 export type PositionComponentProps = {
   containerPosition: PositionProperty;
@@ -17,10 +16,10 @@ export const PositionComponent: React.FC<PositionComponentProps> = ({
       className="bg-secondary"
       style={{
         position: containerPosition,
-        top: '20px',
-        left: '20px',
-        width: '400px',
-        height: '400px',
+        top: "20px",
+        left: "20px",
+        width: "400px",
+        height: "400px",
       }}
       data-kontent-environment-id="p"
       data-kontent-language-codename="l"
@@ -31,10 +30,10 @@ export const PositionComponent: React.FC<PositionComponentProps> = ({
         className="bg-light p-4"
         style={{
           position: nestedPosition,
-          top: '40px',
-          left: '40px',
-          width: '300px',
-          height: '300px',
+          top: "40px",
+          left: "40px",
+          width: "300px",
+          height: "300px",
         }}
       >
         <div
@@ -42,8 +41,8 @@ export const PositionComponent: React.FC<PositionComponentProps> = ({
           data-kontent-add-button="true"
           data-kontent-add-button-render-position={buttonPosition}
         >
-          This text block has 'position: {nestedPosition}' and it is located inside an element with '{containerPosition}
-          ' position.
+          This text block has 'position: {nestedPosition}' and it is located inside an element with
+          '{containerPosition}' position.
         </div>
       </div>
     </div>

@@ -1,39 +1,26 @@
 {
   "compileOnSave": true,
   "compilerOptions": {
+    "composite": true,
     "allowUnreachableCode": false,
-    "alwaysStrict": true,
+    "strict": true,
     "baseUrl": ".",
     "declaration": true,
+    "rootDir": "./src",
     "declarationDir": "./dist/types",
     "downlevelIteration": true,
     "forceConsistentCasingInFileNames": true,
-    "lib": [
-      "es2019",
-      "dom",
-      "dom.iterable"
-    ],
+    "lib": ["es2019", "dom", "dom.iterable"],
     "module": "commonjs",
     "moduleResolution": "node",
-    "noImplicitAny": true,
-    "noImplicitReturns": true,
     "noUnusedParameters": true,
     "outDir": "dist",
     "skipLibCheck": true,
     "sourceMap": true,
-    "strictFunctionTypes": true,
-    "strictNullChecks": true,
-    "strictPropertyInitialization": true,
     "target": "ESNext",
-    "typeRoots": [
-      "./node_modules/@types"
-    ]
+    "typeRoots": ["./node_modules/@types"]
   },
-  "exclude": [
-    "node_modules"
-  ],
-  "include": [
-    "src/**/*"
-  ]
+  "exclude": ["node_modules"],
+  "include": ["src/**/*"],
+  "references": [{ "path": "./tsconfig.test.json" }]
 }
-

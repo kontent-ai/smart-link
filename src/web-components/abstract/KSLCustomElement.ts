@@ -1,5 +1,6 @@
-import { AsyncCustomEventDetail } from '../../utils/events';
-import { InvalidEnvironmentError, NotImplementedError } from '../../utils/errors';
+/** biome-ignore-all lint/complexity/noThisInStatic: Break when using class name instead of this */
+import { InvalidEnvironmentError, NotImplementedError } from "../../utils/errors";
+import type { AsyncCustomEventDetail } from "../../utils/events";
 
 // Custom elements API as well as all Web Component definitions can only be run in a browser environment,
 // because they require build-in browser APIs, which are not available on the backend (during SSR).
@@ -9,11 +10,10 @@ import { InvalidEnvironmentError, NotImplementedError } from '../../utils/errors
 // However, some SSR frameworks (such as Next.js) will try to run this code on the server side first during SSR,
 // which could result in a crash because HTMLElement is not defined on the backend. That is why we are setting
 // this property to null in a global Nodejs scope.
-const isNotInBrowser = typeof window === 'undefined';
+const isNotInBrowser = typeof window === "undefined"; // window === undefined crashes
 if (isNotInBrowser) {
-  // eslint-disable-next-line
-  // @ts-ignore: required to support SSR frameworks
-  global['HTMLElement'] = null;
+  // @ts-expect-error: required to support SSR frameworks
+  global.HTMLElement = null;
 }
 
 /**
@@ -29,7 +29,9 @@ export abstract class KSLCustomElement extends HTMLElement {
    * @type {string}
    */
   public static get is(): string {
-    throw NotImplementedError('KSLCustomElement: "is" getter is not implemented for this custom element.');
+    throw new NotImplementedError(
+      'KSLCustomElement: "is" getter is not implemented for this custom element.',
+    );
   }
 
   /**
@@ -40,9 +42,7 @@ export abstract class KSLCustomElement extends HTMLElement {
    * @type {HTMLTemplateElement}
    */
   protected static get template(): HTMLTemplateElement {
-    if (!this._template) {
-      this._template = this.initializeTemplate();
-    }
+    this._template ??= this.initializeTemplate();
     return this._template;
   }
 
@@ -51,9 +51,10 @@ export abstract class KSLCustomElement extends HTMLElement {
 
     // We are using an "open" mode here, so that it is easier for users to manipulate the shadow root
     // of our custom elements if they want to change or customize something.
-    const shadowRootConfig: ShadowRootInit = { mode: 'open' };
+    const shadowRootConfig: ShadowRootInit = { mode: "open" };
 
-    const selfClass = Object.getPrototypeOf(this).constructor;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const selfClass = Object.getPrototypeOf(this).constructor as typeof KSLCustomElement;
     const shadowRoot = this.attachShadow(shadowRootConfig);
     shadowRoot.appendChild(selfClass.template.content.cloneNode(true));
   }
@@ -64,18 +65,18 @@ export abstract class KSLCustomElement extends HTMLElement {
    * but this would not work with SSR, since custom elements can't be defined on the backend.
    */
   public static define(): Promise<CustomElementConstructor> {
-    if (typeof window === 'undefined') {
-      throw InvalidEnvironmentError('KSLCustomElement: custom elements can only be defined in a browser environment.');
-    }
-
-    if (!window.customElements) {
-      throw InvalidEnvironmentError('KSLCustomElement: custom elements API is not available.');
+    // window === undefined crashes
+    if (typeof window === "undefined") {
+      throw new InvalidEnvironmentError(
+        "KSLCustomElement: custom elements can only be defined in a browser environment.",
+      );
     }
 
     // The 'this' keyword refers to current constructor in static methods.
     // Conversion to unknown is needed so that we can explicitly converse
     // this class to CustomElementConstructor.
     const self = this as unknown;
+    // biome-ignore lint/suspicious/noShadowRestrictedNames: this is workaround
     const constructor = window.customElements.get(this.is);
 
     if (!constructor) {
@@ -93,8 +94,8 @@ export abstract class KSLCustomElement extends HTMLElement {
    * @returns {HTMLTemplateElement}
    */
   protected static initializeTemplate(): HTMLTemplateElement {
-    throw NotImplementedError(
-      'KSLCustomElement: "initializeTemplate" method should be implemented for every component.'
+    throw new NotImplementedError(
+      'KSLCustomElement: "initializeTemplate" method should be implemented for every component.',
     );
   }
 
@@ -104,8 +105,11 @@ export abstract class KSLCustomElement extends HTMLElement {
    * @param {string} attributeName
    * @param {string | number | boolean | null} attributeValue
    */
-  protected updateAttribute(attributeName: string, attributeValue: string | number | boolean | null): void {
-    if (attributeValue) {
+  protected updateAttribute(
+    attributeName: string,
+    attributeValue: string | number | boolean | null,
+  ): void {
+    if (attributeValue !== null && Boolean(attributeValue)) {
       this.setAttribute(attributeName, attributeValue.toString());
     } else {
       this.removeAttribute(attributeName);
@@ -124,12 +128,14 @@ export abstract class KSLCustomElement extends HTMLElement {
   protected dispatchAsyncEvent<TEventData, TResolveData, TRejectReason>(
     eventType: string,
     eventData: TEventData,
-    timeout: number | null = null
+    timeout: number | null = null,
   ): Promise<TResolveData> {
     return new Promise((resolve, reject) => {
-      const timeoutId = timeout ? window.setTimeout(reject, timeout) : 0;
+      const timeoutId = timeout !== null ? window.setTimeout(reject, timeout) : 0;
 
-      const customEvent = new CustomEvent<AsyncCustomEventDetail<TEventData, TResolveData, TRejectReason>>(eventType, {
+      const customEvent = new CustomEvent<
+        AsyncCustomEventDetail<TEventData, TResolveData, TRejectReason>
+      >(eventType, {
         detail: {
           eventData: eventData,
           onResolve: (data: TResolveData) => {

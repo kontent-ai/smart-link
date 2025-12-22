@@ -1,8 +1,8 @@
-import { expect, it, describe, beforeEach, afterEach } from 'vitest';
-import { KontentSmartLink } from '../src';
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { KontentSmartLink } from "../src";
 
-describe('plugin.ts', () => {
-  describe('PluginWrapper', () => {
+describe("plugin.ts", () => {
+  describe("PluginWrapper", () => {
     let pluginWrapper: KontentSmartLink;
 
     beforeEach(() => {
@@ -13,12 +13,12 @@ describe('plugin.ts', () => {
       pluginWrapper.destroy();
     });
 
-    it('should have only one instance', () => {
+    it("should have only one instance", () => {
       const newPluginWrapper = KontentSmartLink.initialize();
       expect(newPluginWrapper).toBe(pluginWrapper);
     });
 
-    it('should destroy plugin instance when destroy is called', () => {
+    it("should destroy plugin instance when destroy is called", () => {
       pluginWrapper.destroy();
       expect(pluginWrapper.setConfiguration).toThrowError();
     });

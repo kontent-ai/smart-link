@@ -1,0 +1,19 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.0.x/schema.json",
+  "extends": ["@kontent-ai/biome-config/base", "@kontent-ai/biome-config/react"],
+  "files": {
+    "includes": [
+      "src/**/*.ts",
+      "src/**/*.tsx",
+      "test-browser/**/*.ts",
+      "test-components/**/*.tsx, test-components/**/*.ts"
+    ]
+  },
+  "linter": {
+    "rules": {
+      "correctness": {
+        "useImportExtensions": "off"
+      }
+    }
+  }
+}
