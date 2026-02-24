@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => {
       minify: isProduction,
       outDir: "dist/bundles",
       lib: {
-        entry: path.resolve(__dirname, "src/index.ts"),
+        entry: path.resolve(import.meta.dirname, "src/index.ts"),
         name: "kontentSmartLink",
         formats: ["umd"],
         fileName: () => (isProduction ? `${libName}.min.js` : `${libName}.js`),
