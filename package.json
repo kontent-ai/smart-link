@@ -62,7 +62,7 @@
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.4",
-    "@vitest/browser": "^3.0.8",
+    "@vitest/browser-playwright": "^4.0.18",
     "eslint": "^9.39.1",
     "playwright": "^1.56.1",
     "react": "^19.0.0",
@@ -71,7 +71,7 @@
     "rollup-plugin-visualizer": "^5.14.0",
     "typescript": "5.8.2",
     "vite": "^7.3.1",
-    "vitest": "^3.0.8"
+    "vitest": "^4.0.18"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
