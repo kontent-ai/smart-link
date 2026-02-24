@@ -9,21 +9,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
       - name: Use Node.js from .nvmrc file
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: ".nvmrc"
           registry-url: 'https://registry.npmjs.org'
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
       - name: Publish (@latest)
-        run: npm publish --access public
+        run: pnpm publish --access public --no-git-checks
         if: ${{!github.event.release.prerelease}}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_API_KEY }}
       - name: Publish (@next)
-        run: npm publish --access public --tag next
+        run: pnpm publish --access public --tag next --no-git-checks
         if: ${{github.event.release.prerelease}}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_API_KEY }}

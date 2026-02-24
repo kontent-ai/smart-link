@@ -16,19 +16,19 @@
     "dist"
   ],
   "scripts": {
-    "build": "npm run build:commonjs && npm run build:umd && npm run build:es",
+    "build": "pnpm run build:commonjs && pnpm run build:umd && pnpm run build:es",
     "build:commonjs": "tsc -m commonjs --outDir dist/commonjs",
     "build:es": "tsc -m es2015 --outDir dist/es",
     "build:umd": "vite build",
     "clean": "rimraf dist",
     "lint": "eslint .",
-    "lint:fix": "npm run lint -- --fix",
+    "lint:fix": "pnpm run lint -- --fix",
     "biome": "biome format --write",
     "biome:check": "biome check",
     "biome:lint": "biome lint",
-    "prepare": "npm run clean && npm run build",
+    "prepare": "pnpm run clean && pnpm run build",
     "test:unit": "vitest",
-    "test:unit:ci": "npm run test:unit -- --run",
+    "test:unit:ci": "pnpm run test:unit -- --run",
     "test:visual": "playwright test -c ./playwright-ct.config.ts",
     "test:visual:ui": "playwright test -c ./playwright-ct.config.ts --ui"
   },
@@ -49,6 +49,7 @@
     "url": "https://github.com/kontent-ai/smart-link/issues"
   },
   "homepage": "https://github.com/kontent-ai/smart-link#readme",
+  "packageManager": "pnpm@10.6.2",
   "devDependencies": {
     "@babel/core": "7.26.10",
     "@biomejs/biome": "^2.3.4",
@@ -71,5 +72,10 @@
     "typescript": "5.8.2",
     "vite": "^6.4.1",
     "vitest": "^3.0.8"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   }
 }

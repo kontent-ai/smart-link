@@ -48,12 +48,12 @@ create a direct bridge to the Kontent.ai CMS. This allows content creators and e
 
 ## Installation
 
-You can install this library using `npm` or using global CDNs such as `jsdelivr`.
+You can install this library using `pnpm` or using global CDNs such as `jsdelivr`.
 
-### npm
+### pnpm
 
 ```
-npm i @kontent-ai/smart-link --save
+pnpm add @kontent-ai/smart-link
 ```
 
 ### jsdelivr
@@ -880,15 +880,15 @@ export default PageWithAutoRefresh;
 ### Unit tests
 
 Since this SDK highly depends on browser APIs, the unit tests are run by [Vitest Browser](https://vitest.dev/guide/browser/) inside Chrome
-browser. To run all tests in a watch mode you can use the `npm run test:unit` command. To run all tests only once you
-can use the `npm run test:unit:ci` command. All unit tests are located in the `test-browser` folder.
+browser. To run all tests in a watch mode you can use the `pnpm run test:unit` command. To run all tests only once you
+can use the `pnpm run test:unit:ci` command. All unit tests are located in the `test-browser` folder.
 
 ### Visual regression tests
 
-Visual regression testing is implemented using [Playwright Components](https://playwright.dev/docs/test-components). Pre-built components are available into which Smart-Link loads. After the component is mounted, Playwright performs a screenshot test of the component. 
+Visual regression testing is implemented using [Playwright Components](https://playwright.dev/docs/test-components). Pre-built components are available into which Smart-Link loads. After the component is mounted, Playwright performs a screenshot test of the component.
 
-To run Visual Regression tests use `npm run test:visual` command. Or you can use
-the `npm run test:visual:ci` to start tests in a UI mode.
+To run Visual Regression tests use `pnpm run test:visual` command. Or you can use
+the `pnpm run test:visual:ci` to start tests in a UI mode.
 
 > [!NOTE]
 > Visual regression tests use the built version of SDK, so before running them make sure you rebuild the SDK after the last changes you made.
