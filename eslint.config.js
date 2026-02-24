@@ -2,7 +2,7 @@ import kontentAiConfig from "@kontent-ai/eslint-config";
 import { defineConfig, globalIgnores } from "eslint/config";
 
 export default defineConfig([
-  globalIgnores(["dist", "node_modules", "playwright"]),
+  globalIgnores(["dist", "node_modules", "playwright", "commonjs", "es", "coverage"]),
   {
     extends: [kontentAiConfig],
     files: ["src/**/*.ts", "src/**/*.tsx", "test-browser/**/*.ts", "test-components/**/*.tsx"],
