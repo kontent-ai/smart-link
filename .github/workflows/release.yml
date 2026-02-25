@@ -4,6 +4,10 @@ on:
   release:
     types: [published]
 
+permissions:
+  # Required for OIDC publishing
+  id-token: write
+
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -21,10 +25,6 @@ jobs:
       - name: Publish (@latest)
         run: pnpm publish --access public --no-git-checks
         if: ${{!github.event.release.prerelease}}
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_API_KEY }}
       - name: Publish (@next)
         run: pnpm publish --access public --tag next --no-git-checks
         if: ${{github.event.release.prerelease}}
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_API_KEY }}
