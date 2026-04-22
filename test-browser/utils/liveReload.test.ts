@@ -130,7 +130,7 @@ const system: IContentItem["system"] = {
             ...item.elements.date,
             value: new Date(1378, 10, 29).toISOString(),
             displayTimeZone: "Europe/Oslo",
-          } as Elements.DateTimeElement,
+          },
           custom: { ...item.elements.custom, value: "new custom value" },
         },
       });
@@ -224,7 +224,7 @@ const system: IContentItem["system"] = {
           linked: {
             ...item.elements.linked,
             linkedItems: [updatedInnerItem],
-          } as Elements.LinkedItemsElement,
+          },
           rich: {
             ...item.elements.rich,
             linkedItems: [updatedInnerItem],
@@ -373,7 +373,7 @@ const system: IContentItem["system"] = {
             name: "linked items element",
             value: ["item2"],
             linkedItems: [],
-          } as Elements.LinkedItemsElement,
+          },
           el2: {
             type: ElementType.Text,
             name: "text element",
@@ -390,7 +390,7 @@ const system: IContentItem["system"] = {
             name: "linked items element",
             value: [system.codename],
             linkedItems: [item],
-          } as Elements.LinkedItemsElement,
+          },
         },
       };
 
@@ -430,7 +430,7 @@ const system: IContentItem["system"] = {
             name: "linked items element",
             value: ["item2"],
             linkedItems: [],
-          } as Elements.LinkedItemsElement,
+          },
         },
       };
 
@@ -442,7 +442,7 @@ const system: IContentItem["system"] = {
             name: "linked items element",
             value: [system.codename],
             linkedItems: [item],
-          } as Elements.LinkedItemsElement,
+          },
         },
       };
 
@@ -556,7 +556,7 @@ describe("applyUpdateOnItemAndLoadLinkedItems", () => {
       ...item.elements.linked,
       value: [addedItemLinkedItems.system.codename],
       linkedItems: [addedItemLinkedItems],
-    } as Elements.LinkedItemsElement);
+    });
 
     expect(result.elements.rich).toEqual({
       ...item.elements.rich,
