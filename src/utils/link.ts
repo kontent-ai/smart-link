@@ -1,7 +1,10 @@
+import { defaultConfiguration } from "./configuration";
+
 export type BuildItemLinkParams = {
   environmentId: string;
   languageCodename: string;
   itemId: string;
+  baseUrl?: string;
 };
 
 export type BuildElementLinkParams = {
@@ -9,6 +12,7 @@ export type BuildElementLinkParams = {
   languageCodename: string;
   itemId: string;
   elementCodename: string;
+  baseUrl?: string;
 };
 
 export type BuildComponentElementLinkParams = {
@@ -17,6 +21,7 @@ export type BuildComponentElementLinkParams = {
   itemId: string;
   contentComponentId: string;
   componentElementCodename: string;
+  baseUrl?: string;
 };
 
 export type BuildKontentElementLinkParams =
@@ -27,11 +32,12 @@ export type BuildKontentElementLinkParams =
  * Builds a URL that opens the specified content item in the Kontent.ai web application editor.
  */
 export function buildKontentItemLink(params: BuildItemLinkParams): string {
-  return `https://app.kontent.ai/goto/edit-item/project/${params.environmentId}/variant-codename/${params.languageCodename}/item/${params.itemId}`;
+  const baseUrl = params.baseUrl ?? defaultConfiguration.baseUrl;
+  return `https://app.${baseUrl}/goto/edit-item/project/${params.environmentId}/variant-codename/${params.languageCodename}/item/${params.itemId}`;
 }
 
 function buildElementLink(params: BuildElementLinkParams): string {
-  return `${buildKontentItemLink({ environmentId: params.environmentId, languageCodename: params.languageCodename, itemId: params.itemId })}/element/${params.elementCodename}`;
+  return `${buildKontentItemLink({ environmentId: params.environmentId, languageCodename: params.languageCodename, itemId: params.itemId, baseUrl: params.baseUrl })}/element/${params.elementCodename}`;
 }
 
 function buildComponentElementLink(params: BuildComponentElementLinkParams): string {
@@ -39,6 +45,7 @@ function buildComponentElementLink(params: BuildComponentElementLinkParams): str
     environmentId: params.environmentId,
     languageCodename: params.languageCodename,
     itemId: params.itemId,
+    baseUrl: params.baseUrl,
   })}/component/${params.contentComponentId}/element/${params.componentElementCodename}`;
 }
 
@@ -55,11 +62,13 @@ export function buildKontentElementLink(data: BuildKontentElementLinkParams): st
         itemId: data.itemId,
         contentComponentId: data.contentComponentId,
         componentElementCodename: data.componentElementCodename,
+        baseUrl: data.baseUrl,
       })
     : buildElementLink({
         environmentId: data.environmentId,
         languageCodename: data.languageCodename,
         itemId: data.itemId,
         elementCodename: data.elementCodename,
+        baseUrl: data.baseUrl,
       });
 }

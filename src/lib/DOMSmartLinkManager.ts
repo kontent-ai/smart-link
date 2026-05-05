@@ -270,6 +270,7 @@ export class DOMSmartLinkManager {
           languageCodename: validationResult.data.languageCodename,
           itemId: validationResult.data.itemId,
           elementCodename: validationResult.data.elementCodename,
+          baseUrl: this.configuration.baseUrl,
         });
         window.open(link, "_blank");
       }
@@ -294,6 +295,7 @@ export class DOMSmartLinkManager {
         environmentId: validationResult.data.projectId,
         languageCodename: validationResult.data.languageCodename,
         itemId: validationResult.data.itemId,
+        baseUrl: this.configuration.baseUrl,
       });
       window.open(link, "_blank");
     }

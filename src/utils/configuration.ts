@@ -20,6 +20,12 @@ export type KSLPublicConfiguration = Readonly<{
    * outside Web Spotlight.
    */
   queryParam: string;
+  /**
+   * Bare domain of the Kontent.ai web application used when redirecting to the editor
+   * (no scheme, no `app.` prefix, no leading dot). For example: `"kontent.ai"` or
+   * `"devkontentmasters.com"`. The SDK always builds URLs as `https://app.${baseUrl}/goto/...`.
+   */
+  baseUrl: string;
 }>;
 
 export type KSLPrivateConfiguration = Readonly<{
@@ -45,6 +51,7 @@ export const defaultConfiguration: KSLConfiguration = {
   forceWebSpotlightMode: false,
   isInsideWebSpotlight: false,
   queryParam: "ksl-enabled",
+  baseUrl: "kontent.ai",
 } as const;
 
 export function isInsideWebSpotlightPreviewIFrame(configuration: KSLConfiguration): boolean {
