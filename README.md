@@ -332,6 +332,7 @@ Customize how the SDK operate on your preview website with optional configuratio
 | debug                 |                            false                            | Set to `true` to enable detailed logging, aiding in development and troubleshooting.                                                                                                                                                                                         
 | defaultDataAttributes | ```{ environmentId: undefined, languageCodename: undefined }``` | Define default values for essential data attributes to streamline setup.                                                                                                                                                                                                                                                                                       |
 | queryParam            |                        `ksl-enabled`                        | Name of the query parameter that must be present in the URL to turn the smart link injection on. Only the presence of this query parameter is checked. Query parameter is only used outside Live Preview. |
+| baseUrl               |                        `kontent.ai`                         | Bare domain of the Kontent.ai web application used when redirecting to the editor. Provide only the domain (no scheme, no `app.` prefix, no leading dot) — for example `kontent.ai` or `devkontentmasters.com`. The SDK always builds editor URLs as `https://app.${baseUrl}/goto/...`. |
 
 </details>
 
