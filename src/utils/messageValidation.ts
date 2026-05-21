@@ -1,5 +1,7 @@
 import {
+  AddButtonElementType,
   type IAddButtonInitialMessageData,
+  type IAddButtonPermissionsServerModel,
   type IContentComponentClickedMessageData,
   type IContentItemClickedMessageData,
   type IElementClickedMessageData,
@@ -261,6 +263,36 @@ export function validateAddInitialMessageData(
     },
   };
 }
+
+const isAddButtonElementType = (value: unknown): value is AddButtonElementType =>
+  typeof value === "string" &&
+  (Object.values(AddButtonElementType) as ReadonlyArray<string>).includes(value);
+
+/**
+ * Validates the add-button permissions response received over postMessage.
+ * The data crosses a trust boundary (no enforced origin), so its declared type
+ * is not guaranteed at runtime - returns null for any unexpected shape.
+ */
+export const parseAddButtonPermissionsResponse = (
+  response: unknown,
+): IAddButtonPermissionsServerModel | null => {
+  if (typeof response !== "object" || response === null) {
+    return null;
+  }
+
+  const { elementType, isParentPublished, permissions } =
+    response as Partial<IAddButtonPermissionsServerModel>;
+
+  if (
+    !isAddButtonElementType(elementType) ||
+    typeof isParentPublished !== "boolean" ||
+    !(permissions instanceof Map)
+  ) {
+    return null;
+  }
+
+  return { elementType, isParentPublished, permissions };
+};
 
 const printDebugData = (debugData: ParseResult["debugData"], message: string) => {
   logGroupCollapsed(message);

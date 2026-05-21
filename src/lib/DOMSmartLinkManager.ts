@@ -3,6 +3,7 @@ import { getAugmentableDescendants, isElementAugmentable } from "../utils/custom
 import { InvalidEnvironmentError } from "../utils/errors";
 import { buildKontentElementLink, buildKontentItemLink } from "../utils/link";
 import {
+  parseAddButtonPermissionsResponse,
   validateAddInitialMessageData,
   validateEditButtonMessageData,
 } from "../utils/messageValidation";
@@ -334,9 +335,9 @@ export class DOMSmartLinkManager {
     this.iframeCommunicator.sendMessageWithResponse(
       IFrameMessageType.AddInitial,
       messageDataValidation.data,
-      (response?: IAddButtonPermissionsServerModel) => {
+      (rawResponse?: IAddButtonPermissionsServerModel) => {
+        const response = parseAddButtonPermissionsResponse(rawResponse);
         if (!response || response.elementType === AddButtonElementType.Unknown) {
-          console.log("response", JSON.stringify(response));
           return onReject({ message: "Something went wrong" });
         }
 

@@ -14,7 +14,7 @@ import type { AsyncCustomEvent } from "../utils/events";
 import { ElementPositionOffset, KSLPositionedElement } from "./abstract/KSLPositionedElement";
 import { ButtonType, KSLButtonElement } from "./KSLButtonElement";
 import { KSLContainerElement } from "./KSLContainerElement";
-import { IconName } from "./KSLIconElement";
+import { IconName, KSLIconElement } from "./KSLIconElement";
 import { KSLPopoverElement } from "./KSLPopoverElement";
 import { BaseZIndex } from "./tokens/zIndex";
 
@@ -64,57 +64,88 @@ declare global {
   }
 }
 
-const getPopoverHtml = ({
+const popoverStyles = `
+  .ksl-add-button__popover-button + .ksl-add-button__popover-button {
+    margin-left: 4px;
+  }
+`;
+
+interface PopoverButtonConfig {
+  readonly id: PopoverButtonId;
+  readonly iconName: IconName;
+  readonly tooltipMessage: string;
+  readonly isDisabled: boolean;
+  readonly isHidden: boolean;
+}
+
+// setAttribute/toggleAttribute set literal attribute values and never parse
+// markup, so the popover is built without an innerHTML sink that response data
+// could escape from.
+const createPopoverButton = (config: PopoverButtonConfig): HTMLElement => {
+  const button = document.createElement(KSLButtonElement.is);
+
+  button.setAttribute("id", config.id);
+  button.setAttribute("class", "ksl-add-button__popover-button");
+  button.setAttribute("type", ButtonType.Quinary);
+  button.setAttribute("tooltip-position", ElementPositionOffset.Top);
+  button.setAttribute("tooltip-message", config.tooltipMessage);
+  button.toggleAttribute("disabled", config.isDisabled);
+  button.toggleAttribute("hidden", config.isHidden);
+
+  const icon = document.createElement(KSLIconElement.is);
+  icon.setAttribute("icon-name", config.iconName);
+  button.appendChild(icon);
+
+  return button;
+};
+
+const createPopoverContent = ({
   elementType,
   isParentPublished,
   permissions,
-}: IAddButtonPermissionsServerModel) => {
+}: IAddButtonPermissionsServerModel): DocumentFragment => {
   const canUserCreateLinkedItem =
     permissions.get(AddButtonPermission.CreateNew) === AddButtonPermissionCheckResult.Ok;
 
-  return `
-    <style>
-    .ksl-add-button__popover-button + .ksl-add-button__popover-button {
-      margin-left: 4px;
-    }
-  </style>
-  <ksl-button
-    id="${PopoverButtonId.InsertLinkedItem}"
-    class="ksl-add-button__popover-button"
-    type="${ButtonType.Quinary}"
-    tooltip-position="${ElementPositionOffset.Top}"
-    tooltip-message="${isParentPublished ? ContentIsPublishedTooltip : "Insert existing item"}"
-    ${isParentPublished && "disabled"}
-  >
-    <ksl-icon icon-name="${IconName.Puzzle}"/>
-  </ksl-button>
-  <ksl-button
-    id="${PopoverButtonId.CreateLinkedItem}"
-    class="ksl-add-button__popover-button"
-    type="${ButtonType.Quinary}"
-    tooltip-position="${ElementPositionOffset.Top}"
-    tooltip-message="${
-      isParentPublished
+  const fragment = document.createDocumentFragment();
+
+  const style = document.createElement("style");
+  style.textContent = popoverStyles;
+  fragment.appendChild(style);
+
+  fragment.appendChild(
+    createPopoverButton({
+      id: PopoverButtonId.InsertLinkedItem,
+      iconName: IconName.Puzzle,
+      tooltipMessage: isParentPublished ? ContentIsPublishedTooltip : "Insert existing item",
+      isDisabled: isParentPublished,
+      isHidden: false,
+    }),
+  );
+
+  fragment.appendChild(
+    createPopoverButton({
+      id: PopoverButtonId.CreateLinkedItem,
+      iconName: IconName.PlusPuzzle,
+      tooltipMessage: isParentPublished
         ? ContentIsPublishedTooltip
-        : getCreateLinkedItemTooltip(canUserCreateLinkedItem)
-    }"
-    ${(isParentPublished || !canUserCreateLinkedItem) && "disabled"}
-    ${elementType !== AddButtonElementType.LinkedItems && "hidden"}
-  >
-    <ksl-icon icon-name="${IconName.PlusPuzzle}"/>
-  </ksl-button>
-  <ksl-button
-    id="${PopoverButtonId.CreateComponent}"
-    class="ksl-add-button__popover-button"
-    type="${ButtonType.Quinary}"
-    tooltip-position="${ElementPositionOffset.Top}"
-    tooltip-message="${isParentPublished ? ContentIsPublishedTooltip : "Insert new component"}"
-    ${isParentPublished && "disabled"}
-    ${elementType !== AddButtonElementType.RichText && "hidden"}
-  >
-    <ksl-icon icon-name="${IconName.CollapseScheme}"/>
-  </ksl-button>
-`;
+        : getCreateLinkedItemTooltip(canUserCreateLinkedItem),
+      isDisabled: isParentPublished || !canUserCreateLinkedItem,
+      isHidden: elementType !== AddButtonElementType.LinkedItems,
+    }),
+  );
+
+  fragment.appendChild(
+    createPopoverButton({
+      id: PopoverButtonId.CreateComponent,
+      iconName: IconName.CollapseScheme,
+      tooltipMessage: isParentPublished ? ContentIsPublishedTooltip : "Insert new component",
+      isDisabled: isParentPublished,
+      isHidden: elementType !== AddButtonElementType.RichText,
+    }),
+  );
+
+  return fragment;
 };
 
 const templateHTML = `
@@ -336,7 +367,7 @@ export class KSLAddButtonElement extends KSLPositionedElement {
     this.buttonRef.tooltipPosition = ElementPositionOffset.Bottom;
 
     const popover = document.createElement(KSLPopoverElement.is);
-    popover.innerHTML = getPopoverHtml(response);
+    popover.appendChild(createPopoverContent(response));
 
     const popoverParent = this.shadowRoot;
 
