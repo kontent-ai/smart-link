@@ -26,6 +26,16 @@ export type KSLPublicConfiguration = Readonly<{
    * `"devkontentmasters.com"`. The SDK always builds URLs as `https://app.${baseUrl}/goto/...`.
    */
   baseUrl: string;
+  /**
+   * Origin that is trusted for iframe (postMessage) communication with Web Spotlight.
+   * It is used both to validate incoming messages (messages from any other origin are
+   * ignored) and as the target origin for outgoing messages. Must be a full origin
+   * (scheme + host, no trailing slash), e.g. `"https://app.kontent.ai"`.
+   *
+   * Defaults to `https://app.${baseUrl}`. Only needs to be set in nested-iframe setups,
+   * where it should be the origin of the intermediate iframe that relays the messages.
+   */
+  webSpotlightOrigin?: string;
 }>;
 
 export type KSLPrivateConfiguration = Readonly<{
@@ -58,4 +68,12 @@ export function isInsideWebSpotlightPreviewIFrame(configuration: KSLConfiguratio
   return (
     configuration.forceWebSpotlightMode || (isInsideIFrame() && configuration.isInsideWebSpotlight)
   );
+}
+
+/**
+ * Resolves the origin that is trusted for iframe (postMessage) communication with
+ * Web Spotlight. Falls back to `https://app.${baseUrl}` when not explicitly configured.
+ */
+export function getWebSpotlightOrigin(configuration: KSLConfiguration): string {
+  return configuration.webSpotlightOrigin ?? `https://app.${configuration.baseUrl}`;
 }

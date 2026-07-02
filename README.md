@@ -333,8 +333,12 @@ Customize how the SDK operate on your preview website with optional configuratio
 | defaultDataAttributes | ```{ environmentId: undefined, languageCodename: undefined }``` | Define default values for essential data attributes to streamline setup.                                                                                                                                                                                                                                                                                       |
 | queryParam            |                        `ksl-enabled`                        | Name of the query parameter that must be present in the URL to turn the smart link injection on. Only the presence of this query parameter is checked. Query parameter is only used outside Live Preview. |
 | baseUrl               |                        `kontent.ai`                         | Bare domain of the Kontent.ai web application used when redirecting to the editor. Provide only the domain (no scheme, no `app.` prefix, no leading dot) — for example `kontent.ai` or `devkontentmasters.com`. The SDK always builds editor URLs as `https://app.${baseUrl}/goto/...`. |
+| webSpotlightOrigin    |               `https://app.${baseUrl}`                      | Origin trusted for iframe (`postMessage`) communication with Web Spotlight. Incoming messages from any other origin are ignored, and it is used as the target origin for outgoing messages. Must be a full origin (scheme + host, no trailing slash), e.g. `https://app.kontent.ai`. You only need to set this for [nested iframe](#nested-iframes) setups, where it must be the origin of the intermediate iframe that relays the messages. |
 
 </details>
+
+> [!NOTE]
+> The SDK only accepts and sends Web Spotlight `postMessage` communication to the `webSpotlightOrigin` (Web Spotlight by default). As additional defense-in-depth, we recommend serving your preview pages with a `Content-Security-Policy: frame-ancestors https://app.kontent.ai` header so they can only be framed by Web Spotlight.
 
 
 ### Preview autorefresh in Live Preview
@@ -464,8 +468,15 @@ These styles can be applied globally using the :root selector or scoped to speci
 
 ### Nested iframes
 
-In scenarios where your content is displayed within nested iframes (e.g. to simulate different device resolutions, or to handle redirects to the right preview website based on the item), the SDK's initialization messages may not reach the top-level Live Preview iframe directly, affecting functionality. To address this, follow the guidance provided
-in [this issue](https://github.com/kontent-ai/smart-link/issues/16).
+In scenarios where your content is displayed within nested iframes (e.g. to simulate different device resolutions, or to handle redirects to the right preview website based on the item), the SDK's initialization messages may not reach the top-level Live Preview iframe directly, affecting functionality.
+
+Because the SDK validates the origin of iframe messages, in a nested setup the SDK's direct parent is the intermediate (relaying) iframe rather than Web Spotlight. Set the [`webSpotlightOrigin`](#configuration) option to the origin of that intermediate iframe so the SDK trusts and targets it correctly:
+
+```ts
+const instance = KontentSmartLink.initialize({ webSpotlightOrigin: "https://your-wrapper-origin.example.com" });
+```
+
+For a full example of the relaying (middleware) page that forwards messages between Web Spotlight and the inner iframe, see [SDK doesn't work as expected inside embedded iframe](TROUBLESHOOTING.md#sdk-doesnt-work-as-expected-inside-embedded-iframe-on-the-preview-website) in the troubleshooting guide.
 
 ### SameSite cookie in Next.js app
 

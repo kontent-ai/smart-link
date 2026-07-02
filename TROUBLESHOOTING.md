@@ -26,10 +26,25 @@ features:
 - custom refresh handler won't work;
 - Kontent item editor will be opened instead of the in-context editor.
 
-A possible workaround to this approach would be for your preview website to act as a middleware for exchanging messages 
+A possible workaround to this approach would be for your preview website to act as a middleware for exchanging messages
 between Kontent and the SDK iframe.
 
+Because the SDK validates the origin of iframe messages, the SDK's direct parent in this setup is the middleware page
+rather than Web Spotlight. Set the [`webSpotlightOrigin`](README.md#configuration) option on the SDK (inside the inner
+iframe) to the origin of the middleware page:
+
 ```js
+KontentSmartLink.initialize({ webSpotlightOrigin: 'https://your-middleware-origin.example.com' });
+```
+
+The middleware then relays messages between Web Spotlight and the inner iframe. Validate the origin and source of every
+message and pin the target origin when forwarding, never `'*'` — otherwise a malicious page framing your middleware
+could read Web Spotlight data or inject messages into the SDK.
+
+```js
+const WEB_SPOTLIGHT_ORIGIN = 'https://app.kontent.ai';
+const INNER_IFRAME_ORIGIN = 'https://your-inner-iframe-origin.example.com';
+
 window.addEventListener('message', onMessage);
 
 function onMessage(event) {
@@ -40,24 +55,25 @@ function onMessage(event) {
     return;
   }
 
-  const isInsideIFrame = window.self !== window.parent;
   const message = event.data;
 
-  if (isInsideIFrame) {
-    // The iframe variable has a reference to the iframe element.
-    // You don't have to use document.querySelector here, for example,
-    // in React you can use `useRef` hook to save the reference and then 
-    // use it here, in Vue you can use `$refs`, etc.
-    const iframe = document.querySelector('#your-inner-iframe-id');
-    const isMessageGoingUpwards = event.source === iframe.contentWindow;
+  // The iframe variable has a reference to the iframe element.
+  // You don't have to use document.querySelector here, for example,
+  // in React you can use `useRef` hook to save the reference and then
+  // use it here, in Vue you can use `$refs`, etc.
+  const iframe = document.querySelector('#your-inner-iframe-id');
 
-    if (isMessageGoingUpwards) {
-      // resend this message to the parent window
-      window.parent.postMessage(message, '*');
-    } else {
-      // resend this message to the iframe
-      iframe.contentWindow.postMessage(message, '*');
-    }
+  const isFromInnerIframe =
+    event.source === iframe.contentWindow && event.origin === INNER_IFRAME_ORIGIN;
+  const isFromWebSpotlight =
+    event.source === window.parent && event.origin === WEB_SPOTLIGHT_ORIGIN;
+
+  if (isFromInnerIframe) {
+    // inner iframe -> Web Spotlight
+    window.parent.postMessage(message, WEB_SPOTLIGHT_ORIGIN);
+  } else if (isFromWebSpotlight) {
+    // Web Spotlight -> inner iframe
+    iframe.contentWindow.postMessage(message, INNER_IFRAME_ORIGIN);
   }
 }
 ```
