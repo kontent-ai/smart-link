@@ -58,7 +58,7 @@ class KontentSmartLinkSDK {
     this.configuration = { ...this.configuration, ...configuration };
     this.events = new Map();
 
-    this.iframeCommunicator = new IFrameCommunicator();
+    this.iframeCommunicator = new IFrameCommunicator(this.configuration);
 
     this.domSmartLinkManager = new DOMSmartLinkManager(this.iframeCommunicator, this.configuration);
 

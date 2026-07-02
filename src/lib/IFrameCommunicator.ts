@@ -1,3 +1,4 @@
+import { getWebSpotlightOrigin, type KSLConfiguration } from "../utils/configuration";
 import { InvalidEnvironmentError } from "../utils/errors";
 import {
   addListener,
@@ -65,6 +66,8 @@ export class IFrameCommunicator {
   // biome-ignore lint/suspicious/noExplicitAny: Callbacks for different requestIds have different payload types; the map cannot preserve per-key generics, so the type is intentionally erased here.
   private readonly callbacks: Map<string, Callback<any>> = new Map();
 
+  constructor(private readonly configuration: KSLConfiguration) {}
+
   public initialize(): void {
     // window === undefined crashes
     if (typeof window === "undefined") {
@@ -109,7 +112,7 @@ export class IFrameCommunicator {
     }
 
     const message: IFrameMessage<M> = { type, data, metadata, requestId };
-    window.parent.postMessage(message, "*");
+    window.parent.postMessage(message, getWebSpotlightOrigin(this.configuration));
   };
 
   public addMessageListener = <M extends keyof IFrameMessageMap>(
@@ -128,6 +131,17 @@ export class IFrameCommunicator {
 
   private onMessage = (event: MessageEvent): void => {
     if (event.data === undefined) {
+      return;
+    }
+
+    // Only trust messages coming from the configured Web Spotlight origin and from the
+    // direct parent window. This prevents any other framing/opening page from driving the
+    // SDK or receiving responses (e.g. the current preview URL).
+    if (event.origin !== getWebSpotlightOrigin(this.configuration)) {
+      return;
+    }
+
+    if (event.source !== window.parent) {
       return;
     }
 
