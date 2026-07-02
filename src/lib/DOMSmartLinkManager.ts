@@ -272,7 +272,7 @@ export class DOMSmartLinkManager {
           elementCodename: validationResult.data.elementCodename,
           baseUrl: this.configuration.baseUrl,
         });
-        window.open(link, "_blank");
+        window.open(link, "_blank", "noopener");
       }
     } else if (validationResult.type === "contentComponent") {
       if (isInsideWebSpotlight) {
@@ -297,7 +297,7 @@ export class DOMSmartLinkManager {
         itemId: validationResult.data.itemId,
         baseUrl: this.configuration.baseUrl,
       });
-      window.open(link, "_blank");
+      window.open(link, "_blank", "noopener");
     }
   };
 
@@ -309,8 +309,6 @@ export class DOMSmartLinkManager {
     const messageMetadata: IClickedMessageMetadata = {
       elementRect: targetNode.getBoundingClientRect(),
     };
-
-    console.log("data", data);
 
     const messageDataValidation = validateAddInitialMessageData(data, this.configuration);
 
@@ -336,7 +334,6 @@ export class DOMSmartLinkManager {
       messageDataValidation.data,
       (response?: IAddButtonPermissionsServerModel) => {
         if (!response || response.elementType === AddButtonElementType.Unknown) {
-          console.log("response", JSON.stringify(response));
           return onReject({ message: "Something went wrong" });
         }
 
