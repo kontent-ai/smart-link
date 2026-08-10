@@ -278,7 +278,7 @@ Add buttons let editors insert new linked items/components directly in the previ
 ```
 
 > [!NOTE]
-> For a demonstration of Smart Link buttons, check out the [samples/smartlink.html](./samples/smartlink.html) file in this repository which showcases different button types and positions.
+> For a demonstration of Smart Link buttons, check out the [samples/index.html](./samples/index.html) file in this repository which showcases different button types and positions. It is also deployed to GitHub Pages at <https://kontent-ai.github.io/smart-link/>.
 
 ## SDK initialization
 
