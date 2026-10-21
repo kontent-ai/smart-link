@@ -53,7 +53,7 @@
     "@babel/core": "7.29.7",
     "@biomejs/biome": "^2.3.4",
     "@kontent-ai/biome-config": "^0.7.0",
-    "@kontent-ai/delivery-sdk": "^16.4.6",
+    "@kontent-ai/delivery-sdk": "^16.4.8",
     "@kontent-ai/eslint-config": "^3.0.0",
     "@playwright/experimental-ct-react": "^1.61.1",
     "@playwright/test": "^1.61.1",
@@ -61,7 +61,7 @@
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.2.0",
-    "@vitest/browser-playwright": "^4.1.10",
+    "@vitest/browser-playwright": "^4.1.12",
     "eslint": "^10.8.0",
     "playwright": "^1.61.1",
     "react": "^19.2.8",
@@ -69,8 +69,8 @@
     "rimraf": "6.1.3",
     "rollup-plugin-visualizer": "^7.0.1",
     "typescript": "5.8.2",
-    "vite": "^7.3.6",
-    "vitest": "^4.1.10"
+    "vite": "^7.3.7",
+    "vitest": "^4.1.12"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
