@@ -146,14 +146,17 @@ function applyPatternToParsedValues(
   return result;
 }
 
-export const parseDataAttributes = (
-  pattern: DataAttributesParserPattern,
-  element: HTMLElement | null,
-): ParseResult => {
-  if (!element || pattern.length === 0) {
-    return { parsed: {}, debugData: [] };
-  }
+type ParsedElement = Readonly<{
+  element: HTMLElement;
+  parsedValues: ReadonlyArray<ParseTokenResultInternal>;
+  result: ReadonlyArray<{ token: ParserTokenKey; value: string; dataAttribute: DataAttribute }>;
+  remainingPattern: DataAttributesParserPattern;
+}>;
 
+const parseElement = (
+  pattern: DataAttributesParserPattern,
+  element: HTMLElement,
+): ParsedElement => {
   const parsedValues = Object.values(DataAttribute)
     .map((a) => {
       const value = element.getAttribute(a);
@@ -164,44 +167,67 @@ export const parseDataAttributes = (
   const result = applyPatternToParsedValues(pattern, parsedValues);
 
   const lastFoundTokenIndex = pattern.findIndex((p) => p.key === result.at(-1)?.token);
-  const newPattern = pattern.slice(lastFoundTokenIndex + 1);
-
-  const parentResult = parseDataAttributes(newPattern, element.parentElement);
 
   return {
-    parsed: {
-      ...Object.fromEntries(result.map((r) => [r.token, r.value])),
-      ...parentResult.parsed,
-    },
-    debugData: [
-      ...parentResult.debugData,
-      ...(parsedValues.length > 0
-        ? [
-            {
-              element,
-              parsedAttributes: parsedValues
-                .filter(
-                  (a) => result.find((r) => r.dataAttribute === a.dataAttribute) !== undefined,
-                )
-                .map((a) => ({
-                  token:
-                    result.find((r) => r.dataAttribute === a.dataAttribute)?.token ??
-                    throwError("[Parser]: Token not found"),
-                  dataAttribute: a.dataAttribute,
-                  value: a.value,
-                })),
-              skippedAttributes: parsedValues
-                .filter(
-                  (a) => result.find((r) => r.dataAttribute === a.dataAttribute) === undefined,
-                )
-                .map((a) => ({
-                  dataAttribute: a.dataAttribute,
-                  value: a.value,
-                })),
-            },
-          ]
-        : []),
-    ],
+    element,
+    parsedValues,
+    result,
+    remainingPattern: pattern.slice(lastFoundTokenIndex + 1),
+  };
+};
+
+const toDebugData = ({
+  element,
+  parsedValues,
+  result,
+}: ParsedElement): ParseResult["debugData"][number] => ({
+  element,
+  parsedAttributes: parsedValues
+    .filter((a) => result.find((r) => r.dataAttribute === a.dataAttribute) !== undefined)
+    .map((a) => ({
+      token:
+        result.find((r) => r.dataAttribute === a.dataAttribute)?.token ??
+        throwError("[Parser]: Token not found"),
+      dataAttribute: a.dataAttribute,
+      value: a.value,
+    })),
+  skippedAttributes: parsedValues
+    .filter((a) => result.find((r) => r.dataAttribute === a.dataAttribute) === undefined)
+    .map((a) => ({
+      dataAttribute: a.dataAttribute,
+      value: a.value,
+    })),
+});
+
+/**
+ * Walks from the element up to the root, each ancestor is parsed with the part of the pattern
+ * its descendants did not satisfy. Elements without data attributes leave the pattern unchanged,
+ * so they are not kept. Iterative on purpose, recursion would overflow the call stack on deeply nested DOM.
+ */
+export const parseDataAttributes = (
+  pattern: DataAttributesParserPattern,
+  element: HTMLElement | null,
+): ParseResult => {
+  const parsedElements: ParsedElement[] = [];
+  let remainingPattern = pattern;
+  let current = element;
+
+  while (current && remainingPattern.length > 0) {
+    const parsedElement = parseElement(remainingPattern, current);
+
+    if (parsedElement.parsedValues.length > 0) {
+      parsedElements.push(parsedElement);
+    }
+
+    remainingPattern = parsedElement.remainingPattern;
+    current = current.parentElement;
+  }
+
+  return {
+    parsed: Object.fromEntries(
+      parsedElements.flatMap((p) => p.result.map((r) => [r.token, r.value])),
+    ),
+    debugData: [...parsedElements].reverse().map(toDebugData),
   };
 };
 

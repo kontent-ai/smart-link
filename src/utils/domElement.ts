@@ -26,22 +26,32 @@ export function groupElementsByRenderingRoot(
  * (even if its content is clipped).
  */
 export function getRenderingRootForElement(element: HTMLElement): HTMLElement | null {
-  const parentElement = element.parentElement;
+  return getAncestors(element).find(isRenderingRoot) ?? null;
+}
 
-  if (!parentElement) {
-    return null;
-  }
-
-  const metadata = getRenderingRootMetadata(parentElement);
+function isRenderingRoot(element: HTMLElement): boolean {
+  const metadata = getRenderingRootMetadata(element);
 
   // Table HTML element (td, th, table) can be an offset parent of some node, but unless it is positioned it will not be
   // used as a offset parent for the absolute positioned child (highlight). That is why we should ignore those elements and
   // do not use them as parents unless they are positioned. Otherwise, the highlighting might broke for the tables.
-  const isNotTable = !["TD", "TH", "TABLE"].includes(parentElement.tagName);
+  const isNotTable = !["TD", "TH", "TABLE"].includes(element.tagName);
 
-  return metadata.isPositioned || (metadata.isContentClipped && isNotTable)
-    ? parentElement
-    : getRenderingRootForElement(parentElement);
+  return metadata.isPositioned || (metadata.isContentClipped && isNotTable);
+}
+
+/**
+ * Returns ancestors of the element ordered from the closest one to the root.
+ * Implemented as a loop on purpose, recursion would overflow the call stack on deeply nested DOM.
+ */
+export function getAncestors(element: HTMLElement): ReadonlyArray<HTMLElement> {
+  const ancestors: HTMLElement[] = [];
+
+  for (let ancestor = element.parentElement; ancestor; ancestor = ancestor.parentElement) {
+    ancestors.push(ancestor);
+  }
+
+  return ancestors;
 }
 
 export type RenderingRootMetadata = {
@@ -91,17 +101,18 @@ export function getTotalScrollOffset(node: HTMLElement | null): [number, number]
     return [0, 0];
   }
 
-  const calculateOffset = (currentNode: HTMLElement | null): [number, number] => {
-    if (offsetParent.isSameNode(currentNode) || !currentNode) {
-      return [0, 0];
-    }
+  const ancestors = getAncestors(node);
+  const offsetParentIndex = ancestors.findIndex((ancestor) => ancestor === offsetParent);
 
-    const [scrollTop, scrollLeft] = calculateOffset(currentNode.parentElement);
-
-    return [scrollTop + currentNode.scrollTop, scrollLeft + currentNode.scrollLeft];
-  };
-
-  return calculateOffset(node.parentElement);
+  return ancestors
+    .slice(0, offsetParentIndex === -1 ? ancestors.length : offsetParentIndex)
+    .reduce<[number, number]>(
+      ([scrollTop, scrollLeft], ancestor) => [
+        scrollTop + ancestor.scrollTop,
+        scrollLeft + ancestor.scrollLeft,
+      ],
+      [0, 0],
+    );
 }
 
 export function createTemplateForCustomElement(html: string): HTMLTemplateElement {
