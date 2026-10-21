@@ -83,5 +83,17 @@ describe("link.ts", () => {
         "https://app.devkontentmasters.com/goto/edit-item/project/700f98f2-d078-4c67-8d43-2fefccf24a21/variant-codename/en/item/117a5941-8c12-4636-a4f1-b016bc568b06",
       );
     });
+
+    it("should encode identifiers so they cannot alter the link path", () => {
+      const link = buildKontentItemLink({
+        environmentId: "700f98f2-d078-4c67-8d43-2fefccf24a21",
+        languageCodename: "en",
+        itemId: "a/b?c#d",
+      });
+
+      expect(link).toEqual(
+        "https://app.kontent.ai/goto/edit-item/project/700f98f2-d078-4c67-8d43-2fefccf24a21/variant-codename/en/item/a%2Fb%3Fc%23d",
+      );
+    });
   });
 });

@@ -33,11 +33,11 @@ export type BuildKontentElementLinkParams =
  */
 export function buildKontentItemLink(params: BuildItemLinkParams): string {
   const baseUrl = params.baseUrl ?? defaultConfiguration.baseUrl;
-  return `https://app.${baseUrl}/goto/edit-item/project/${params.environmentId}/variant-codename/${params.languageCodename}/item/${params.itemId}`;
+  return `https://app.${baseUrl}/goto/edit-item/project/${encodeURIComponent(params.environmentId)}/variant-codename/${encodeURIComponent(params.languageCodename)}/item/${encodeURIComponent(params.itemId)}`;
 }
 
 function buildElementLink(params: BuildElementLinkParams): string {
-  return `${buildKontentItemLink({ environmentId: params.environmentId, languageCodename: params.languageCodename, itemId: params.itemId, baseUrl: params.baseUrl })}/element/${params.elementCodename}`;
+  return `${buildKontentItemLink({ environmentId: params.environmentId, languageCodename: params.languageCodename, itemId: params.itemId, baseUrl: params.baseUrl })}/element/${encodeURIComponent(params.elementCodename)}`;
 }
 
 function buildComponentElementLink(params: BuildComponentElementLinkParams): string {
@@ -46,7 +46,7 @@ function buildComponentElementLink(params: BuildComponentElementLinkParams): str
     languageCodename: params.languageCodename,
     itemId: params.itemId,
     baseUrl: params.baseUrl,
-  })}/component/${params.contentComponentId}/element/${params.componentElementCodename}`;
+  })}/component/${encodeURIComponent(params.contentComponentId)}/element/${encodeURIComponent(params.componentElementCodename)}`;
 }
 
 /**
